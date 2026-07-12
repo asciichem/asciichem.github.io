@@ -1,0 +1,111 @@
+---
+import config from "virtual:starlight/user-config";
+
+import LanguageSelect from "virtual:starlight/components/LanguageSelect";
+import Search from "virtual:starlight/components/Search";
+import SiteTitle from "virtual:starlight/components/SiteTitle";
+import SocialIcons from "virtual:starlight/components/SocialIcons";
+import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+
+// AsciiChem top-level sections. Each label + href renders as a text
+// link between the site title and the right-side controls. Adding a
+// new top-level section is one entry here.
+const sections = [
+  { label: "Guides", href: "/guides/getting-started/" },
+  { label: "Syntax", href: "/syntax/" },
+  { label: "Model", href: "/model/" },
+  { label: "Reference", href: "/reference/round-trip/" },
+  { label: "Examples", href: "/examples/" },
+  { label: "About", href: "/about/" },
+  { label: "Blog", href: "/blog/" },
+];
+
+const shouldRenderSearch =
+  config.pagefind ||
+  config.components.Search !== "@astrojs/starlight/components/Search.astro";
+
+// Current path for active-link highlight (without trailing slash).
+const currentPath = Astro.url.pathname.replace(/\/[^/]*$/, "").replace(/^\//, "");
+const isActive = (href: string) => {
+  const section = href.replace(/^\//, "").replace(/\/.*$/, "");
+  return currentPath.startsWith(section);
+};
+---
+
+<div class="header">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle />
+  </div>
+  <nav class="top-nav sl-flex" aria-label="Primary">
+    {
+      sections.map((s) => (
+        <a
+          href={s.href}
+          class:list={["top-nav-link", { active: isActive(s.href) }]}
+        >
+          {s.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="right-group sl-flex print:hidden">
+    {shouldRenderSearch && <Search />}
+    <div class="sl-hidden md:sl-flex social-icons">
+      <SocialIcons />
+    </div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  .header {
+    display: flex;
+    gap: var(--sl-nav-gap);
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .top-nav {
+    display: none;
+    gap: 1.25rem;
+    align-items: center;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  @media (min-width: 50rem) {
+    .top-nav {
+      display: flex;
+    }
+  }
+
+  .top-nav-link {
+    color: var(--sl-color-text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .top-nav-link:hover {
+    color: var(--sl-color-text-accent);
+    background-color: var(--sl-color-gray-7, transparent);
+  }
+
+  .top-nav-link.active {
+    color: var(--sl-color-text-accent);
+    border-bottom: 2px solid var(--sl-color-text-accent);
+    border-radius: 0;
+  }
+
+  .right-group {
+    display: flex;
+    gap: var(--sl-nav-gap);
+    align-items: center;
+  }
+</style>
