@@ -1,0 +1,102 @@
+---
+title: Common formulae
+description: A library of chemistry formulae rendered live via the AsciiChem gem.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+# Common formulae
+
+Every block on this page is rendered at build time by invoking the
+`asciichem` gem. Source on the left; MathML output on the right. If you
+view the page source, you'll see the same is what you'd type.
+
+## Water and simple molecules
+
+```asciichem
+H_2O
+CO_2
+NaCl
+CH_4
+```
+
+## Acids and bases
+
+```asciichem
+HCl
+H_2SO_4
+HNO_3
+H_3PO_4
+NaOH
+Ca(OH)_2
+```
+
+## Ionic compounds
+
+```asciichem
+Na^+
+Cl^-
+SO_4^2-
+NO_3^-
+Ca^2+
+```
+
+## Isotopes — the headline semantic fix
+
+```asciichem
+^14C
+^131I
+^238U
+^3H
+```
+
+The prefix isotope binds to the atom. See [Atoms](/syntax/atoms/) for
+the full story.
+
+## Coordination complexes
+
+```asciichem
+[Fe(CN)_6]^4-
+[Co(NH_3)_6]^3+
+[PtCl_4]^2-
+```
+
+## Stoichiometric coefficients
+
+```asciichem
+2H_2O
+3H_2
+C_6H_12O_6
+```
+
+## Reactions
+
+```asciichem
+2H_2 + O_2 -> 2H_2O
+N_2 + 3H_2 <=>[Fe][400°C] 2NH_3
+CH_4 + 2O_2 -> CO_2 + 2H_2O
+```
+
+## Bonds in linear notation
+
+```asciichem
+H-O-H
+H_2C=CH_2
+HC#CH
+```
+
+## Electron configurations
+
+```asciichem
+1s^2 2s^2 2p^6
+1s^2 2s^2 2p^6 3s^2 3p^6 4s^2 3d^10
+```
+
+## Verify locally
+
+```bash
+gem install asciichem
+asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t mathml
+asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t latex
+asciichem roundtrip -i "2H_2 + O_2 -> 2H_2O"
+```
