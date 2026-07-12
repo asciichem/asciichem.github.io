@@ -1,0 +1,83 @@
+---
+title: ElectronConfiguration
+description: Orbital occupancy list plus optional term symbol.
+---
+
+# ElectronConfiguration
+
+An electron configuration is a list of `orbital / occupancy` pairs,
+plus an optional term symbol for total angular momentum state.
+
+## Fields
+
+| Field         | Type                  | Description                       |
+| ------------- | --------------------- | --------------------------------- |
+| `orbitals`    | Array of `[orbital, occ]` pairs | Pairs like `["1s", "2"]`          |
+| `term_symbol` | TermSymbol (optional) | Multiplicity / letter / J value   |
+
+The `TermSymbol` struct has `:multiplicity`, `:letter`, `:j_value`
+fields, all strings.
+
+## Diagram
+
+```
+       ┌─────────────────────────────────────┐
+       │       ElectronConfiguration         │
+       │                                     │
+       │   orbitals[0]  ("1s", "2")          │
+       │   orbitals[1]  ("2s", "2")          │
+       │   orbitals[2]  ("2p", "6")          │
+       │   ...                               │
+       │                                     │
+       │   term_symbol  (optional)           │
+       │     ├── multiplicity                │
+       │     ├── letter                      │
+       │     └── j_value                     │
+       └─────────────────────────────────────┘
+```
+
+## Grammar production
+
+```
+electron_config := (orbital "^" occupancy){2,}
+orbital := digits [spdfgh]
+occupancy := digits
+```
+
+Two or more `orbital^occupancy` pairs in sequence.
+
+## Term symbols (deferred)
+
+Term symbols (`^3P_2`) are first-class in the model but the v1 parser
+doesn't promote them from text. Use embedded math for now:
+
+`````asciichem
+`^3P_2`
+`````
+
+The model is ready for the grammar extension in v0.3+.
+
+## Formatter behaviour
+
+| Formatter | Each orbital |
+| --------- | ----------- |
+| MathML    | `<msup><mi>1s</mi><mn>2</mn></msup>` joined with non-breaking spaces |
+| Text      | `1s^2 2s^2 2p^6` |
+| HTML      | `1s<sup>2</sup>` joined with spaces |
+| LaTeX     | `\ce{1s^2 2s^2 2p^6}` |
+| SVG       | Linear ASCII |
+
+## Round-trip
+
+```ruby
+AsciiChem.parse("1s^2 2s^2").to_text                                # => "1s^2 2s^2"
+AsciiChem.parse("1s^2 2s^2 2p^6 3s^2 3p^6 4s^2 3d^10").to_text     # => same (zinc)
+```
+
+## What's not here
+
+- **Box notation** (orbital diagrams with up/down arrows) — needs SVG,
+  deferred to 2D structural support (TODO 18).
+- **Hund's rule validation** — out of scope for the parser; the
+  linter could add a HundCheck.
+- **Excited-state vs ground-state markers** — needs syntax design.

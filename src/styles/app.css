@@ -1,27 +1,54 @@
 @import "tailwindcss";
 
 /*
- * AsciiChem design tokens. The site uses Starlight's default theme as
- * the base; tokens here layer on top to give AsciiChem a distinct
- * identity (warmer accent, dedicated code colors for the AsciiChem
- * syntax itself).
+ * AsciiChem design tokens. Starlight owns the docs theme; tokens
+ * here layer on top for the AsciiChem brand.
  */
 @theme {
   --color-asciichem-accent: #0c4a3e;
   --color-asciichem-accent-soft: #d9f0e6;
   --color-asciichem-ink: #1a1a1a;
-
   --font-mono: "Spline Sans Mono", "JetBrains Mono", ui-monospace,
     SFMono-Regular, Menlo, monospace;
 }
 
-/* MathML rendering tweaks — let chemistry display cleanly inline. */
+/* MathML rendering — let chemistry display cleanly inline. */
 math {
   font-size: 1.05em;
 }
 
+/* Element symbols must be upright per IUPAC. The gem emits
+ * mathvariant="normal" on every <mi>; browsers may still inherit
+ * italic from surrounding <mstyle>, so force it here too.
+ */
+mi[mathvariant="normal"] {
+  font-style: normal;
+}
+
 mrow > mo {
   padding-inline: 0.15em;
+}
+
+/* Expressive-code blocks: pin to Starlight theme tokens. Tailwind 4's
+ * preflight resets can otherwise leave code blocks white-on-white in
+ * dark mode.
+ */
+:root {
+  --ec-theme-background: var(--sl-color-bg, #ffffff);
+  --ec-theme-text: var(--sl-color-text, #1a1a1a);
+  color-scheme: light dark;
+}
+
+:root[data-theme="dark"] {
+  --ec-theme-background: var(--sl-color-bg, #1a1a1a);
+  --ec-theme-text: var(--sl-color-text, #ffffff);
+}
+
+.expressive-code,
+.expressive-code pre,
+.expressive-code code {
+  background: var(--ec-theme-background) !important;
+  color: var(--ec-theme-text) !important;
 }
 
 /* Inline AsciiChem source snippets inside running prose. */

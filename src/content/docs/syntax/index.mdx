@@ -1,0 +1,200 @@
+---
+title: Syntax overview
+description: The complete AsciiChem syntax tour — every construct in one place.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+# Syntax overview
+
+AsciiChem is plain ASCII chemistry. Every construct is something a
+chemist can type on a standard keyboard. This page is the tour: every
+construct, one example each, links to the detail pages.
+
+## Atoms and elements
+
+```asciichem
+H
+He
+C
+Fe
+Uue
+```
+
+[Atom reference →](/model/atom/)
+
+## Subscripts (multiplicity)
+
+```asciichem
+H_2
+H_2O
+H_2SO_4
+C_6H_12O_6
+```
+
+Multi-character subscripts use braces: `H_{2a}`.
+
+## Prefix isotopes — the headline fix
+
+```asciichem
+^14C
+^131I
+^238U
+```
+
+The prefix binds to the following atom. [Why this matters →](/syntax/atoms/)
+
+## Charges
+
+```asciichem
+Ca^2+
+Cl^-
+SO_4^2-
+Fe^3+
+```
+
+IUPAC canonical form: number-then-sign. `+2` is normalised to `2+`.
+
+## Oxidation states
+
+```asciichem
+Fe^(II)
+Fe^(III)
+Mn^(VII)
+```
+
+Roman numerals in parens.
+
+## Stoichiometric coefficients
+
+```asciichem
+2H_2O
+3H_2
+10CO_2
+```
+
+Leading digits followed by an element or open bracket.
+
+## Groups with multiplicity
+
+```asciichem
+Ca(OH)_2
+(NH_4)_2SO_4
+[Fe(CN)_6]^4-
+```
+
+Bracket variants `()`, `[]`, `{}` are preserved through round-trip.
+
+## Bonds
+
+```asciichem
+H-O-H
+H_2C=CH_2
+HC#CH
+Re##Re
+C>-H
+C-<H
+NH_3~>BF_3
+A~~B
+```
+
+Eight kinds: single, double, triple, quadruple, wedge, hash, dative,
+wavy. [Bond reference →](/syntax/bonds/)
+
+## Stereochemistry
+
+```asciichem
+(R)-CH_3
+(S)-CH(OH)COOH
+(E)-CH=CH
+(Z)-A=B
+(alpha)-C
+(β)-C
+```
+
+Markers attach to molecules. Greek `alpha`/`beta` typed words are
+accepted alongside `α`/`β`. [Stereo reference →](/syntax/stereochemistry/)
+
+## Lewis structures
+
+```asciichem
+:O
+::O
+Cl.
+O=O..
+```
+
+Prefix `:` for lone pairs; suffix `.` for radical electrons.
+
+## Reactions
+
+```asciichem
+2H_2 + O_2 -> 2H_2O
+HCl + NaOH -> NaCl + H_2O
+N_2 + 3H_2 <=>[Fe][400°C] 2NH_3
+```
+
+Four arrow kinds: forward `->`, reverse `<-`, equilibrium `<=>`,
+resonance `<->`. Conditions in `[above][below]` brackets.
+[Reaction reference →](/model/reaction/)
+
+## Reaction cascades
+
+```asciichem
+A -> B -> C
+2A -> 2B -> 2C
+A <=>[Fe][T] B -> C
+```
+
+Multi-step chains promote to a single `ReactionCascade`.
+[Cascade reference →](/model/reaction-cascade/)
+
+## Electron configurations
+
+```asciichem
+1s^2 2s^2
+1s^2 2s^2 2p^6 3s^2 3p^6 4s^2 3d^10
+```
+
+Two or more `orbital^occupancy` pairs.
+
+## Embedded math
+
+`````asciichem
+`K_c = [P]/[R]`
+`x^2 + y^2`
+`rate = k[A]^2[B]`
+`````
+
+Backtick-delimited runs are parsed by Plurimath. [Embedded math reference →](/model/embedded-math/)
+
+## Combining constructs
+
+Real chemistry mixes everything:
+
+```asciichem
+^14C_6H_12O_6 + 6O_2 -> 6CO_2 + 6H_2O    `Delta G = -2870 kJ/mol`
+```
+
+A radioactive glucose combustion with embedded thermodynamics.
+
+## Where to next?
+
+<CardGrid stagger>
+  <Card title="Per-construct detail" icon="seti:json">
+    Each syntax page has worked examples and round-trip behaviour.
+    Start with [Atoms](/syntax/atoms/).
+  </Card>
+  <Card title="The model" icon="seti:default">
+    Every construct maps to a model class. See [The model](/model/)
+    for the layer diagram and per-class reference.
+  </Card>
+  <Card title="Round-trip conformance" icon="arrow-undo">
+    The Text formatter is the canonicaliser. See
+    [Round-trip conformance](/reference/round-trip/).
+  </Card>
+  <Card title="IUPAC mapping" icon="open-book">
+    Every construct's spelling traced to its IUPAC source. See
+    [IUPAC mapping](/reference/iupac-mapping/).
+  </Card>
+</CardGrid>

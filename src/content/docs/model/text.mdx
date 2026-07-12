@@ -1,0 +1,75 @@
+---
+title: Text
+description: Catch-all for runs not promoted to a typed model node.
+---
+
+# Text
+
+The `Text` node is the catch-all: any input fragment that doesn't
+match a typed production lands here. The grammar is **total** — it
+never fails on stray input, it just emits a `Text` node.
+
+## Fields
+
+| Field     | Type   | Description                |
+| --------- | ------ | -------------------------- |
+| `content` | String | The captured text content  |
+
+## Why a catch-all?
+
+Two reasons:
+
+1. **Forward compatibility.** Inputs that use constructs not yet
+   implemented (e.g. aromatic rings before v0.3) parse successfully,
+   with the unknown fragment as a `Text` node. The renderer echoes
+   the source verbatim — no data loss.
+2. **Punctuation and whitespace.** Reaction separators (`+`), padding
+   spaces, and other syntactic glue between typed nodes are captured
+   as `Text` so round-trip is exact.
+
+## Grammar production
+
+```
+text_run := (not structural-char)*
+
+where structural-char excludes:
+  ` (math escape)
+  + (reaction separator)
+  arrow tokens (<=>, <->, ->, <-)
+  group brackets ( ) [ ] { }
+```
+
+The exclusion keeps structural boundaries crisp.
+
+## Formatter behaviour
+
+Every formatter's `visit_text` emits the content verbatim (with
+appropriate escaping for the output format).
+
+| Formatter | Output |
+| --------- | ------ |
+| MathML    | `<mtext>content</mtext>` |
+| Text      | `content` |
+| HTML      | escaped `content` |
+| LaTeX     | `content` |
+| SVG       | `content` |
+
+## Round-trip
+
+`Text` nodes preserve their content exactly. The Text formatter is
+the canonicaliser; any input that survives parsing as `Text` will
+round-trip character-for-character.
+
+## When Text appears
+
+A typical input contains Text nodes for:
+
+- The `+` separators in reactions (`2H_2 + O_2` has `Text(" ")` between
+  molecules — though the grammar usually trims this).
+- Multi-digit stoichiometric coefficients that don't form a valid
+  element (e.g. `H_2O3` parses as Molecule[H_2, O], Text("3")).
+- Punctuation the user includes (`H_2O.`, with a literal period).
+
+## Children contract
+
+`Text` is a leaf node — `children` returns `[]`.
