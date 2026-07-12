@@ -117,3 +117,119 @@ figure.asciichem-example {
     border-top: 1px solid var(--sl-color-gray-5, #d4d4d4);
   }
 }
+
+/* About page ---------------------------------------------------------- */
+
+.about-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+  padding: 1.5rem 0 2rem;
+  border-bottom: 1px solid var(--sl-color-gray-5, #d4d4d4);
+  margin-bottom: 2rem;
+}
+
+.about-tagline {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--sl-color-text-accent);
+  margin: 0 0 0.5rem;
+}
+
+.about-blurb {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--sl-color-text);
+  max-width: 50ch;
+  margin: 0;
+}
+
+.about-hero-logo img {
+  width: 120px;
+  height: 120px;
+}
+
+.logo-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.logo-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.logo-card-header {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.light-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
+}
+
+.light-card .logo-card-header { color: #475569; }
+
+.dark-card {
+  background: linear-gradient(135deg, #0c4a3e 0%, #083027 100%);
+  border: 1px solid #1a6e5a;
+}
+
+.dark-card .logo-card-header { color: #d9f0e6; }
+.dark-card img { filter: invert(1) brightness(1.4); }
+
+.logo-display {
+  max-width: 180px;
+  height: auto;
+}
+
+.use-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.use-case-card {
+  padding: 1.25rem;
+  border: 1px solid var(--sl-color-gray-5, #d4d4d4);
+  border-radius: 8px;
+  background: var(--sl-color-bg);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.use-case-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sl-color-text-accent);
+}
+
+.use-case-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.use-case-card h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: var(--sl-color-text);
+}
+
+.use-case-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--sl-color-text);
+}
+
+@media (max-width: 640px) {
+  .about-hero { grid-template-columns: 1fr; }
+  .about-hero-logo { display: none; }
+}
