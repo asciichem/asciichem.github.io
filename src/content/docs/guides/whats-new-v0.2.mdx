@@ -1,0 +1,86 @@
+---
+title: What's new in v0.2
+description: Cascades, linter framework, fuzzing, benchmarks, stereo, Greek, all bond kinds.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+# What's new in v0.2
+
+v0.2 adds the features identified during v0.1 implementation. Each
+ships with spec coverage and is documented in a dedicated page.
+
+<CardGrid stagger>
+  <Card title="Reaction cascades" icon="right-arrow">
+    `A -> B -> C` parses into a single `ReactionCascade`. Each step's
+    products are the next step's reactants. Mixed arrow kinds work.
+    See [Reactions](/syntax/reactions/).
+  </Card>
+  <Card title="Linter framework" icon="seti:default">
+    `asciichem lint -i "..."` runs a growing suite of chemistry
+    checks: bracket balance, isotope sanity, stoichiometric balance,
+    valence. Adding a check is one new file plus one autoload entry.
+    See [Round-trip conformance](/reference/round-trip/).
+  </Card>
+  <Card title="Stereochemistry" icon="seti:json">
+    `(R)-`, `(S)-`, `(E)-`, `(Z)-`, `(α)-`, `(β)-` prefixes attach to
+    molecules. AsciiMath-style typed words (`alpha`, `beta`) are
+    accepted. See [Stereochemistry](/syntax/stereochemistry/).
+  </Card>
+  <Card title="All bond kinds" icon="setting">
+    Single, double, triple, quadruple, wedge, hash, dative, wavy —
+    eight kinds, all reachable from the grammar and round-tripping
+    exactly. See [Bonds in detail](/syntax/bonds/).
+  </Card>
+  <Card title="Greek dictionary" icon="open-book">
+    AsciiMath-style word → Unicode translation. 24 lowercase + 24
+    uppercase. Stereo accepts `alpha`/`beta`; the dictionary is
+    available for any future site (conditions text, spectroscopy
+    notation).
+  </Card>
+  <Card title="Fuzzing corpus + benchmarks" icon="seti:rust">
+    15 hand-curated `.asciichem` files assert every grammar production
+    parses cleanly. Benchmark suites measure parse, round-trip, and
+    MathML throughput for regressions.
+  </Card>
+</CardGrid>
+
+## Try it
+
+```bash
+gem install asciichem
+asciichem convert -i "(R)-CH_3" -t mathml
+asciichem convert -i "Re##Re" -t latex
+asciichem lint -i "H_2 + O_2 -> H_2O"
+asciichem lint -i "^5C"
+```
+
+The lint output:
+
+```
+[error] Reaction is not balanced: O: 2 vs 1
+[error] Isotope mass 5 is less than atomic number 6 for C
+```
+
+## Spec coverage
+
+The gem now has 216 RSpec examples, 0 failures. Coverage spans:
+
+- Every model class (Atom, Molecule, Group, Bond, Reaction,
+  ReactionCascade, ElectronConfiguration, EmbeddedMath, Text, Formula)
+- Every grammar production
+- All five formatters (MathML, Text, HTML, LaTeX, SVG)
+- Linter framework + every check
+- 15 fuzzing corpus files
+- Round-trip conformance
+- End-to-end real-world chemistry
+
+## Roadmap
+
+What's still pending for v0.3+:
+
+- 2D structural formulae via elk-rb (TODO 18)
+- Lewis structures (lone pairs, radicals) (TODO 22)
+- Visual regression baselines (TODO 23)
+- Balance / valence checks need refinement for branched molecules
+- Greek word translation in condition text (currently raw text)

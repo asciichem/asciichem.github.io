@@ -1,16 +1,10 @@
-name: Deploy VitePress site to Pages
+name: Deploy site
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      pubid_ref:
-        description: 'PubID library branch/ref to export from'
-        required: false
-        default: 'rt-new-lutaml-model'
+  pull_request:
   repository_dispatch:
-    types: [pubid-library-update]
 
 permissions:
   contents: read

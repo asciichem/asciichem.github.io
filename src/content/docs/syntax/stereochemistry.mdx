@@ -1,0 +1,99 @@
+---
+title: Stereochemistry
+description: R/S, E/Z, alpha/beta markers via prefix syntax.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+# Stereochemistry
+
+AsciiChem captures **configuration** stereochemistry via prefix
+markers on the molecule. Stereo bonds (wedge / hash) are documented
+in [Bonds](/syntax/bonds/).
+
+## The five markers
+
+| Marker      | Source form     | Use                              |
+| ----------- | --------------- | -------------------------------- |
+| R           | `(R)-`          | Rectus configuration (CIP)       |
+| S           | `(S)-`          | Sinister configuration (CIP)     |
+| E           | `(E)-`          | Entgegen (trans alkene, CIP)     |
+| Z           | `(Z)-`          | Zusammen (cis alkene, CIP)       |
+| α / alpha   | `(α)-`/`(a)-`/`(alpha)-` | Alpha anomer (sugars)  |
+| β / beta    | `(β)-`/`(b)-`/`(beta)-`  | Beta anomer (sugars)    |
+
+Three spellings are accepted for the Greek letters: typed `alpha` /
+`beta` (AsciiMath-style), short `a` / `b`, and Unicode `α` / `β`. The
+Text formatter canonicalises to Unicode on output.
+
+## Worked examples
+
+### Amino acids (R/S)
+
+```asciichem
+(R)-CH(OH)COOH
+(S)-CH(OH)COOH
+```
+
+Lactic acid's two enantiomers.
+
+### Sugar anomers (alpha/beta)
+
+```asciichem
+(alpha)-C
+(beta)-C
+(α)-C
+(β)-C
+```
+
+### Geometric isomers (E/Z)
+
+```asciichem
+(E)-CH=CH
+(Z)-CH=CH
+```
+
+## How it binds
+
+The stereo prefix attaches to the **molecule**, not to a specific atom.
+The chemist reads `(R)-CH(OH)COOH` and knows which carbon the R refers
+to; AsciiChem stores it as metadata on the molecule.
+
+```ruby
+mol = AsciiChem.parse("(R)-CH(OH)COOH").nodes.first
+mol.stereo         # => :R
+mol.stereo_letter  # => "R"
+```
+
+## Disambiguation
+
+`(OH)` is a parenthesised group, not a stereo prefix. The grammar
+distinguishes via the **closed letter set**: `R`/`S`/`E`/`Z` and the
+alpha/beta spellings are the only valid stereo letters. Anything else
+inside the parens falls through to the regular group parse.
+
+```asciichem
+Ca(OH)_2
+```
+
+Parses as Atom(Ca) followed by Group(OH) with multiplicity 2. No
+stereo is set.
+
+## Round-trip
+
+```ruby
+AsciiChem.parse("(R)-CH_3").to_text      # => "(R)-CH_3"
+AsciiChem.parse("(alpha)-CH_3").to_text  # => "(α)-CH_3"  (canonical)
+AsciiChem.parse("(a)-CH_3").to_text      # => "(α)-CH_3"  (canonical)
+```
+
+The Text formatter emits the Unicode form for alpha/beta. The
+ASCII spellings are accepted on input but not emitted on output —
+this is the canonicaliser's job.
+
+<Aside type="note" title="What's not modelled">
+  Per-atom stereo descriptors (e.g. marking which specific atom is the
+  stereocentre) require structural context. Linear AsciiChem captures
+  the molecule-level marker only. For atom-precise stereo, use
+  embedded comments or wait for 2D structural support (TODO 18).
+</Aside>

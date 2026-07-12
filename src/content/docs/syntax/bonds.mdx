@@ -1,0 +1,111 @@
+---
+title: Bonds in detail
+description: Every bond kind AsciiChem supports, with examples and round-trip behaviour.
+---
+
+# Bonds in detail
+
+AsciiChem supports **eight bond kinds** in linear notation. The bond
+grammar uses longest-first alternation so multi-character tokens (like
+`##` and `>-`) are recognised before their single-character prefixes.
+
+## The eight kinds
+
+| Kind | ASCII | MathML | Use                                  |
+| ---- | ----- | ------ | ------------------------------------ |
+| single    | `-`  | `-`  | Single bond                          |
+| double    | `=`  | `=`  | Double bond                          |
+| triple    | `#`  | `≡`  | Triple bond                          |
+| quadruple | `##` | `≣`  | Quadruple bond (organometallic)      |
+| wedge     | `>-` | `↑`  | Stereo wedge (out of page)           |
+| hash      | `-<` | `↓`  | Stereo hash (into page)              |
+| dative    | `~>` | `→`  | Coordinate / dative bond             |
+| wavy      | `~~` | `∼`  | Resonance / delocalised              |
+
+## Examples by chemistry family
+
+### Organic chains and multiple bonds
+
+```asciichem
+H-O-H
+H_2C=CH_2
+HC#CH
+```
+
+### Organometallic quadruple bonds
+
+```asciichem
+Re##Re
+Cr##Cr
+Mo##Mo
+```
+
+The `##` spelling keeps the family of `#`-based tokens; longest-first
+alternation in the grammar prevents `#` from shadowing `##`.
+
+### Stereochemistry
+
+```asciichem
+C>-H
+C-<H
+```
+
+`>-` evokes a wedge pointing right (toward the viewer); `-<` is its
+mirror (away from the viewer). For full `(R)` / `(S)` / `(E)` / `(Z)`
+stereo markers, see [Atoms](/syntax/atoms/).
+
+### Lewis acid-base complexes
+
+```asciichem
+NH_3~>BF_3
+H_3N~>Ag^+
+```
+
+The dative bond uses `~>` rather than `->` because `->` is already the
+reaction arrow. `~>` (wave + arrow) conveys electron-pair flow and
+round-trips cleanly.
+
+### Resonance structures
+
+```asciichem
+A~~B
+```
+
+The wavy bond `~~` distinguishes from `~>` (dative) and from regular
+text. Useful for delocalised systems where a single Lewis structure
+is insufficient.
+
+## Round-trip
+
+Every bond kind round-trips exactly. The Text formatter is the
+canonicaliser — it always emits the spelling listed above regardless
+of how the bond was constructed.
+
+```ruby
+AsciiChem.parse("Re##Re").to_text   # => "Re##Re"
+AsciiChem.parse("NH_3~>BF_3").to_text  # => "NH_3~>BF_3"
+```
+
+## Why these spellings?
+
+The design constraints:
+
+1. **Plain ASCII.** No Unicode in source.
+2. **No conflict with `->`** (the reaction arrow). This forces a
+   different spelling for dative — `~>` was chosen for its
+   electron-pair-flow connotation.
+3. **Longest-first alternation.** `##` must beat `#`; `>-` must beat
+   `-`. The grammar rule order is the contract.
+4. **Visual mnemonics.** `>-` looks like a wedge; `~~` looks wavy;
+   `#` and `##` extend naturally.
+
+## What's not here
+
+- **Aromatic bonds** (the partial bond inside an aromatic ring) —
+  v0.2 doesn't have a distinct spelling; use `=`/`-` alternation or
+  the planned ring syntax (TODO 18, 2D structural).
+- **Hydrogen bonds** — typically denoted `...` in literature;
+  AsciiChem v0.2 doesn't have a dedicated kind. Tracked as a possible
+  TODO.
+- **Ionic "bonds"** — not really bonds; represented via charge
+  markers on atoms (`Na^+`, `Cl^-`).
