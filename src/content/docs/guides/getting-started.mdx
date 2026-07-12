@@ -1,13 +1,15 @@
 ---
 title: Getting started
-description: Install AsciiChem and parse your first formula.
+description: Install an AsciiChem implementation and parse your first formula.
 ---
 
 import { Steps, Aside } from "@astrojs/starlight/components";
 
 
-AsciiChem is a Ruby gem. The website you are reading is the specification;
-the gem is the reference implementation.
+AsciiChem is a language for chemistry. This page walks through using
+the Ruby reference implementation (`asciichem-ruby`). Other
+implementations (TypeScript, Python) may follow; the syntax and
+model are the same across all of them.
 
 ## Install
 
@@ -40,7 +42,7 @@ the gem is the reference implementation.
    ```bash
    $ asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t mathml
    $ asciichem version
-   0.1.0
+   0.2.0
    ```
 
 </Steps>
