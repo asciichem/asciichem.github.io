@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import mdx from "@astrojs/mdx";
 import tailwindcss from "@tailwindcss/vite";
+import { remarkAsciiChem } from "./src/integrations/asciichem-remark.ts";
 
 // Site config — https://www.asciichem.org
 // Deploy target is GitHub Pages from this repo (asciichem.github.io).
@@ -10,6 +11,9 @@ export default defineConfig({
   site: "https://www.asciichem.org",
   output: "static",
   trailingSlash: "ignore",
+  markdown: {
+    remarkPlugins: [remarkAsciiChem],
+  },
   integrations: [
     starlight({
       title: "AsciiChem",
