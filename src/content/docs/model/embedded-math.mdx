@@ -1,0 +1,84 @@
+---
+title: EmbeddedMath
+description: A Plurimath formula wrapped for embedding in chemistry.
+---
+
+# EmbeddedMath
+
+An `EmbeddedMath` node wraps a `Plurimath::Math::Formula` so chemistry
+publications can embed mathematics (`K_c = [P]/[R]`, rate laws,
+Arrhenius) without AsciiChem reinventing math typography.
+
+## Fields
+
+| Field     | Type                       | Description                          |
+| --------- | -------------------------- | ------------------------------------ |
+| `formula` | Plurimath::Math::Formula   | The parsed math expression           |
+| `source`  | String                     | The original backtick-wrapped text   |
+
+## Diagram
+
+```
+   `\`K_c = [P]/[R]\``  ──►  Grammar captures `math_source`
+                                          │
+                                          ▼
+                              Plurimath::Asciimath.new(source).to_formula
+                                          │
+                                          ▼
+                                   EmbeddedMath
+                                   ├── formula: <Plurimath::Formula>
+                                   └── source:  "K_c = [P]/[R]"
+```
+
+## Grammar production
+
+```
+embedded_math := "`" math_source "`"
+math_source   := (any character except backtick)*
+```
+
+The grammar captures the run as raw text. The transform passes it
+verbatim to `Plurimath::Asciimath.new(source).to_formula`.
+
+## Why Plurimath?
+
+AsciiChem doesn't reinvent math typography. Plurimath already handles
+AsciiMath, LaTeX, UnicodeMath, OMML, and MathML with the same
+model-driven architecture. Reusing it keeps AsciiChem focused on
+chemistry.
+
+## Formatter behaviour
+
+| Formatter | Output |
+| --------- | ------ |
+| MathML    | The wrapped formula's `.to_mathml`, with outer `<math>` stripped so the fragment slots into AsciiChem's `<mrow>` |
+| Text      | The backtick-wrapped source verbatim |
+| HTML      | The wrapped formula's `.to_mathml` (browsers render MathML natively) |
+| LaTeX     | `$<formula.to_latex>$` (math mode inside `\ce{}`) |
+| SVG       | The source as text (v1 fallback) |
+
+## Round-trip
+
+```ruby
+source = "`K_c = [P]/[R]`"
+formula = AsciiChem.parse(source)
+formula.to_text                  # => "`K_c = [P]/[R]`" (verbatim)
+formula.nodes.first.formula      # => <Plurimath::Math::Formula>
+formula.nodes.first.source       # => "K_c = [P]/[R]"
+```
+
+## Combined chemistry + math
+
+A formula can mix chemistry and embedded math:
+
+`````asciichem
+H_2 + I_2 <=> 2HI    `K_c = [HI]^2 / ([H_2][I_2])`
+`````
+
+parses as `[Reaction, Text("    "), EmbeddedMath]`.
+
+## Limitations
+
+- Backticks cannot be nested in v1. Use Plurimath's native syntax for
+  complex expressions.
+- Whitespace inside the backticks is preserved verbatim.

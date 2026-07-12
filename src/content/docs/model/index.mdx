@@ -1,0 +1,144 @@
+---
+title: The AsciiChem model
+description: Every class in the semantic model, its attributes, and a diagram of how it relates to its neighbours.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+# The AsciiChem model
+
+Every AsciiChem parse produces a tree of **model** instances. The model
+is the contract — every formatter consumes the same tree, so adding a
+new output format never touches the parser.
+
+## Class overview
+
+<CardGrid stagger>
+  <Card title="Formula" icon="seti:json">
+    Top-level container. The root of every parse.
+  </Card>
+  <Card title="Atom" icon="seti:default">
+    A chemical atom with element, isotope, charge, oxidation state,
+    Lewis markers.
+  </Card>
+  <Card title="Molecule" icon="setting">
+    Ordered sequence of atoms/groups with coefficient and stereo.
+  </Card>
+  <Card title="Group" icon="seti:folder">
+    Parenthesised sub-formula with multiplicity.
+  </Card>
+  <Card title="Bond" icon="right-arrow">
+    A connection between two adjacent atoms in a chain.
+  </Card>
+  <Card title="Reaction" icon="seti:rust">
+    Reactants + arrow + products, with optional conditions.
+  </Card>
+  <Card title="ReactionCascade" icon="right-arrow">
+    A multi-step reaction chain.
+  </Card>
+  <Card title="ElectronConfiguration" icon="seti:org">
+    Orbital occupancy list plus optional term symbol.
+  </Card>
+  <Card title="EmbeddedMath" icon="seti:tex">
+    A Plurimath formula embedded in chemistry text.
+  </Card>
+  <Card title="Text" icon="seti:txt">
+    Catch-all for runs not promoted to a typed node.
+  </Card>
+</CardGrid>
+
+## Layer diagram
+
+```
+   text  ──►  Grammar  ──►  parse tree  ──►  Transform  ──►  Model
+                                                                 │
+                                                                 ▼
+                              ┌──────────────────────────────────┐
+                              │  Formatter (visitor)             │
+                              │  MathML · Text · HTML · LaTeX ·  │
+                              │  SVG · (your new format here)    │
+                              └──────────────────────────────────┘
+                                                                 │
+                                                                 ▼
+                                                            output
+```
+
+The model is in the middle. New grammar productions add model
+classes; new output formats add formatter visitors. Existing code
+stays untouched.
+
+## Visitor dispatch
+
+Every model class implements `accept(visitor)` which calls
+`visitor.visit_<class>(self)`. The dispatch is double-dispatch:
+
+```ruby
+class Atom < Node
+  # accept on the base class does:
+  #   visitor.public_send(:"visit_atom", self)
+end
+
+class Formatter::Mathml < Formatter::Base
+  def visit_atom(atom)
+    # ...
+  end
+end
+```
+
+Adding a new model class means defining `visit_<class>` on every
+formatter. The base `Formatter::Base` raises `NotImplementedError`
+for unimplemented visits, so gaps surface immediately.
+
+## Traversal contract
+
+Every container class implements `#children` returning an array of
+its child nodes. The linter uses this to walk the tree without
+switching on type:
+
+```ruby
+class Molecule
+  def children
+    nodes
+  end
+end
+
+class Reaction
+  def children
+    reactants + products
+  end
+end
+```
+
+Adding a new container class means defining `children` on it; the
+linter and any future tree-walker pick it up automatically.
+
+## Equality
+
+Every model class implements `value_attributes` returning the hash of
+fields that participate in equality. Two nodes are equal iff their
+classes match and their `value_attributes` hashes match.
+
+```ruby
+atom_a = Atom.new(element: "C", isotope: "14")
+atom_b = Atom.new(element: "C", isotope: "14")
+atom_a == atom_b  # => true
+```
+
+## Per-class pages
+
+Detailed reference for each class:
+
+- [Formula](/model/formula/) — top-level container
+- [Atom](/model/atom/) — element + isotope + charge + Lewis markers
+- [Molecule](/model/molecule/) — ordered atom list + coefficient + stereo
+- [Group](/model/group/) — parenthesised sub-formula
+- [Bond](/model/bond/) — single / double / triple / quadruple / wedge / hash / dative / wavy
+- [Reaction](/model/reaction/) — reactants + arrow + products + conditions
+- [ReactionCascade](/model/reaction-cascade/) — multi-step chain
+- [ElectronConfiguration](/model/electron-configuration/) — orbital occupancy
+- [EmbeddedMath](/model/embedded-math/) — Plurimath wrapper
+- [Text](/model/text/) — catch-all for untyped runs
+
+Each per-class page has the attribute table, the grammar production
+that produces it, every formatter's behaviour, and a round-trip
+example.

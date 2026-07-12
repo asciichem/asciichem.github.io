@@ -1,0 +1,119 @@
+---
+title: Atom
+description: A chemical atom — element, isotope, charge, oxidation state, and Lewis markers.
+---
+
+# Atom
+
+The atomic unit of chemistry (and of AsciiChem). Each `Atom` captures:
+
+| Field              | Type    | Source position | Example       |
+| ------------------ | ------- | --------------- | ------------- |
+| `element`          | String  | element symbol  | `C`, `He`, `Fe` |
+| `isotope`          | String  | prefix          | `^14C`        |
+| `subscript`        | String  | suffix (`_`)    | `H_2`         |
+| `superscript`      | String  | suffix (`^`)    | (raw super)   |
+| `charge`           | String  | suffix          | `Ca^2+`       |
+| `oxidation_state`  | String  | suffix (Roman)  | `Fe^(III)`    |
+| `lone_pairs`       | Integer | prefix (`:`)    | `:O`          |
+| `radical_electrons`| Integer | suffix (`.`)    | `Cl.`         |
+
+## Diagram
+
+```
+                  ┌──────────────────────────────────────┐
+                  │                 Atom                  │
+                  │                                      │
+   prefix  ──────►│  lone_pairs   (":" * count)           │
+   isotope ──────►│  isotope      mass number             │
+                  │  element      symbol                  │
+                  │  subscript    multiplicity            │
+                  │  superscript  ─┐                      │
+                  │  charge        ├─ mutually exclusive  │
+                  │  oxidation     ─┘                      │
+   suffix  ──────►│  radical_electrons  ("." * count)     │
+                  └──────────────────────────────────────┘
+```
+
+## The semantic fix
+
+The headline difference from AsciiMath lives here. AsciiMath parses
+`^14C` as an empty-base superscript followed by a sibling atom:
+
+```xml
+<!-- AsciiMath -->
+<msup><mi></mi><mn>14</mn></msup><mi>C</mi>
+```
+
+The isotope is bound to a phantom element; the atom never sees it.
+
+AsciiChem parses `^14C` as one `Atom` with `isotope: "14"`, and the
+MathML formatter emits:
+
+```xml
+<!-- AsciiChem -->
+<msup><mi mathvariant="normal">C</mi><mn>14</mn></msup>
+```
+
+The isotope is structurally bound to the carbon. This is the contract
+the parser enforces.
+
+## Grammar production
+
+```
+prefixed_atom := lewis_prefix? isotope_marker element atom_suffix lewis_radicals?
+plain_atom    := lewis_prefix? element           atom_suffix lewis_radicals?
+
+atom_suffix   := subscript_marker? superscript_marker?
+```
+
+The `lewis_prefix` and `lewis_radicals` rules are optional. The
+grammar tries `prefixed_atom` (with isotope) first; on failure it
+falls through to `plain_atom`.
+
+## Formatter behaviour
+
+| Formatter | Element rendering                                  |
+| --------- | -------------------------------------------------- |
+| MathML    | `<mi mathvariant="normal">C</mi>` + `<msup>` / `<msub>` for suffix markers; Lewis markers as `<mtext>` |
+| Text      | `:C^14_2.3` (literal spelling; canonicaliser)      |
+| HTML      | `<span>C</span>` with `<sub>`/`<sup>` tags         |
+| LaTeX     | `\ce{C}` (mhchem implicit subscripts)              |
+| SVG       | `<text>C</text>` in linear layout                  |
+
+The `mathvariant="normal"` on every `<mi>` enforces IUPAC upright
+element symbols (vs MathML's default italic for single-character
+identifiers).
+
+## Round-trip
+
+```ruby
+AsciiChem.parse("H").to_text                       # => "H"
+AsciiChem.parse("H_2").to_text                     # => "H_2"
+AsciiChem.parse("^14C").to_text                    # => "^14C"
+AsciiChem.parse("Ca^2+").to_text                  # => "Ca^2+"
+AsciiChem.parse("Fe^(III)").to_text               # => "Fe^(III)"
+AsciiChem.parse(":O").to_text                     # => ":O"
+AsciiChem.parse("Cl.").to_text                    # => "Cl."
+AsciiChem.parse(":O.").to_text                    # => ":O."
+```
+
+## Mutual exclusivity
+
+Exactly one of `{ superscript, charge, oxidation_state }` is set on a
+given atom — they are all views of the suffix `^` position. The
+transform's `AtomBuilder` disambiguates via pattern:
+
+- Match `^[+-]\d*$` or `^\d*[+-]$` → `charge`
+- Match `^\([IVXLCDM]+\)$` → `oxidation_state`
+- Otherwise → `superscript` (raw)
+
+The Text formatter renders whichever field is set.
+
+## Linter checks
+
+- **IsotopeSanityCheck** — isotope mass ≥ atomic number for the
+  element.
+- **ValenceCheck** — bond order + |charge| ≤ max valence.
+
+See [Linter](/model/linter) (TODO).

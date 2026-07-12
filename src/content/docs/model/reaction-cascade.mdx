@@ -1,0 +1,107 @@
+---
+title: ReactionCascade
+description: A multi-step reaction chain — A -> B -> C in one model node.
+---
+
+# ReactionCascade
+
+A `ReactionCascade` holds an ordered list of `Reaction` objects where
+each step's products are the next step's reactants. Source spelling is
+a chain of arrows.
+
+## Fields
+
+| Field   | Type              | Description                              |
+| ------- | ----------------- | ---------------------------------------- |
+| `steps` | Array of Reaction   | Ordered list; `steps[0]` is the first   |
+
+## Diagram
+
+```
+       ┌─────────────────────────────────────────────┐
+       │              ReactionCascade                 │
+       │                                             │
+       │   steps[0]   Reaction(A -> B)               │
+       │   steps[1]   Reaction(B -> C)               │
+       │   steps[2]   Reaction(C -> D)               │
+       │   ...                                       │
+       │                                             │
+       │   (each step's reactants are the previous   │
+       │    step's products)                          │
+       └─────────────────────────────────────────────┘
+```
+
+## When does it promote?
+
+A single reaction stays as `Reaction`. Two or more chained reactions
+promote to `ReactionCascade`. The grammar tries `reaction_cascade`
+(first reaction + at least one more arrow) before `reaction`.
+
+```ruby
+AsciiChem.parse("A -> B").nodes.first.class         # => Reaction
+AsciiChem.parse("A -> B -> C").nodes.first.class    # => ReactionCascade
+```
+
+## Grammar production
+
+```
+reaction_cascade := reaction (arrow terms)+
+```
+
+The first leg is a full `reaction`. Each subsequent leg is `arrow +
+terms`; the transform's `CascadeBuilder` constructs each new
+`Reaction` using the previous step's products as reactants.
+
+## Formatter behaviour
+
+Formatters iterate the steps, emitting each step's full reaction for
+the head and only `arrow + products` for subsequent steps (the
+intermediate reactants are implicit):
+
+```
+A -> B -> C -> D
+^^^^^^^^^          first step (full reaction)
+       ^^^^        second step (arrow + products)
+          ^^^^     third step (arrow + products)
+```
+
+| Formatter | Chain rendering |
+| --------- | --------------- |
+| MathML    | `<mrow>` with `reactants + arrow + products + arrow + products + ...` |
+| Text      | `A -> B -> C -> D` |
+| HTML      | Unicode arrows between terms |
+| LaTeX     | `\ce{A -> B -> C -> D}` (mhchem native) |
+| SVG       | Linear ASCII chain |
+
+## Round-trip
+
+```ruby
+AsciiChem.parse("A -> B -> C").to_text              # => "A -> B -> C"
+AsciiChem.parse("A -> B -> C -> D").to_text         # => "A -> B -> C -> D"
+AsciiChem.parse("A <=>[Fe][T] B -> C").to_text      # => "A <=>[Fe][T] B -> C"
+AsciiChem.parse("2A -> 2B -> 2C").to_text           # => "2A -> 2B -> 2C"
+```
+
+## Mixed arrow kinds
+
+Each step can have a different arrow kind:
+
+```asciichem
+A <=>[Fe][T] B -> C
+```
+
+`steps[0].arrow = :equilibrium`, `steps[1].arrow = :forward`. Both
+render correctly in every formatter.
+
+## Children contract
+
+```ruby
+class ReactionCascade
+  def children
+    steps
+  end
+end
+```
+
+The linter walks each step (which is a `Reaction`) and recurses into
+its reactants and products.

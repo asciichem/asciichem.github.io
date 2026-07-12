@@ -1,0 +1,67 @@
+---
+title: Formula
+description: The top-level container; the root of every AsciiChem parse.
+---
+
+# Formula
+
+`Formula` is the root of every parse tree. It holds an ordered list of
+top-level nodes — typically one molecule, one reaction, or one
+cascade, but in general any sequence.
+
+## Fields
+
+| Field   | Type             | Description                              |
+| ------- | ---------------- | ---------------------------------------- |
+| `nodes` | Array<Node>      | Ordered list of top-level model nodes    |
+
+## Diagram
+
+```
+   parse(text)  ──►  Formula
+                        │
+                        ├── nodes[0]   (Molecule | Reaction | ...)
+                        ├── nodes[1]   (Text | Molecule | ...)
+                        └── ...
+```
+
+## Grammar production
+
+```
+formula := spaces? nodes spaces?
+nodes   := node+
+node    := reaction_cascade | reaction | electron_config
+         | molecule | embedded_math | text_run
+```
+
+The formula trims leading/trailing whitespace, then captures one or
+more top-level nodes.
+
+## Mutability
+
+`Formula` exposes `<<` for appending a node:
+
+```ruby
+formula = AsciiChem::Model::Formula.new
+formula << AsciiChem::Model::Atom.new(element: "H")
+```
+
+This is primarily useful in tests and direct model construction.
+
+## Formatter behaviour
+
+| Formatter | Output                                |
+| --------- | ------------------------------------- |
+| MathML    | `<math xmlns="...">...</math>` document |
+| Text      | Concatenation of children's text      |
+| HTML      | Concatenation of children's HTML      |
+| LaTeX     | Children wrapped in `\ce{...}`        |
+| SVG       | Linear layout in `<svg>`              |
+
+## Why `Formula` exists
+
+Even single-molecule parses wrap in a `Formula`. This normalises the
+contract: every formatter's `visit_formula` is the entry point. Adding
+a top-level construct (e.g. a "section" or "footnote" type) means
+adding it to `Formula#nodes`; the formatters' `visit_formula` already
+iterates.

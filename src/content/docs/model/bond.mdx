@@ -1,0 +1,90 @@
+---
+title: Bond
+description: A connection between two adjacent atoms in a structural chain.
+---
+
+# Bond
+
+A bond connects two adjacent atoms in a molecule's `nodes` array. The
+kind enum covers IUPAC bond types plus ASCII-friendly variants for
+stereo.
+
+## Kind enum
+
+| Kind       | ASCII | MathML | Use                                       |
+| ---------- | ----- | ------ | ----------------------------------------- |
+| `:single`  | `-`   | `-`    | Single bond                               |
+| `:double`  | `=`   | `=`    | Double bond                               |
+| `:triple`  | `#`   | `≡`    | Triple bond                               |
+| `:quadruple` | `##` | `≣`  | Quadruple bond (organometallic)           |
+| `:wedge`   | `>-`  | `↑`    | Stereo wedge (out of page)                |
+| `:hash`    | `-<`  | `↓`    | Stereo hash (into page)                   |
+| `:dative`  | `~>`  | `→`    | Coordinate / dative bond                  |
+| `:wavy`    | `~~`  | `∼`    | Resonance / delocalised                   |
+
+## Diagram
+
+Bonds don't have explicit endpoints — they're positional. The
+molecule's `nodes` array interleaves atoms and bonds:
+
+```
+   Atom(H) ── Bond(:single) ── Atom(O) ── Bond(:single) ── Atom(H)
+                                                  ^^^^
+                                      each Bond is a separator,
+                                      not a standalone node with
+                                      explicit endpoints
+```
+
+## Grammar production
+
+```
+bond := "##"  (quadruple)
+      | ">-"  (wedge)
+      | "-<"  (hash)
+      | "~>"  (dative)
+      | "~~"  (wavy)
+      | "#"   (triple)
+      | "="   (double)
+      | "-"   (single)
+```
+
+Alternation order is **longest-first**: `##` must be tried before `#`,
+`>-` before `-`, `~>` before `~`. Parslet's `|` is first-match-wins, so
+the order is the contract.
+
+## Why dative is `~>`, not `->`
+
+`->` is the reaction arrow. Reusing it for the dative bond would
+create an ambiguous grammar: `A->B` could be a dative bond or a
+reaction depending on context, which is fragile.
+
+`~>` (wave + arrow) was chosen to convey electron-pair flow without
+the conflict. It's not standard, but it's unambiguous.
+
+## Why wedge/hash are `>-` and `-<`
+
+The closing `-` keeps the bond separator family (`-`, `=`, `#`)
+intact. The leading `>` or trailing `<` evokes the wedge direction.
+
+Alternative spellings considered:
+- `/>` and `</` — slash-based, but `/` is overloaded in URLs/paths.
+- `>-` and `<-` — `<-` conflicts with the reverse reaction arrow.
+
+`>-` and `-<` were the least-conflicting choice.
+
+## Formatter behaviour
+
+Every formatter consults `bond.ascii` (Text/HTML/SVG) or
+`bond.entity` (MathML). Adding a new bond kind is one entry in the
+`KINDS` constant — no formatter edits.
+
+## Round-trip
+
+```ruby
+AsciiChem.parse("H-O-H").to_text      # => "H-O-H"
+AsciiChem.parse("HC#CH").to_text      # => "HC#CH"
+AsciiChem.parse("Re##Re").to_text     # => "Re##Re"
+AsciiChem.parse("C>-H").to_text       # => "C>-H"
+AsciiChem.parse("NH_3~>BF_3").to_text # => "NH_3~>BF_3"
+AsciiChem.parse("A~~B").to_text       # => "A~~B"
+```

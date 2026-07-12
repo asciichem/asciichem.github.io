@@ -36,11 +36,37 @@ export default defineConfig({
           items: [
             { label: "Getting started", slug: "guides/getting-started" },
             { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
+            { label: "What's new in v0.2", slug: "guides/whats-new" },
           ],
         },
         {
           label: "Syntax",
-          items: [{ autogenerate: { directory: "syntax" } }],
+          items: [
+            { label: "Overview", slug: "syntax" },
+            { label: "Atoms", slug: "syntax/atoms" },
+            { label: "Molecules", slug: "syntax/molecules" },
+            { label: "Bonds", slug: "syntax/bonds" },
+            { label: "Reactions", slug: "syntax/reactions" },
+            { label: "Stereochemistry", slug: "syntax/stereochemistry" },
+            { label: "Electron configurations", slug: "syntax/electron-config" },
+            { label: "Embedded math", slug: "syntax/embedded-math" },
+          ],
+        },
+        {
+          label: "Model",
+          items: [
+            { label: "Overview", slug: "model" },
+            { label: "Formula", slug: "model/formula" },
+            { label: "Atom", slug: "model/atom" },
+            { label: "Molecule", slug: "model/molecule" },
+            { label: "Group", slug: "model/group" },
+            { label: "Bond", slug: "model/bond" },
+            { label: "Reaction", slug: "model/reaction" },
+            { label: "ReactionCascade", slug: "model/reaction-cascade" },
+            { label: "ElectronConfiguration", slug: "model/electron-configuration" },
+            { label: "EmbeddedMath", slug: "model/embedded-math" },
+            { label: "Text", slug: "model/text" },
+          ],
         },
         {
           label: "Reference",
@@ -49,6 +75,13 @@ export default defineConfig({
         {
           label: "Examples",
           items: [{ autogenerate: { directory: "examples" } }],
+        },
+        {
+          label: "Project",
+          items: [
+            { label: "About", slug: "about" },
+            { label: "Blog", slug: "blog" },
+          ],
         },
       ],
       customCss: ["./src/styles/app.css"],
