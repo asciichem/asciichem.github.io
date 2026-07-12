@@ -1,0 +1,59 @@
+---
+title: Embedded math
+description: Backtick-delimited Plurimath expressions inside chemistry.
+---
+
+# Embedded math
+
+Chemistry publications embed mathematics everywhere: equilibrium
+constants (`K_c = [P]/[R]`), rate laws (`rate = k[A]^2[B]`), Arrhenius
+(`k = A e^{-E_a/RT}`).
+
+AsciiChem does **not** reinvent math typography. Backtick-delimited runs
+are parsed by [Plurimath](https://github.com/plurimath/plurimath)'s
+AsciiMath parser, then embedded in the chemistry model as an
+`EmbeddedMath` node wrapping a `Plurimath::Math::Formula`.
+
+## Syntax
+
+Surround any math expression with backticks:
+
+`````asciichem
+`K_c = [P]/[R]`
+`k = A e^{-E_a/(RT)}`
+`rate = k[A]^2[B]`
+`````
+
+## Where it appears
+
+`EmbeddedMath` nodes can appear anywhere a top-level node can — at the
+formula root, inside a molecule (rare), or as a reaction condition
+(intended for v2).
+
+The most common use is at the formula root, paired with chemistry:
+
+`````asciichem
+H_2 + I_2 <=> 2HI    `K_c = [HI]^2 / ([H_2][I_2])`
+`````
+
+## Rendering
+
+For MathML output, AsciiChem calls `Plurimath::Math::Formula#to_mathml`
+and strips the outer `<math>` wrapper so the fragment slots cleanly into
+AsciiChem's surrounding `<mrow>`.
+
+For text output, the original backtick-delimited source is reproduced
+verbatim — round-trip is exact.
+
+## Why Plurimath?
+
+- It already handles AsciiMath, LaTeX, UnicodeMath, OMML, and MathML.
+- It's model-driven, with the same architectural values as AsciiChem.
+- Reusing it keeps AsciiChem focused on chemistry; math is a solved
+  problem with a good library.
+
+## Limitations
+
+- Backticks cannot be nested in v1. Use Plurimath's native syntax for
+  complex expressions; the embedded source is opaque to AsciiChem.
+- Whitespace inside the backticks is preserved verbatim.

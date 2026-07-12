@@ -1,0 +1,76 @@
+---
+title: Why AsciiChem?
+description: The gaps in AsciiMath that motivated AsciiChem.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+# Why AsciiChem?
+
+AsciiMath is excellent at what it does: typography for mathematics. It
+assumes a math data model — superscripts and subscripts are positional
+adornments on the previous expression.
+
+Chemistry is not math typography. Chemistry has its own first-class
+concepts — atoms, bonds, reactions, electron configurations — that
+AsciiMath collapses into a uniform soup of `^` and `_` markers.
+
+## The five gaps
+
+<CardGrid stagger>
+  <Card title="1. Prefix isotopes" icon="seti:json">
+    Chemistry writes `^14C`, `_6Li`, `Ca^2+`. AsciiMath has no way to bind
+    a prefix marker to the next atom — it forces a phantom `{}` carrier
+    (`{}^14C`), so the isotope is bound to an empty element. The atom
+    itself never sees the isotope.
+  </Card>
+  <Card title="2. Reactions" icon="right-arrow">
+    No native syntax for stoichiometric coefficients, reaction arrows
+    (`->`, `<=>`), conditions above or below the arrow, or spectator ions.
+  </Card>
+  <Card title="3. Electron configurations" icon="seti:default">
+    No representation for orbital occupancy (`1s^2 2s^2 2p^6`), term
+    symbols (`^3P_2`), spin multiplicity, or quantum wells.
+  </Card>
+  <Card title="4. Bonds and structures" icon="setting">
+    No syntax for single / double / triple / dative / wedge / hash bonds,
+    ring structures, or stereochemistry — all things LaTeX's `chemfig`
+    provides.
+  </Card>
+  <Card title="5. Embedded mathematics" icon="open-book">
+    Equilibrium constants, rate laws, Arrhenius expressions — chemistry
+    publications embed math. AsciiMath has no escape hatch from itself.
+  </Card>
+</CardGrid>
+
+## What AsciiChem does about each
+
+1. **Prefix markers bind to the following atom.** The grammar enforces
+   this: `^14` followed by `C` is one parse unit. The model field
+   `Atom#isotope` carries the binding.
+2. **First-class `Reaction` model.** Reactants, products, arrow type
+   (`:forward`, `:reverse`, `:equilibrium`, `:resonance`), and conditions
+   (`Conditions(above:, below:)`).
+3. **`ElectronConfiguration` model.** Orbital/occupancy pairs plus
+   optional term symbol.
+4. **`Bond` model** with kind enum (`:single`, `:double`, `:triple`,
+   `:wedge`, `:hash`, `:dative`, `:wavy`). Structural diagrams delegate
+   to `mn/elk-rb` for SVG layout.
+5. **`EmbeddedMath` wraps a Plurimath formula.** Backtick-delimited
+   runs are parsed by `Plurimath::Asciimath`; the result sits in the
+   chemistry tree as a typed node.
+
+## Design principles
+
+- **Plain-keyboard ASCII.** Anything a chemist can type without leaving
+  the home row.
+- **Model-driven.** Every parse yields a typed tree. Render to any
+  format without round-tripping through text.
+- **Round-trippable.** `parse(s).to_text == s` for canonical `s`.
+- **Open/closed.** New constructs are new model classes; new outputs
+  are new formatters. Existing code stays untouched.
+- **IUPAC-aligned.** Where AsciiChem's spelling differs from `mhchem`,
+  the IUPAC Green Book is the tiebreaker.
+
+Continue to **[Getting started](/guides/getting-started/)** to install
+and try it.

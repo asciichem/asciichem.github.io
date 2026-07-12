@@ -1,0 +1,43 @@
+---
+title: IUPAC mapping
+description: How AsciiChem constructs map to IUPAC Green Book conventions.
+---
+
+# IUPAC mapping
+
+AsciiChem constructs are designed against the IUPAC Green Book (3rd ed.,
+2007) and IUPAC Recommendations (Pure Appl. Chem. 90, 2018, 175–180).
+Where AsciiChem's spelling differs from `mhchem`, the Green Book is the
+tiebreaker.
+
+| Construct                | AsciiChem          | IUPAC reference                     |
+| ------------------------ | ------------------ | ----------------------------------- |
+| Element symbol           | `C`, `He`          | Green Book §2.10                    |
+| Isotope (prefix)         | `^14C`             | Green Book §2.10 (isotope)          |
+| Charge                   | `Ca^2+`            | Green Book §2.10 (number-then-sign) |
+| Oxidation state          | `Fe^(III)`         | Green Book §2.10 (Roman in parens)  |
+| Stoichiometric coefficient | `2H_2O`          | Green Book §2.10 (prefix)           |
+| Forward reaction         | `A -> B`           | Rec. 2018 §3                        |
+| Equilibrium              | `A <=>[Fe][T] B`   | Rec. 2018 §3 (conditions)           |
+| Subscript                | `H_2`              | Green Book §2.10                    |
+
+## Divergences from mhchem
+
+Where `mhchem` (LaTeX) and AsciiChem diverge, the rationale is recorded
+in [TODO 01](https://github.com/asciichem/asciichem.github.io/blob/main/TODO.impl/01-research-standards.md).
+
+| Construct | mhchem            | AsciiChem    | Why                          |
+| --------- | ----------------- | ------------ | ---------------------------- |
+| Charge    | `\ce{Ca^{2+}}`    | `Ca^2+`      | Plain ASCII; braces optional |
+| Reaction  | `\ce{A -> B}`     | `A -> B`     | Same — direct lift           |
+| Adduct    | `\ce{A·B}`        | (deferred)   | Needs design; v2             |
+| Bond      | (none in mhchem)  | `-`, `=`, `#`| Lifted from chemfig          |
+
+## Open questions
+
+Some chemistry typography is not yet modelled. Tracked in TODO 13:
+
+- Stereochemistry (R/S, E/Z) markers
+- Wedge/hash bonds in linear notation
+- Multi-center bonds
+- Reaction cascades (chained arrows)

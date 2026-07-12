@@ -1,0 +1,123 @@
+---
+title: Atoms
+description: Element symbols, prefix isotopes, charges, and oxidation states.
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+# Atoms
+
+The atom is the atomic unit of chemistry (and of AsciiChem). An atom
+captures:
+
+| Field             | Source position | Example       |
+| ----------------- | --------------- | ------------- |
+| `element`         | element symbol  | `C`, `He`, `Fe` |
+| `isotope`         | prefix          | `^14C`        |
+| `subscript`       | suffix (after `_`) | `H_2`       |
+| `charge`          | suffix          | `Ca^2+`       |
+| `oxidation_state` | suffix          | `Fe^(III)`    |
+
+## Element symbols
+
+A capital letter optionally followed by a lowercase letter.
+
+<Tabs>
+  <TabItem label="Source">
+    ```asciichem
+    H
+    He
+    Uue
+    ```
+  </TabItem>
+  <TabItem label="Notes">
+    Two-letter symbols (`He`, `Uue`) are captured as a single element,
+    not as `H` followed by `e`. The grammar requires capital-then-lowercase
+    for the two-letter form.
+  </TabItem>
+</Tabs>
+
+## Subscripts
+
+A subscript multiplicity follows `_` directly. The subscript binds to
+the immediately preceding atom.
+
+```asciichem
+H_2
+O_3
+H_2O
+```
+
+For multi-character subscripts, use braces:
+
+```asciichem
+H_{2a}
+```
+
+## Charges
+
+Charges are suffix superscripts in IUPAC number-then-sign form:
+
+```asciichem
+Ca^2+
+Cl^-
+SO_4^2-
+```
+
+:::tip[Canonicalisation]
+AsciiChem canonicalises charge signs. `^+2` becomes `^2+` on round-trip
+per IUPAC convention.
+:::
+
+## Oxidation states
+
+Oxidation states are Roman numerals wrapped in parens:
+
+```asciichem
+Fe^(II)
+Fe^(III)
+Mn^(VII)
+```
+
+The model captures these as `Atom#oxidation_state` ("II", "III", "VII"),
+distinct from a generic superscript.
+
+## The prefix isotope — the headline semantic fix
+
+The defining difference between AsciiChem and AsciiMath lives here.
+
+```asciichem
+^14C
+^131I
+^238U
+```
+
+In AsciiChem, the `^14` prefix **binds to the following atom**. The
+parse produces one `Atom` with `isotope: "14"`. The MathML output is:
+
+```xml
+<msup><mi>C</mi><mn>14</mn></msup>
+```
+
+In AsciiMath, the same input would force a phantom carrier:
+
+```xml
+<msup><mi></mi><mn>14</mn></msup><mi>C</mi>
+```
+
+— an empty base followed by a sibling atom. The semantic binding
+(isotope 14 belongs to Carbon) is lost.
+
+## Stoichiometric coefficients
+
+Leading digits on a molecule are the coefficient, distinct from the
+leading digit of a subscript. The grammar uses positive lookahead to
+disambiguate.
+
+```asciichem
+2H_2O
+3H_2
+```
+
+The `2` in `2H_2O` is the molecule's coefficient; the `2` in `H_2` is
+the atom's subscript. Both are captured in the right place.

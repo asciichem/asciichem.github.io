@@ -1,0 +1,46 @@
+---
+title: Electron configurations
+description: Orbital occupancy and term symbols.
+---
+
+# Electron configurations
+
+An electron configuration is a sequence of `orbital^occupancy` pairs,
+each pair denoting an orbital label and the number of electrons in it.
+
+## Orbital labels
+
+An orbital label is a digit-sequence (the principal quantum number)
+followed by a single letter from the set `s p d f g h` (the azimuthal
+quantum number, lowercase).
+
+```asciichem
+1s^2 2s^2 2p^6 3s^2 3p^6 4s^2 3d^10
+```
+
+This is the ground-state configuration of zinc. The model captures it
+as `ElectronConfiguration(orbitals: [["1s","2"], ["2s","2"], ...])`.
+
+## Term symbols
+
+A term symbol describes the total angular momentum state of an atom.
+The form is `^{multiplicity}L_{J}` where `L` is a capital letter (S, P,
+D, F, ...) and `J` is the total angular momentum quantum number.
+
+:::note[Deferred to v2]
+Term symbols are first-class in the model (`ElectronConfiguration::TermSymbol`)
+but the v1 parser doesn't promote them from text — write them inside an
+embedded-math escape for now. See [embedded math](/syntax/embedded-math/).
+:::
+
+## Filled shells
+
+A filled shell is implicit in the orbital list — no special syntax. The
+renderer emits each orbital as `<msup><mi>orb</mi><mn>occ</mn></msup>`
+joined by non-breaking spaces.
+
+## What's not yet in v1
+
+- **Box notation** (orbital diagrams with up/down arrows) — needs SVG.
+- **Hund's rule validation** — out of scope for the parser.
+- **Excited-state vs ground-state markers** — needs syntax design.

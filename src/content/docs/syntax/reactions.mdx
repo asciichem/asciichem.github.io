@@ -1,0 +1,86 @@
+---
+title: Reactions
+description: Forward, reverse, equilibrium, and resonance arrows; conditions.
+---
+
+# Reactions
+
+A reaction has reactants, an arrow, and products. Conditions sit in
+bracketed groups immediately after the arrow.
+
+## Arrow types
+
+| Arrow | Kind           | Use                                  |
+| ----- | -------------- | ------------------------------------ |
+| `->`  | `:forward`     | Net forward reaction                 |
+| `<-`  | `:reverse`     | Net reverse reaction                 |
+| `<=>` | `:equilibrium` | Equilibrium (Haber, acid/base)       |
+| `<->` | `:resonance`   | Resonance structures                 |
+
+## Basic reactions
+
+```asciichem
+2H_2 + O_2 -> 2H_2O
+HCl + NaOH -> NaCl + H_2O
+CH_4 + 2O_2 -> CO_2 + 2H_2O
+```
+
+Reactants and products are each a `+`-separated list of molecules. The
+`+` operators are stripped from the model; the renderer reinserts them.
+
+## Equilibrium with conditions
+
+The Haber process — nitrogen and hydrogen over an iron catalyst at
+elevated temperature:
+
+```asciichem
+N_2 + 3H_2 <=>[Fe][400°C] 2NH_3
+```
+
+The first bracketed group `[Fe]` is the **above** condition (catalyst).
+The second bracketed group `[400°C]` is the **below** condition
+(temperature). Both are captured as `Reaction#conditions`.
+
+The MathML renderer emits the arrow as an `<munderover>`:
+
+```xml
+<munderover>
+  <mo>⇌</mo>
+  <mtext>Fe</mtext>
+  <mtext>400°C</mtext>
+</munderover>
+```
+
+## One-sided conditions
+
+Only the above condition:
+
+```asciichem
+A <=>[H_2O] B
+```
+
+Only the below:
+
+```asciichem
+A <=>[Δ] B
+```
+
+(Use the second form when the condition is energy/heat, by convention
+placed below the arrow.)
+
+## Spectators and ionic equations
+
+```asciichem
+Ag^+ + Cl^- -> AgCl
+```
+
+Ions on either side are full `Molecule` instances with their charge
+captured on the relevant atom. Round-trip is exact.
+
+## What's not yet in v1
+
+- **Reversible resonance** is supported; **tautomerism** arrows are not.
+- **Multi-step reactions** (chained arrows) require explicit Reaction
+  nodes per step.
+- **Rates and stoichiometry validation** are out of scope for the parser
+  — a separate linter pass can verify balancing.
