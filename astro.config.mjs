@@ -30,6 +30,9 @@ export default defineConfig({
           icon: "github",
         },
       ],
+      components: {
+        Header: "./src/components/Header.astro",
+      },
       sidebar: [
         {
           label: "Guides",
