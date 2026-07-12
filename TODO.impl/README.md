@@ -44,12 +44,12 @@ prioritised on its own merits.
 |---|---|---|---|
 | 18 | [2D structural formulae via elk-rb](18-2d-structural-via-elk-rb.md) | gem | pending — blocks 19, 22 |
 | 19 | [Stereochemistry markers (R/S, E/Z)](19-stereochemistry.md) | gem | pending — depends on 18 |
-| 20 | [Reaction cascades (multi-step)](20-reaction-cascades.md) | gem | pending |
-| 21 | [Linter pass (balancing, valence)](21-linter.md) | gem | pending |
+| 20 | [Reaction cascades (multi-step)](20-reaction-cascades.md) | gem | **done** (PR asciichem-ruby#3) |
+| 21 | [Linter pass (balancing, valence)](21-linter.md) | gem | **done** — registry framework + BracketBalance + IsotopeSanity checks; valence/balance checks still pending |
 | 22 | [Lewis structures and lone pairs](22-lewis-structures.md) | gem | pending — depends on 18 |
 | 23 | [Visual regression baselines](23-visual-regression.md) | site | pending (infra in place) |
-| 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | pending |
-| 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | pending |
+| 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | **done** (PR asciichem-ruby#3) — 15 corpus files |
+| 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | **done** (PR asciichem-ruby#4) |
 
 ## Dependency graph (v0.2+)
 
