@@ -1,0 +1,83 @@
+---
+title: AsciiChem
+description: An ASCII syntax for chemistry, model-driven and round-trippable.
+template: splash
+hero:
+  tagline: ASCII in, chemistry out.
+  actions:
+    - text: Get started
+      link: /guides/getting-started/
+      variant: primary
+    - text: Why AsciiChem?
+      link: /guides/why-asciichem/
+    - text: GitHub
+      link: https://github.com/asciichem/asciichem-ruby
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+AsciiChem is an ASCII syntax for representing **chemistry** — atoms, molecules,
+bonds, reactions, electron configurations, and the embedded mathematics that
+chemistry publications rely on.
+
+It is to chemistry what **AsciiMath** is to mathematics.
+
+## Why another syntax?
+
+AsciiMath's data model assumes math typography, not chemistry semantics.
+Chemistry routinely needs things AsciiMath cannot express cleanly:
+
+- **Prefix isotopes** like `^14C`. AsciiMath forces a phantom `{}` carrier
+  (`{}^14C`) — the isotope ends up bound to an empty element, semantically
+  wrong. AsciiChem binds it to the atom directly.
+- **Reactions** with stoichiometric coefficients, equilibrium arrows, and
+  catalyst conditions above and below the arrow.
+- **Electron configurations**, **term symbols**, and **bonds** (single,
+  double, triple, wedge, hash, dative).
+- **Embedded mathematics** via Plurimath, so equilibrium constants and rate
+  laws sit naturally inside chemistry.
+
+## What you get
+
+<CardGrid stagger>
+  <Card title="Model-driven" icon="seti:json">
+    Every parse produces a semantic tree. Render to MathML, HTML, LaTeX, or
+    SVG without round-tripping through text.
+  </Card>
+  <Card title="Round-trippable" icon="arrow-undo">
+    `parse(s).to_text == s` for any canonical input. The formatter is the
+    canonicaliser.
+  </Card>
+  <Card title="IUPAC-aligned" icon="open-book">
+    Constructs map to the IUPAC Green Book conventions; numbers-then-sign
+    charges, Roman numeral oxidation states, and equilibrium arrows.
+  </Card>
+  <Card title="OCP / MECE" icon="setting">
+    Add new constructs as model classes; add new outputs as formatters. No
+    edits to existing code.
+  </Card>
+</CardGrid>
+
+## The semantic fix in one line
+
+:::note[The headline change]
+`^14C` parses as `Atom(element: "C", isotope: "14")` — Carbon-14 with 14
+bound to the atom. AsciiMath would emit `<msup><mi></mi><mn>14</mn></msup>`
+— an empty base followed by the atom. The binding is lost.
+:::
+
+## Get started
+
+```bash
+gem install asciichem
+```
+
+```ruby
+require "asciichem"
+
+formula = AsciiChem.parse("2H_2 + O_2 -> 2H_2O")
+formula.to_mathml  # => "<math>...</math>"
+formula.to_text    # => "2H_2 + O_2 -> 2H_2O"
+```
+
+Continue to the **[Getting started](/guides/getting-started/)** guide.

@@ -1,0 +1,90 @@
+---
+title: Examples
+description: Worked AsciiChem examples for common chemistry.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+# Examples
+
+Real chemistry, real AsciiChem. Each example shows the source, the
+model, and the rendered MathML.
+
+## Water and hydration
+
+```asciichem
+H_2O
+CuSO_4 · 5H_2O
+```
+
+## Isotopes
+
+```asciichem
+^14C
+^131I
+^238U
+```
+
+Carbon-14 for radiodating, iodine-131 for medical imaging, uranium-238
+for the decay series.
+
+## Coordination complexes
+
+```asciichem
+[Fe(CN)_6]^4-
+[Co(NH_3)_6]^3+
+```
+
+## Acid–base equilibria
+
+```asciichem
+HAc <=> Ac^- + H^+
+```
+
+For the `K_a` expression, see [embedded math](/syntax/embedded-math/).
+
+## Redox
+
+```asciichem
+2Na + Cl_2 -> 2NaCl
+MnO_4^- + 8H^+ + 5e^- -> Mn^2+ + 4H_2O
+```
+
+## Organic
+
+```asciichem
+CH_4 + 2O_2 -> CO_2 + 2H_2O
+CH_2=CH_2
+```
+
+:::note[Skeletal formulae]
+Skeletal structures (lines and rings) need SVG rendering, which uses
+the `Bond` model. See TODO 13 for the v2 plan.
+:::
+
+## Electron configurations
+
+```asciichem
+1s^2 2s^2 2p^6 3s^2 3p^6 4s^2 3d^10
+```
+
+Ground state of zinc.
+
+## Industrial chemistry
+
+```asciichem
+N_2 + 3H_2 <=>[Fe][400°C] 2NH_3
+2SO_2 + O_2 <=>[V_2O_5] 2SO_3
+```
+
+The Haber process and the contact process — both with catalysts and
+conditions on the equilibrium arrow.
+
+## Round-trip
+
+Every example on this page round-trips through the parser. Verify
+locally:
+
+```bash
+bundle exec asciichem roundtrip -i "N_2 + 3H_2 <=>[Fe][400°C] 2NH_3"
+```

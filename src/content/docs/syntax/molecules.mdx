@@ -1,0 +1,79 @@
+---
+title: Molecules
+description: Sequences of atoms, parenthesised groups, and brackets.
+---
+
+# Molecules
+
+A molecule is an ordered sequence of atoms and groups, with an optional
+leading stoichiometric coefficient.
+
+## Simple molecules
+
+```asciichem
+H_2O
+CO_2
+C_6H_12O_6
+```
+
+Each atom carries its own subscript. The model is `Molecule(nodes: [Atom,
+Atom, ...])`.
+
+## Stoichiometric coefficients
+
+Leading digits on a molecule are its coefficient:
+
+```asciichem
+2H_2O
+3H_2
+```
+
+The `Molecule#coefficient` field holds the string. The MathML renderer
+emits it as an `<mn>` before the atoms.
+
+## Groups
+
+Parenthesised sub-formulas are groups. A group can carry an outer
+multiplicity.
+
+```asciichem
+Ca(OH)_2
+(NH_4)_2SO_4
+```
+
+For `Ca(OH)_2`:
+
+- Atom `Ca`
+- Group `OH` with multiplicity `2`, bracket `:paren`
+
+For `(NH_4)_2SO_4`:
+
+- Group `NH_4` with multiplicity `2`
+- Atoms `S`, `O` with subscripts `4`
+
+## Bracket variants
+
+AsciiChem supports three bracket kinds:
+
+| Bracket | Open / Close | Use |
+| ------- | ------------ | --- |
+| Paren   | `(` `)`      | Generic grouping (`Ca(OH)_2`) |
+| Square  | `[` `]`      | Coordination complexes (`[Fe(CN)_6]^4-`) |
+| Brace   | `{` `}`      | Optional / rare |
+
+The bracket kind is preserved through round-trip — `(OH)_2` stays as
+`(OH)_2`, not `[OH]_2`.
+
+## Coordination complexes
+
+Square brackets wrap coordination complexes. The complex's charge sits
+outside the brackets.
+
+```asciichem
+[Fe(CN)_6]^4-
+[Co(NH_3)_6]^3+
+```
+
+These are parsed as `Group(bracket: :square, nodes: [...])` followed
+by an `Atom` with the charge. (In v1, the charge attaches to the last
+atom; v2 may promote it to a complex-level attribute.)

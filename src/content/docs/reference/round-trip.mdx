@@ -1,0 +1,46 @@
+---
+title: Round-trip conformance
+description: Canonicalisation rules — what changes and what doesn't.
+---
+
+# Round-trip conformance
+
+The contract: `AsciiChem.parse(s).to_text == s` for any canonical `s`.
+The Text formatter is the canonicaliser — equivalent inputs map to the
+same canonical output, and canonical inputs round-trip exactly.
+
+## What's canonical
+
+| Construct        | Canonical form          |
+| ---------------- | ----------------------- |
+| Subscript        | Explicit `_`: `H_2`     |
+| Charge           | Number-then-sign: `Ca^2+` |
+| Coefficient      | Leading digits: `2H_2O` |
+| Isotope          | Prefix `^`: `^14C`      |
+| Oxidation state  | Parens around Roman: `Fe^(III)` |
+| Group            | Brackets preserved      |
+| Reaction arrow   | `->`, `<-`, `<=>`, `<->` |
+
+## What gets normalised
+
+| Input       | Output      | Reason                |
+| ----------- | ----------- | --------------------- |
+| `Ca^+2`     | `Ca^2+`     | IUPAC number-then-sign |
+
+## What stays untouched
+
+Everything else. The formatter does **not** reorder atoms, choose
+canonical bracket kinds, or rewrite your input chemistry. It only
+normalises the spellings of individual markers.
+
+## The conformance suite
+
+The gem ships with `spec/conformance/round_trip_spec.rb` containing
+canonical inputs that must round-trip exactly. Run it with:
+
+```bash
+bundle exec rspec spec/conformance/
+```
+
+Adding a case is the canonical way to lock in a syntax decision: if
+the case round-trips, the parser and Text formatter agree.

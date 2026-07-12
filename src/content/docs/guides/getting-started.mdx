@@ -1,0 +1,75 @@
+---
+title: Getting started
+description: Install AsciiChem and parse your first formula.
+---
+
+import { Steps, Aside } from "@astrojs/starlight/components";
+
+# Getting started
+
+AsciiChem is a Ruby gem. The website you are reading is the specification;
+the gem is the reference implementation.
+
+## Install
+
+<Steps>
+
+1. **Install the gem**
+
+   ```bash
+   gem install asciichem
+   ```
+
+   Or add to your Gemfile:
+
+   ```ruby
+   gem "asciichem"
+   ```
+
+2. **Require and parse**
+
+   ```ruby
+   require "asciichem"
+
+   formula = AsciiChem.parse("H_2O")
+   formula.to_mathml  # => "<math>...</math>"
+   formula.to_text    # => "H_2O"  (round trip)
+   ```
+
+3. **Use the CLI**
+
+   ```bash
+   $ asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t mathml
+   $ asciichem version
+   0.1.0
+   ```
+
+</Steps>
+
+## What's in a parse?
+
+AsciiChem parses text into a **model tree**. Each node has typed fields —
+chemistry semantics, not just typography.
+
+| Source       | Model                                                  |
+| ------------ | ----------------------------------------------------- |
+| `H_2O`       | `Molecule[Atom(H, sub:"2"), Atom(O)]`                 |
+| `^14C`       | `Molecule[Atom(C, isotope:"14")]`                     |
+| `Ca^2+`      | `Molecule[Atom(Ca, charge:"2+")]`                     |
+| `Ca(OH)_2`   | `Molecule[Atom(Ca), Group(...,mult:"2")]`             |
+| `2H_2+O_2 -> 2H_2O` | `Reaction(reactants:[...], products:[...], arrow::forward)` |
+
+<Aside type="note" title="The headline semantic fix">
+  For `^14C`, AsciiChem binds the isotope to the atom — the model says
+  "Carbon with isotope 14". AsciiMath would produce an empty element
+  followed by the atom — the binding is lost.
+</Aside>
+
+## Where to next?
+
+- **[Why AsciiChem?](/guides/why-asciichem/)** — the gaps in AsciiMath it
+  closes.
+- **[Atoms](/syntax/atoms/)** — elements, isotopes, charges, oxidation
+  states.
+- **[Molecules](/syntax/molecules/)** — stoichiometry, groups, brackets.
+- **[Reactions](/syntax/reactions/)** — forward, equilibrium, conditions.
