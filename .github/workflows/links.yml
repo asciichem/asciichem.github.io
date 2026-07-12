@@ -31,6 +31,7 @@ jobs:
           args: >-
             --verbose
             --no-progress
+            --exclude "https://www.asciichem.org/.*"
             --root-dir ${{ github.workspace }}/dist
             dist/**/*.html
           fail: true
