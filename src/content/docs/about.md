@@ -74,7 +74,7 @@ Constraints that shape every design decision:
 | [asciichem-ruby](https://github.com/asciichem/asciichem-ruby) | The reference parser and renderer gem |
 | [asciichem.github.io](https://github.com/asciichem/asciichem.github.io) | This specification site |
 | [plurimath](https://github.com/plurimath/plurimath) | Embedded math (AsciiChem wraps Plurimath for math expressions) |
-| [mn/elk-rb](https://github.com/mn/elk-rb) | 2D structural diagram layout (planned integration) |
+| [mn/elk-rb](https://github.com/mn) | 2D structural diagram layout (planned integration) |
 
 ## Use cases
 
