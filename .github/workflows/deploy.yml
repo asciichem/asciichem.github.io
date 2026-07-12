@@ -2,9 +2,17 @@ name: Deploy site
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .gitignore
+      - "TODO.impl/**"
+      - "docs/research/**"
   pull_request:
   repository_dispatch:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,23 +20,30 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout site
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
-      - uses: ruby/setup-ruby@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4'
+          ruby-version: "3.4"
 
       # Checkout the gem into the workspace (NOT as a sibling). GitHub
       # Actions refuses paths that escape the workspace root.
@@ -51,7 +66,7 @@ jobs:
         run: npm run build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
@@ -59,6 +74,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     needs: build
     steps:
