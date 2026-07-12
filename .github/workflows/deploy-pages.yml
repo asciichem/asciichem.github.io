@@ -2,29 +2,44 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .gitignore
+      - "docs/research/**"
+      - "TODO.impl/**"
   workflow_dispatch:
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment, skipping runs queued between
+# the run in-progress and latest queued. Do NOT cancel in-progress runs
+# as we want production deployments to complete.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout site
         uses: actions/checkout@v4
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Setup Ruby
@@ -32,23 +47,22 @@ jobs:
         with:
           ruby-version: "3.4"
 
-      - name: Checkout asciichem-ruby (sibling repo)
+      # Checkout the gem into the workspace (NOT as a sibling). GitHub
+      # Actions refuses paths that escape the workspace root.
+      - name: Checkout asciichem-ruby
         uses: actions/checkout@v4
         with:
           repository: asciichem/asciichem-ruby
-          path: ../asciichem-ruby
+          path: .asciichem-ruby
 
       - name: Install asciichem gem
-        working-directory: ../asciichem-ruby
+        working-directory: .asciichem-ruby
         run: |
-          bundle install --jobs 4
+          bundle install --jobs 4 --no-cache
           bundle exec rake install
 
       - name: Install npm dependencies
         run: npm ci
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
 
       - name: Build site
         run: npm run build
@@ -59,12 +73,13 @@ jobs:
           path: dist
 
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    needs: build
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
