@@ -1,9 +1,7 @@
 ---
-title: Blog
+title: News
 description: AsciiChem project news and release notes.
 ---
-
-# Blog
 
 Project news, release announcements, and design deep-dives. No posts
 yet — check back soon.

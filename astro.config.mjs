@@ -83,7 +83,7 @@ export default defineConfig({
           label: "Project",
           items: [
             { label: "About", slug: "about" },
-            { label: "Blog", slug: "blog" },
+            { label: "News", slug: "news" },
           ],
         },
       ],
