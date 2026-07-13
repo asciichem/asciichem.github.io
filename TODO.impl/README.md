@@ -42,17 +42,17 @@ prioritised on its own merits.
 
 | # | Title | Repo | Status |
 |---|---|---|---|
-| 18 | [2D structural formulae via elk-rb](18-2d-structural-via-elk-rb.md) | gem | pending — blocks 19, 22 |
-| 19 | [Stereochemistry markers (R/S, E/Z)](19-stereochemistry.md) | gem | pending — depends on 18 |
+| 18 | [2D structural formulae via elk-rb](18-2d-structural-via-elk-rb.md) | gem | pending — **elkrb now available** at `claricle/elkrb` (12 layout algorithms) |
+| 19 | [Stereochemistry markers (R/S, E/Z)](19-stereochemistry.md) | gem | **done** (model + grammar + formatters) — 2D layout needs TODO 18 |
 | 20 | [Reaction cascades (multi-step)](20-reaction-cascades.md) | gem | **done** (PR asciichem-ruby#3) |
-| 21 | [Linter pass (balancing, valence)](21-linter.md) | gem | **done** — registry framework + BracketBalance + IsotopeSanity checks; valence/balance checks still pending |
-| 22 | [Lewis structures and lone pairs](22-lewis-structures.md) | gem | pending — depends on 18 |
+| 21 | [Linter pass (balancing, valence)](21-linter.md) | gem | **done** — BalanceCheck + ValenceCheck + BracketBalanceCheck + IsotopeSanityCheck |
+| 22 | [Lewis structures and lone pairs](22-lewis-structures.md) | gem | **done** (model + grammar + formatters) — 2D layout needs TODO 18 |
 | 23 | [Visual regression baselines](23-visual-regression.md) | site | pending (infra in place) |
 | 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | **done** (PR asciichem-ruby#3) — 15 corpus files |
 | 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | **done** (PR asciichem-ruby#4) |
 | 26 | [CML round-trip](26-cml-round-trip.md) | gem | **done** — chemml gem + AsciiChem::Cml::Translator |
-| 27 | [Canonical chemistry representation model](27-canonical-chem-model.md) | gem | pending — Chemml::Model as the format-agnostic hub |
-| 28 | [CML spec page on site](28-cml-spec-page.md) | site | pending — depends on 26, 27 |
+| 27 | [Canonical chemistry representation model](27-canonical-chem-model.md) | gem | **done** — Chemml::Model + Chemml::Cml::Translator |
+| 28 | [CML spec page on site](28-cml-spec-page.md) | site | **done** (PR asciichem.github.io#11) |
 
 ## Dependency graph (v0.2+)
 
