@@ -23,6 +23,7 @@ const shouldRenderSearch =
 
 const currentPath = Astro.url.pathname.replace(/\/[^/]*$/, "").replace(/^\//, "");
 const isActive = (href: string) => {
+  if (currentPath === "") return false;
   const section = href.replace(/^\//, "").replace(/\/.*$/, "");
   return currentPath.startsWith(section);
 };
@@ -208,13 +209,39 @@ const isActive = (href: string) => {
   const toggle = document.querySelector(".nav-toggle");
   const menu = document.getElementById("mobile-nav");
 
+  function closeMenu() {
+    toggle?.setAttribute("aria-expanded", "false");
+    menu?.setAttribute("hidden", "");
+    toggle?.focus();
+  }
+
+  function openMenu() {
+    toggle?.setAttribute("aria-expanded", "true");
+    menu?.removeAttribute("hidden");
+    const firstLink = menu?.querySelector("a");
+    firstLink?.focus();
+  }
+
   toggle?.addEventListener("click", () => {
     const expanded = toggle.getAttribute("aria-expanded") === "true";
-    toggle.setAttribute("aria-expanded", String(!expanded));
     if (expanded) {
-      menu?.setAttribute("hidden", "");
+      closeMenu();
     } else {
-      menu?.removeAttribute("hidden");
+      openMenu();
     }
+  });
+
+  // Escape closes the menu and restores focus.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") {
+      closeMenu();
+    }
+  });
+
+  // Click outside closes.
+  document.addEventListener("click", (e) => {
+    if (toggle?.getAttribute("aria-expanded") !== "true") return;
+    if (menu?.contains(e.target) || toggle?.contains(e.target)) return;
+    closeMenu();
   });
 </script>

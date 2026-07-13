@@ -23,6 +23,7 @@ export default defineConfig({
         src: "./src/assets/logo.svg",
         replacesTitle: false,
       },
+      pagefind: true,
       social: [
         {
           label: "GitHub",
