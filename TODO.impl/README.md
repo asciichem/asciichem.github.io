@@ -50,6 +50,7 @@ prioritised on its own merits.
 | 23 | [Visual regression baselines](23-visual-regression.md) | site | pending (infra in place) |
 | 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | **done** (PR asciichem-ruby#3) — 15 corpus files |
 | 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | **done** (PR asciichem-ruby#4) |
+| 26 | [CML round-trip](26-cml-round-trip.md) | gem | pending — XML semantic format, formatter + parser |
 
 ## Dependency graph (v0.2+)
 
