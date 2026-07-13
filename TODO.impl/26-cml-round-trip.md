@@ -6,6 +6,9 @@
 - **Blocks:** nothing
 - **Standards reference:** https://www.xml-cml.org/, CML v2.4 + v3 spec
   (Murray-Rust, Rzepa, Wright et al.)
+- **Implementation framework:** [lutaml-model](https://github.com/lutaml/lutaml-model)
+  — **no hand-rolled serialization.** All CML wire-format (de)serialization
+  goes through lutaml-model with declared `attribute` + `mapping` blocks.
 
 ## Motivation
 
@@ -30,79 +33,166 @@ Unlike our other formatters (MathML, HTML, LaTeX, SVG), CML is a
 presentation. This makes CML round-trip the strongest available test
 of model completeness.
 
+## Architecture
+
+The CML implementation is **not** just another formatter — CML has
+its own model layer, parallel to AsciiChem's. The architecture is:
+
+```
+   AsciiChem::Model          Cml::Model
+   (chemistry semantics)     (CML XML wire format)
+        ▲                          ▲
+        │                          │
+   AsciiChem::Parser          lutaml-model
+   (text -> AsciiChem::Model) (CML XML <-> Cml::Model)
+        │                          │
+        ▼                          │
+   AsciiChem text input             │
+                                   │
+        ┌──────────────────────────┘
+        │
+        ▼
+   Cml::Translator (adapter)
+   AsciiChem::Model <-> Cml::Model
+```
+
+Three concerns, MECE:
+
+1. **`AsciiChem::Model`** — chemistry semantics. Unchanged.
+2. **`Cml::Model`** — CML wire-format classes, declared via
+   lutaml-model. Each CML element (`<molecule>`, `<atom>`, `<bond>`,
+   `<reaction>`, ...) is its own class with `attribute` declarations
+   and a `mapping` block for the XML wire names. Serialization /
+   deserialization is lutaml-model's responsibility — we never write
+   `to_xml` / `from_xml` by hand.
+3. **`Cml::Translator`** — the adapter between the two models. Pure
+   transformation logic, no I/O. Adding a new model field means
+   updating the translator's mapping rules; the Cml::Model and
+   AsciiChem::Model classes stay independent.
+
+This is the same architecture Plurimath uses for its format adapters,
+and it matches the global rule: serialization goes through a
+framework (lutaml-model), never hand-rolled.
+
 ## Scope
 
-### Formatter (Model → CML)
+### CML model layer (lutaml-model)
 
-`lib/asciichem/formatter/cml.rb` — `class Cml < Base`, registered
-via the standard `Formatter[:cml]` interface. Each `visit_<class>`
-method emits the corresponding CML element:
+`lib/asciichem/cml.rb` — `module Cml` namespace.
 
-| Model class            | CML element                                              |
-| ---------------------- | ------------------------------------------------------- |
-| `Formula`              | `<cml>` root containing every top-level node            |
-| `Molecule`             | `<molecule id="m1">` with optional stereo attribute     |
-| `Atom`                 | `<atom id="a1" elementType="C" formalCharge="2+" hydrogenCount="..." isotopicMass="14" .../>` |
-| `Group`                | `<molecule>` wrapper with `count` attribute for multiplicity |
-| `Bond`                 | `<bond atomRefs2="a1 a2" order="S/D/T/..."/>`           |
-| `Reaction`             | `<reaction>` with `<reactantList>` / `<productList>` / `<reactantCondition>` |
-| `ReactionCascade`      | A sequence of `<reaction>` elements linked via `id`s    |
-| `ElectronConfiguration`| `<electronConfiguration>` (custom extension if no CML standard exists) |
-| `EmbeddedMath`         | `<scalar>` carrying the math source, or `<math>` if Plurimath can emit CML-compatible math |
-| `Text`                 | `<name>` or comment depending on context                |
+`lib/asciichem/cml/` — one file per CML element class:
 
-Atom IDs (`a1`, `a2`, ...) and bond references must be generated
-deterministically so the output is reproducible.
+| File                  | Class               | CML element                                           |
+| --------------------- | ------------------- | ---------------------------------------------------- |
+| `molecule.rb`         | `Cml::Molecule`     | `<molecule id="...">`                                |
+| `atom.rb`             | `Cml::Atom`         | `<atom id elementType formalCharge isotopicMass spinMultiplicity ...>` |
+| `atom_array.rb`       | `Cml::AtomArray`    | `<atomArray>` containing atoms                       |
+| `bond.rb`             | `Cml::Bond`         | `<bond atomRefs2 order>`                             |
+| `bond_array.rb`       | `Cml::BondArray`    | `<bondArray>` containing bonds                       |
+| `reaction.rb`         | `Cml::Reaction`     | `<reaction>` with `<reactantList>` / `<productList>` |
+| `reactant.rb`         | `Cml::Reactant`     | `<reactant>` referencing a `<molecule>`              |
+| `product.rb`          | `Cml::Product`      | `<product>` referencing a `<molecule>`               |
+| `reactant_list.rb`    | `Cml::ReactantList` | `<reactantList>` wrapper                             |
+| `product_list.rb`     | `Cml::ProductList`  | `<productList>` wrapper                              |
+| `reaction_list.rb`    | `Cml::ReactionList` | `<reactionList>` for cascades                        |
+| `name.rb`             | `Cml::Name`         | `<name>` for molecule names                          |
+| `identifier.rb`       | `Cml::Identifier`   | `<identifier>` for InChI/SMILES pointers             |
+| `document.rb`         | `Cml::Document`     | `<cml>` root                                         |
 
-### Parser (CML → Model)
+Each class declares its attributes and mapping. Example for
+`Cml::Atom`:
 
-`lib/asciichem/cml/parser.rb` — uses Nokogiri to parse the XML and
-build the model tree. Mirror of the AsciiChem text parser API:
-`AsciiChem::Cml.parse(cml_xml) -> AsciiChem::Model::Formula`.
+```ruby
+module AsciiChem
+  module Cml
+    class Atom < Lutaml::Model::Serializable
+      attribute :id, :string
+      attribute :element_type, :string
+      attribute :formal_charge, :string
+      attribute :isotope, :string
+      attribute :hydrogen_count, :string
+      attribute :lone_pairs, :integer
+      attribute :radical_electrons, :integer
 
-The parser must handle the full v0.2 model surface. CML's semantics
-are richer than AsciiChem's (e.g. 3D coordinates, spectra), so any
-CML feature we don't model yet should be captured as a diagnostic
-(warning) rather than silently dropped.
+      xml do
+        root "atom"
+        map_attribute "id", to: :id
+        map_attribute "elementType", to: :element_type
+        map_attribute "formalCharge", to: :formal_charge
+        map_attribute "isotope", to: :isotope
+        map_attribute "hydrogenCount", to: :hydrogen_count
+        # Custom AsciiChem extensions for fields CML doesn't natively
+        # cover go in a namespaced attribute to keep the CML output
+        # valid against the standard.
+        map_attribute "aci:lonePairs", to: :lone_pairs,
+                       namespace: "https://asciichem.org/cml-ext",
+                       prefix: "aci"
+        map_attribute "aci:radicalElectrons", to: :radical_electrons,
+                       namespace: "https://asciichem.org/cml-ext",
+                       prefix: "aci"
+      end
+    end
+  end
+end
+```
 
-### Round-trip conformance
+### Translator (adapter pattern)
 
-`spec/conformance/cml_round_trip_spec.rb` — for every AsciiChem
-snippet in the existing round-trip suite:
+`lib/asciichem/cml/translator.rb` — `class Translator` with two
+methods:
 
-1. Parse AsciiChem → Model.
-2. Model → CML (via the new formatter).
-3. CML → Model (via the new parser).
-4. Compare models 1 and 4 — they must be equal.
-5. Optionally: Model 4 → CML again must byte-equal Model 2's CML
-   modulo insignificant whitespace.
+- `Translator.from_asciichem(formula)` — walks the AsciiChem::Model
+  tree and constructs the equivalent `Cml::Document`.
+- `Translator.to_asciichem(cml_document)` — walks the Cml::Model
+  tree and constructs the equivalent `AsciiChem::Model::Formula`.
 
-This is the strictest correctness check we have.
+Adding a new model field means updating two places:
+1. The lutaml-model class declaration (Cml::Atom or similar).
+2. The translator's mapping rules.
+
+That's it. No edits to the existing AsciiChem text parser, no edits
+to the existing formatters (MathML/HTML/LaTeX/SVG).
+
+### Public API
+
+- `formula.to_cml` — convenience method on `Model::Formula` that
+  calls `Cml::Translator.from_asciichem(self)` then
+  `Lutaml::Model::Serializable#to_xml`.
+- `AsciiChem::Cml.parse(xml_string)` — parses CML XML via
+  `Cml::Document.from_xml(xml_string)` then
+  `Translator.to_asciichem(document)`.
 
 ### CLI
 
-Add `-t cml` and a new `parse-cml -i INPUT.xml` command.
+- `asciichem convert -i "H_2O" -t cml` — emits CML XML.
+- `asciichem parse-cml -i "<cml>...</cml>"` — emits AsciiChem text
+  (or any other supported format).
 
 ### Spec page
 
 `src/content/docs/reference/cml.mdx` — explains:
 
 - What CML is and why AsciiChem supports it.
-- The mapping table above, with worked examples.
+- The architecture diagram above (three concerns, MECE).
+- The model → CML element mapping table, with worked examples.
+- How custom AsciiChem extensions (Lewis markers, etc.) are encoded
+  via the `aci:` namespace.
 - Limitations (features CML has that we don't yet model; vice versa).
 - Verifying round-trip with the CLI.
 
-### Architecture
+### Round-trip conformance
 
-CML is conceptually a sibling of MathML/HTML/LaTeX/SVG, not a
-replacement. The formatter lives under `Formatter::Cml` and registers
-through the same `Formatter[:cml]` registry. Adding it is one new
-file plus one autoload entry — pure OCP.
+`spec/conformance/cml_round_trip_spec.rb` — for every AsciiChem
+snippet in the existing round-trip suite:
 
-The CML parser is a separate class (`AsciiChem::Cml::Parser`)
-parallel to `AsciiChem::Parser` (which handles AsciiChem text). The
-model they produce is identical; the choice of parser depends on
-input format.
+1. Parse AsciiChem → AsciiChem::Model.
+2. AsciiChem::Model → Cml::Model (translator) → CML XML.
+3. CML XML → Cml::Model (lutaml-model) → AsciiChem::Model (translator).
+4. AsciiChem::Model from step 1 must equal step 4.
+5. Optionally: re-render step 4 to CML and compare byte-for-byte
+   with step 2's output modulo insignificant whitespace.
+
+This is the strictest correctness check we have.
 
 ## What this enables
 
@@ -113,27 +203,52 @@ input format.
 - **Publication submission** to venues that require CML.
 - **Future SMILES/InChI conversion** — many converters accept CML
   as input.
+- **Reusable CML model layer** — the `Cml::*` classes are useful
+  independent of AsciiChem; they could be extracted to a separate
+  gem if demand warrants.
 
 ## What's out of scope
 
 - **3D coordinates.** CML carries them; AsciiChem's model doesn't
   (yet). TODO 18 (2D structural via elk-rb) might add a `geometry`
-  field that the CML formatter could populate.
+  field that the translator could populate.
 - **Spectroscopy / crystallography blocks.** CML has extensive
   support; AsciiChem's model doesn't cover these.
 - **Polymer notation**. Green Book §2.10 mentions; CML has it; we
   don't model it.
 - **Reaction kinetics.** CML supports `<reactionrate>` etc.; out of
   scope for v0.2.
+- **CML schema validation.** The output will be well-formed but may
+  not validate against the full CML schema until the geometry and
+  metadata fields are populated. A follow-up TODO could add schema
+  validation.
 
 ## Acceptance criteria
 
 - [ ] `AsciiChem.parse("H_2O").to_cml` produces well-formed CML XML
-      parseable by Nokogiri without warnings.
+      with `<molecule>`, `<atomArray>`, three `<atom>` elements.
+- [ ] The CML output is produced via lutaml-model — no manual
+      Nokogiri string building in the formatter path.
 - [ ] `AsciiChem::Cml.parse(cml)` produces a `Model::Formula`
       equivalent to the AsciiChem-parsed form of the same content.
-- [ ] Round-trip suite passes for every canonical input.
+- [ ] CML → Model → CML is byte-equal (modulo whitespace) for every
+      canonical input.
+- [ ] The `Cml::*` class set is reusable — every class is exported
+      in the `AsciiChem::Cml` namespace and instantiable on its own.
+- [ ] Custom AsciiChem fields (Lewis markers, stereochemistry) ride
+      in the `aci:` namespace so the CML stays schema-valid.
 - [ ] CLI `convert -i "..." -t cml` and `parse-cml -i "<xml>..."`.
 - [ ] Spec page `reference/cml.mdx` documents the mapping with
       worked examples.
 - [ ] CI runs CML round-trip on every PR.
+
+## Dependencies
+
+Add `lutaml-model` to the gemspec runtime dependencies:
+
+```ruby
+spec.add_dependency "lutaml-model", "~> 0.8"
+```
+
+(lutaml-model already depends on Nokogiri for XML handling — we get
+the parser/serializer for free.)
