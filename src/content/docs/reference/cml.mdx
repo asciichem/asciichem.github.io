@@ -1,0 +1,192 @@
+---
+title: CML round-trip
+description: How AsciiChem round-trips through Chemical Markup Language (CML) XML.
+---
+
+# CML round-trip
+
+[Chemical Markup Language (CML)](https://www.xml-cml.org/) is the
+established XML standard for chemistry. AsciiChem supports
+bidirectional CML conversion via the [chemml gem](https://github.com/lutaml/chemml),
+which provides a proper lutaml-model-based CML layer.
+
+## Architecture
+
+```
+   AsciiChem text               CML XML
+        │                          │
+        ▼                          ▼
+   AsciiChem::Parser      Chemml::Cml::Document
+   (parslet)              (lutaml-model)
+        │                          │
+        ▼                          ▼
+   AsciiChem::Model       Chemml::Cml::Translator
+   (chemistry semantics)       │
+        │                      ▼
+        └──────► Chemml::Model ◄──────┘
+                 (canonical hub)
+```
+
+Three layers, MECE:
+
+1. **AsciiChem::Model** — chemistry semantics produced by the text parser.
+2. **Chemml::Model** — canonical, format-agnostic representation.
+   Every adapter speaks this model.
+3. **Chemml::Cml** — CML XML wire format, declared via lutaml-model.
+
+## Model-to-CML mapping
+
+| AsciiChem construct | Canonical class | CML element | Key attributes |
+|---|---|---|---|
+| `H_2O` | `Model::Molecule` | `<molecule>` | `id` |
+| `H` | `Model::Atom` | `<atom>` | `id`, `elementType`, `count` |
+| `^14C` | `Model::Atom` | `<atom>` | `elementType`, `isotope` |
+| `Ca^2+` | `Model::Atom` | `<atom>` | `elementType`, `formalCharge` |
+| `A-B` | `Model::Bond` | `<bond>` | `atomRefs2`, `order` |
+| `A -> B` | `Model::Reaction` | `<reaction>` | `type`, `reactantList`, `productList` |
+| `A -> B -> C` | `Model::ReactionList` | `<reactionList>` | ordered `<reaction>` children |
+
+## Using CML from Ruby
+
+```ruby
+require "asciichem"
+
+formula = AsciiChem.parse("H_2O")
+puts formula.to_cml
+# <cml>
+#   <molecule id="m1">
+#     <atomArray>
+#       <atom id="a1" elementType="H" count="2"/>
+#       <atom id="a2" elementType="O"/>
+#     </atomArray>
+#   </molecule>
+# </cml>
+```
+
+Parse CML back to AsciiChem:
+
+```ruby
+xml = File.read("ethanol.cml")
+formula = AsciiChem::Cml.parse(xml)
+puts formula.to_text  # => "C_2H_6O"
+```
+
+## Using CML from the CLI
+
+```bash
+# AsciiChem -> CML
+asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t cml
+
+# CML -> AsciiChem text
+asciichem parse-cml -i "<cml><molecule><atomArray><atom elementType=\"C\"/><atom elementType=\"O\" hydrogenCount=\"2\"/></atomArray></molecule></cml>"
+```
+
+## Worked examples
+
+### Water
+
+```asciichem
+H_2O
+```
+
+The CML output:
+
+```xml
+<cml>
+  <molecule id="m1">
+    <atomArray>
+      <atom id="a1" elementType="H" count="2"/>
+      <atom id="a2" elementType="O"/>
+    </atomArray>
+  </molecule>
+</cml>
+```
+
+### Carbon-14 isotope
+
+```asciichem
+^14C
+```
+
+The isotope appears as the `isotope` attribute on the `<atom>` element.
+
+### Calcium ion
+
+```asciichem
+Ca^2+
+```
+
+The charge appears as `formalCharge` on the `<atom>`.
+
+### Haber process
+
+```asciichem
+N_2 + 3H_2 <=>[Fe][400C] 2NH_3
+```
+
+The reaction serialises as a `<reaction>` element with
+`<reactantList>` and `<productList>`.
+
+## CML bond order codes
+
+CML uses single-letter codes for bond orders. AsciiChem maps its
+internal bond kinds as follows:
+
+| AsciiChem kind | CML order | Meaning |
+|---|---|---|
+| `:single` | `S` | Single bond |
+| `:double` | `D` | Double bond |
+| `:triple` | `T` | Triple bond |
+| `:quadruple` | `Q` | Quadruple bond |
+| `:wedge` | `W` | Stereo wedge |
+| `:hash` | `H` | Stereo hash |
+| `:dative` | `DG` | Dative / coordinate |
+
+## Limitations
+
+- **3D coordinates.** CML carries them; AsciiChem's model doesn't
+  yet. TODO 18 (2D structural via elk-rb) will add geometry.
+- **Spectroscopy / crystallography.** CML has extensive support;
+  AsciiChem doesn't model these.
+- **Lewis markers.** Lone pairs and radical electrons are in the
+  AsciiChem model but CML doesn't natively cover them. A future
+  `aci:` extension namespace will carry these.
+- **Stereochemistry.** `(R)`/`(S)`/`(E)`/`(Z)` markers are in the
+  AsciiChem model; CML represents them differently (via atom
+  parities). The translator will map them in a future update.
+
+## The chemml gem
+
+The CML layer is owned by the [chemml gem](https://github.com/lutaml/chemml),
+not by asciichem. This separation keeps the canonical model
+reusable — other projects can use `Chemml::Model` without pulling
+in the AsciiChem parser.
+
+```ruby
+require "chemml"
+
+# Build a CML document directly
+atom = Chemml::Cml::Atom.new(id: "a1", element_type: "C")
+mol  = Chemml::Cml::Molecule.new(id: "m1")
+doc  = Chemml::Cml::Document.new(molecules: [mol])
+doc.to_xml
+
+# Use the canonical model directly
+canon = Chemml::Model::Atom.new(element: "C", isotope: "14")
+canon.element  # => "C"
+canon.isotope  # => "14"
+```
+
+## Round-trip verification
+
+The strongest correctness check is three-way round-trip:
+
+1. Parse AsciiChem text to `AsciiChem::Model`.
+2. Convert to `Chemml::Model` (canonical).
+3. Serialise to CML XML.
+4. Parse CML XML back to `Chemml::Model`.
+5. Convert back to `AsciiChem::Model`.
+6. Render to AsciiChem text.
+
+The output text should equal the original input. The gem's spec
+suite verifies this for every canonical AsciiChem construct.
