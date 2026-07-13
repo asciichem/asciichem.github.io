@@ -50,7 +50,9 @@ prioritised on its own merits.
 | 23 | [Visual regression baselines](23-visual-regression.md) | site | pending (infra in place) |
 | 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | **done** (PR asciichem-ruby#3) — 15 corpus files |
 | 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | **done** (PR asciichem-ruby#4) |
-| 26 | [CML round-trip](26-cml-round-trip.md) | gem | pending — XML semantic format via lutaml-model, formatter + parser |
+| 26 | [CML round-trip](26-cml-round-trip.md) | gem | **done** — chemml gem + AsciiChem::Cml::Translator |
+| 27 | [Canonical chemistry representation model](27-canonical-chem-model.md) | gem | pending — Chemml::Model as the format-agnostic hub |
+| 28 | [CML spec page on site](28-cml-spec-page.md) | site | pending — depends on 26, 27 |
 
 ## Dependency graph (v0.2+)
 
