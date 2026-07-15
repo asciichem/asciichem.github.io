@@ -1,84 +1,744 @@
 ---
 title: CML round-trip
-description: How AsciiChem round-trips through Chemical Markup Language (CML) XML.
+description: How AsciiChem round-trips through Chemical Markup Language (CML) XML via the chemicalml gem's canonical model and lutaml-model wire layer.
 ---
 
-# CML round-trip
+import { Card, CardGrid, Steps } from "@astrojs/starlight/components";
 
 [Chemical Markup Language (CML)](https://www.xml-cml.org/) is the
-established XML standard for chemistry. AsciiChem supports
-bidirectional CML conversion via the [chemml gem](https://github.com/lutaml/chemml),
-which provides a proper lutaml-model-based CML layer.
+established XML standard for chemistry interchange. AsciiChem supports
+bidirectional CML conversion via the
+[chemicalml gem](https://github.com/lutaml/chemicalml) (v0.2.0), which
+provides full coverage of all **121 CML Schema 3 elements**, a
+canonical chemistry object model, a `lutaml-model`-backed CML wire
+layer, five convention validators with 17 constraint classes, and
+eight built-in CML dictionaries with 193+ entries.
 
-## Architecture
+This page documents the full pipeline: what the `chemicalml` gem is
+internally, how AsciiChem composes with it, and exactly what happens at
+each stage when text becomes XML.
+
+## Why CML matters
+
+CML is the only widely-adopted **open, XML-based** format for chemistry.
+It captures atoms, bonds, molecules, reactions, spectra, crystal
+structures, and computational chemistry results in a schema-validated,
+namespaced, tool-independent wire format.
+
+AsciiChem's job is to **parse text**. Once the text is a semantic model,
+interchanging with the rest of the chemistry tooling ecosystem means
+speaking CML. The `chemicalml` gem is the bridge — it owns the canonical
+chemistry model and the CML wire classes, so AsciiChem never touches XML
+directly.
+
+## The four-layer architecture
+
+Four concerns, kept **MECE** (mutually exclusive, collectively
+exhaustive). Each concern lives in its own namespace; none leaks into
+another.
 
 ```
-   AsciiChem text               CML XML
-        │                          │
-        ▼                          ▼
-   AsciiChem::Parser      Chemml::Cml::Document
-   (parslet)              (lutaml-model)
-        │                          │
-        ▼                          ▼
-   AsciiChem::Model       Chemml::Cml::Translator
-   (chemistry semantics)       │
-        │                      ▼
-        └──────► Chemml::Model ◄──────┘
-                 (canonical hub)
+   ┌─────────────────────────────────────────────────────────────┐
+   │                    THE USER'S TEXT                          │
+   │              "2H_2 + O_2 -> 2H_2O"                          │
+   └────────────────────────────┬────────────────────────────────┘
+                                │
+                    AsciiChem::Parser (parslet)
+                                │
+                                ▼
+   ┌─────────────────────────────────────────────────────────────┐
+   │  LAYER 1: AsciiChem::Model                                  │
+   │  Chemistry-semantic tree produced by the text parser.       │
+   │  Every AsciiChem formatter (MathML, Text, LaTeX, SVG,       │
+   │  HTML) consumes this tree.                                  │
+   │                                                             │
+   │    Formula                                                  │
+   │      └─ Reaction(arrow: :forward,                           │
+   │             reactants: [Molecule(...), Molecule(...)],      │
+   │             products:  [Molecule(...)])                     │
+   └────────────────────────────┬────────────────────────────────┘
+                                │
+                     AsciiChem::ModelAdapter
+                     (AsciiChem::Model ↔ canonical)
+                                │
+                                ▼
+   ┌─────────────────────────────────────────────────────────────┐
+   │  LAYER 2: Chemicalml::Model  (canonical hub)                │
+   │  Format-agnostic chemistry representation. Every adapter    │
+   │  (AsciiChem today; SMILES, InChI, MOL tomorrow) speaks      │
+   │  this model.                                                │
+   │                                                             │
+   │    Document                                                 │
+   │      └─ Reaction(arrow: :forward,                           │
+   │             reactant_list: ReactantList[                    │
+   │               Reactant(Substance(Molecule(atoms: [          │
+   │                 Atom(id:"a1", element:"H", count:"2"),      │
+   │                 Atom(id:"a2", element:"O", count:"2")       │
+   │               ])))                                          │
+   │             ], ...)                                         │
+   └────────────────────────────┬────────────────────────────────┘
+                                │
+                  Chemicalml::Cml::Translator
+                  (canonical ↔ wire; schema-aware)
+                                │
+                                ▼
+   ┌─────────────────────────────────────────────────────────────┐
+   │  LAYER 3: Chemicalml::Cml::Schema3::*  (wire)               │
+   │  Lutaml::Model::Serializable subclasses. XML mapping        │
+   │  declared via `xml do ... end` blocks. Zero hand-rolled     │
+   │  XML in the entire stack.                                   │
+   │                                                             │
+   │    Schema3::Document(molecules: [], reactions: [            │
+   │      Schema3::Reaction(id:"r1", type:"forward",             │
+   │        reactant_list: Schema3::ReactantList(...),           │
+   │        product_list:  Schema3::ProductList(...))            │
+   │    ])                                                       │
+   └────────────────────────────┬────────────────────────────────┘
+                                │
+                       wire_doc.to_xml
+                                │
+                                ▼
+   ┌─────────────────────────────────────────────────────────────┐
+   │  LAYER 4: CML XML string                                    │
+   │                                                             │
+   │    <cml xmlns="http://www.xml-cml.org/schema">              │
+   │      <reaction id="r1" type="forward">                      │
+   │        <reactantList>...</reactantList>                     │
+   │        <productList>...</productList>                       │
+   │      </reaction>                                            │
+   │    </cml>                                                   │
+   └─────────────────────────────────────────────────────────────┘
 ```
 
-Three layers, MECE:
+**Adapters never talk to each other directly.** `AsciiChem::ModelAdapter`
+only knows about layers 1 and 2. `Chemicalml::Cml::Translator` only
+knows about layers 2 and 3. Adding a new format (SMILES, InChI) is a
+new adapter against layer 2 — layers 1, 3, 4 are untouched. This is
+OCP applied to format interchange.
 
-1. **AsciiChem::Model** — chemistry semantics produced by the text parser.
-2. **Chemml::Model** — canonical, format-agnostic representation.
-   Every adapter speaks this model.
-3. **Chemml::Cml** — CML XML wire format, declared via lutaml-model.
+## The chemicalml gem's internal design
+
+The `chemicalml` gem is structured as **three sub-layers** plus
+supporting infrastructure. Understanding this layout is the key to
+extending CML support without breaking existing code.
+
+### Layer A: the canonical model (`Chemicalml::Model::*`)
+
+Plain Ruby classes that capture chemistry semantics. No serialization,
+no XML, no schema concerns — just typed attributes and tree-walking
+contracts.
+
+```ruby
+# lib/chemicalml/model/atom.rb
+class Atom < Node
+  attr_accessor :id, :element, :formal_charge, :isotope,
+                :count, :hydrogen_count, :lone_pairs,
+                :radical_electrons, :spin_multiplicity, :title,
+                :atom_parity
+  # ...
+end
+```
+
+Every model class implements two contracts:
+
+- **`#children`** — returns an array of child nodes. The linter and
+  future tree-walkers use this to recurse without type-switching.
+- **`#value_attributes`** — returns the hash of fields that participate
+  in equality. Two atoms are equal iff their classes match and their
+  `value_attributes` hashes match.
+
+The canonical model currently defines **22 classes**: `Document`,
+`Molecule`, `Atom`, `Bond`, `BondStereo`, `AtomParity`, `Reaction`,
+`ReactantList`, `Reactant`, `ProductList`, `Product`, `Substance`,
+`Name`, `Identifier`, `Formula`, `Property`, `PropertyList`,
+`Parameter`, `ParameterList`, `Metadata`, `MetadataList`, `Scalar`,
+`Array`, `Matrix`, `Label`, `CmlModule`, plus the `Node` base class.
+
+The model supports **atom coordinates** (2D `x2`/`y2`, 3D
+`x3`/`y3`/`z3`, and fractional `xFract`/`yFract`/`zFract`),
+**stereochemistry** (`AtomParity` with `atom_refs4` + value;
+`BondStereo` with `atom_refs2`/`atom_refs4` + value), and
+**molecule metadata** (`names`, `identifiers`, `formulas`,
+`properties`, `labels` as first-class children of `Molecule`).
+
+### Layer B: shared declarations (`Base::*` and `Role::*`)
+
+The same CML element (e.g. `<atom>`) exists in both Schema 3 and
+Schema 2.4 with identical attributes but potentially different XML
+mapping. The gem factors the **shared declaration** into mixin
+modules:
+
+```ruby
+# lib/chemicalml/cml/base/atom.rb
+module Base::Atom
+  def self.included(klass)
+    klass.class_eval do
+      attribute :id, :string
+      attribute :element_type, :string
+      attribute :count, :string
+      attribute :formal_charge, :string
+      attribute :isotope, :string
+      # ... 7 more attributes
+      xml do
+        namespace Chemicalml::Cml::Namespace
+        root "atom"
+        map_attribute "id",          to: :id
+        map_attribute "elementType", to: :element_type
+        map_attribute "count",       to: :count
+        # ... 7 more mappings
+      end
+    end
+  end
+end
+```
+
+**`Role::*`** modules are the polymorphic dispatch surface — they
+identify what role a wire object plays (is it a `Molecule`? a
+`Document`? a `Module`?) so the translator can dispatch correctly
+without switching on class names.
+
+### Layer C: schema-versioned wire classes (`Schema3::*` and `Schema24::*`)
+
+The gem covers **all 121 CML Schema 3 elements** — from `<atom>` and
+`<molecule>` to `<crystal>`, `<spectrum>`, `<kpoint>`, `<zMatrix>`,
+and `<transitionState>`. Each wire class is a thin one-liner that
+includes the right `Base::*` mixin:
+
+```ruby
+# lib/chemicalml/cml/schema3/atom.rb
+class Atom < Lutaml::Model::Serializable
+  include Base::Atom       # shared attribute + xml declarations
+  include Visitable        # walker interface
+  extend Context           # schema registration
+end
+```
+
+Schema 3 and Schema 2.4 share the `Base::*` declarations; if a mapping
+differs, the per-schema class overrides it. Adding Schema 5 later is a
+new directory of one-liner classes — zero changes to `Base`, `Role`,
+or the translator.
+
+#### Table-driven wire class generation
+
+The set of elements each schema version must support comes from a
+single source of truth: the `Elements::ALL` table.
+
+```ruby
+# lib/chemicalml/cml/elements.rb (excerpt)
+module Elements
+  ALL = {
+    Atom:              :atom,
+    AtomArray:         :atomArray,
+    Bond:              :bond,
+    Molecule:          :molecule,
+    Reaction:          :reaction,
+    Crystal:           :crystal,
+    Spectrum:          :spectrum,
+    # ... 114 more entries — every CML element from the XSD
+  }.freeze
+
+  # Elements in Schema 3 but NOT in Schema 2.4
+  SCHEMA3_ONLY = %i[Module].freeze
+end
+```
+
+Each schema's `Configuration` module walks this table and registers
+every wire class with `lutaml-model`'s `GlobalContext`:
+
+```ruby
+# lib/chemicalml/cml/schema3/configuration.rb
+module Schema3
+  module Configuration
+    extend Chemicalml::ContextConfiguration
+    CONTEXT_ID = :chemicalml_schema3
+
+    def self.register_models!
+      register_elements!  # walks Elements::ALL
+    end
+  end
+end
+```
+
+Schema 2.4 calls `register_elements!(except: Elements::SCHEMA3_ONLY)`
+to skip `<module>`, which only exists in Schema 3.
+
+**Adding a new CML element** = adding one entry to `Elements::ALL`,
+one `Base::*` mixin, and one `Role::*` module. Both `Schema3::*` and
+`Schema24::*` pick up the new element automatically — no 121
+boilerplate class files to maintain.
+
+### The `WireClassRegistry` — how the translator picks the right class
+
+The translator never references `Schema3::Atom` or `Schema24::Atom`
+directly. Instead it asks the registry:
+
+```ruby
+Chemicalml::Cml::WireClassRegistry.for(:schema3, Chemicalml::Cml::Role::Atom)
+# => Chemicalml::Cml::Schema3::Atom
+
+Chemicalml::Cml::WireClassRegistry.for(:schema24, Chemicalml::Cml::Role::Atom)
+# => Chemicalml::Cml::Schema24::Atom
+```
+
+This is why `from_canonical(schema: :schema24)` produces a real
+Schema 2.4 document — every nested element gets the right version's
+class, not just the root.
+
+### Schema versioning
+
+The `Schema::Registry` holds metadata for each version:
+
+| Version | XSD | Namespace | Ruby namespace |
+|---------|-----|-----------|----------------|
+| `:schema3` | `reference-docs/schemas/schema3/schema.xsd` | `http://www.xml-cml.org/schema` | `Chemicalml::Cml::Schema3` |
+| `:schema24` | `reference-docs/schemas/schema24/schema.xsd` | `http://www.xml-cml.org/schema` | `Chemicalml::Cml::Schema24` |
+
+The XSDs are source-of-truth archival files — never modified or
+regenerated from code.
+
+### Convention system
+
+CML defines **conventions** — named, namespaced constraint sets for
+particular domains. A convention says "if you claim to conform to
+convention X, your document must satisfy constraints Y, Z, ...".
+
+The `chemicalml` gem ships five built-in conventions with **17
+registered constraint classes**, each registered (not switch-cased):
+
+| Convention | Namespace | Constraints | Purpose |
+|------------|-----------|-------------|---------|
+| `molecular` | `convention/molecular` | 12 | Basic molecular structures |
+| `compchem` | `convention/compchem` | 2 | Computational chemistry results |
+| `dictionary` | `convention/dictionary` | 2 | CML dictionary entries |
+| `unit-dictionary` | `convention/unit-dictionary` | 1 | Unit definitions |
+| `unitType-dictionary` | `convention/unitType-dictionary` | 1 | Unit type definitions |
+
+The **molecular convention** has the richest constraint set — 12
+rules covering atom and bond integrity:
+
+| Constraint | What it checks |
+|-----------|----------------|
+| `AtomMustHaveId` | every `<atom>` has an `id` |
+| `AtomMustHaveElementType` | every `<atom>` has an `elementType` |
+| `AtomIdMustMatchPattern` | atom ids match the CML id pattern |
+| `AtomIdsUniqueWithinMolecule` | no duplicate atom ids in a molecule |
+| `AtomArrayMustContainAtoms` | `<atomArray>` is not empty |
+| `AtomCoordinatesMustBePaired` | x2/y2 (and x3/y3/z3) come together |
+| `MoleculeMustHaveId` | every `<molecule>` has an `id` |
+| `BondMustHaveAtomRefs2` | every `<bond>` has `atomRefs2` |
+| `BondMustHaveOrder` | every `<bond>` has an `order` |
+| `BondMustReferenceAtomsInSameMolecule` | bond endpoints are in the same molecule |
+| `BondOrderShouldNotBeNumeric` | bond order is a letter code (`S`, `D`, ...), not a number |
+| `PropertyMustHaveDictRef` | `<property>` carries a `dictRef` |
+| `ScalarMustHaveDataType` | `<scalar>` has a `dataType` |
+
+Each constraint is a class that walks the wire tree via the `Visitable`
+interface and returns `Violation` objects. Adding a constraint is a
+new class plus one registration call — the framework walks whatever
+was registered.
+
+```ruby
+require "chemicalml"
+
+Chemicalml::Cml::Schema3.ensure_registered!
+doc = Chemicalml::Cml::Document.from_xml(File.read("molecule.cml"))
+
+violations = Chemicalml::Convention.validate(
+  doc, qname: "molecular")
+violations.each { |v| puts "#{v.path}: #{v.message}" }
+# molecule[m1]/bond[b3]: bond "b3" references atoms not in the same
+#   molecule: ["a7"]
+```
+
+### Dictionaries
+
+CML uses **dictionaries** — named, namespaced collections of terms
+that properties and parameters can reference via `dictRef`. The gem
+ships **8 built-in YAML dictionaries** with **193+ entries**, loaded
+into a registry at startup:
+
+| Dictionary | Prefix | Entries | Source |
+|------------|--------|---------|--------|
+| `cml` | `cml:` | Fundamental chemistry concepts (molar mass, bp, mp, density) | xml-cml.org |
+| `cml_name` | `cmlName:` | Naming conventions (IUPAC, trivial, CAS) | xml-cml.org |
+| `cml_formula` | `cmlFormula:` | Formula types (concise, inline, structural) | xml-cml.org |
+| `compchem` | `compchem:` | Computational chemistry (basis set, method, energy) | xml-cml.org |
+| `cif` | `cif:` | Crystallographic Information File terms | IUCr |
+| `unit_type` | `unitType:` | Physical quantity types (mass, length, time) | xml-cml.org |
+| `unit_si` | `si:` | SI units (kg, m, s, K, mol) | xml-cml.org |
+| `unit_non_si` | `nonsi:` | Non-SI units (angstrom, liter, calorie) | xml-cml.org |
+
+Each entry carries `id`, `term`, `definition`, `dataType`,
+`unitType`, `units`, and optional `enum` (open or closed set). The
+YAML files live under `data/dictionaries/` and are source material
+from xml-cml.org under CC-BY-3.0.
+
+```ruby
+dict = Chemicalml::Dictionary::Registry.lookup("cml")
+entry = dict.entries.find { |e| e.id == "molmass" }
+entry.term        # => "Molar Mass"
+entry.definition  # => "The mass of one mole of a substance."
+entry.units       # => "unit:g"
+```
+
+### The `Visitable` interface
+
+Every wire class includes `Cml::Visitable`, a uniform interface the
+convention walker and translator rely on. Three methods, all backed
+by `lutaml-model`'s attribute registry — no `respond_to?` duck typing:
+
+- **`wire_children`** — returns child wire nodes (walks declared
+  attributes, filters to `Lutaml::Model::Serializable` instances)
+- **`node_id`** — returns the `id` attribute or `nil`
+- **`element_name`** — returns the XML tag name from the mapping
+
+This is what lets the constraint walker recurse through any CML tree
+without switching on element type — it just calls `wire_children` on
+every node it visits.
+
+### Top-level entry points
+
+The gem provides polymorphic top-level entry points so callers don't
+need to know which schema version they're working with:
+
+```ruby
+# Auto-detects the schema from the root element; defaults to Schema 3
+Chemicalml.parse(xml)
+Chemicalml.parse(xml, schema: :schema24)
+
+# Version-specific parsing
+Chemicalml::Cml::Schema3.parse(xml)
+Chemicalml::Cml::Schema24.parse(xml)
+
+# Serialise any wire document
+Chemicalml.serialize(document)
+```
+
+`Chemicalml.parse` auto-detects the root element (any of the 121 CML
+elements) and dispatches to the right schema's parser. This means a
+`<molecule>`-rooted document, a `<reaction>`-rooted document, or a
+`<module convention="convention:compchem">`-rooted compchem document
+all parse correctly without the caller specifying the root.
+
+## How AsciiChem composes with chemicalml
+
+AsciiChem's CML module is a **thin composition** of two adapters. It
+owns no chemistry logic — just wiring, schema registration, and the
+`aci:` extension namespace side-channel.
+
+```ruby
+# The full pipeline in 4 lines:
+translation = AsciiChem::ModelAdapter.to_canonical_with_mapping(formula)
+wire_doc    = Chemicalml::Cml::Translator.from_canonical(translation.document)
+xml         = wire_doc.to_xml
+xml         = AsciiChem::Cml::Extensions.inject(xml, translation.atom_mapping)
+```
+
+### Step-by-step: how `H_2O` becomes CML
+
+<Steps>
+  1. **Parse the text.** The parslet grammar tokenises `H_2O` into
+     three atoms: `H` with subscript `2`, then `O`.
+
+     ```ruby
+     AsciiChem.parse("H_2O")
+     # => Formula(nodes: [
+     #      Molecule(nodes: [
+     #        Atom(element: "H", subscript: "2"),
+     #        Atom(element: "O")
+     #      ])
+     #    ])
+     ```
+
+  2. **Walk to canonical.** `ModelAdapter::ToCanonical` assigns atom
+     IDs (`a1`, `a2`), maps subscripts to `count`, and builds a
+     `Chemicalml::Model::Molecule`.
+
+     ```ruby
+     AsciiChem::ModelAdapter.to_canonical(formula)
+     # => Document(molecules: [
+     #      Molecule(id: "m1", atoms: [
+     #        Atom(id: "a1", element: "H", count: "2"),
+     #        Atom(id: "a2", element: "O")
+     #      ])
+     #    ])
+     ```
+
+  3. **Translate to wire.** `Chemicalml::Cml::Translator.from_canonical`
+     walks the canonical tree and instantiates `Schema3::*` wire
+     classes via `WireClassRegistry`.
+
+     ```ruby
+     wire_doc = Chemicalml::Cml::Translator.from_canonical(document)
+     # => Schema3::Document(molecules: [
+     #      Schema3::Molecule(id: "m1",
+     #        atom_array: Schema3::AtomArray(atoms: [
+     #          Schema3::Atom(id: "a1", element_type: "H", count: "2"),
+     #          Schema3::Atom(id: "a2", element_type: "O")
+     #        ]))
+     #    ])
+     ```
+
+  4. **Serialise to XML.** `lutaml-model` walks the wire tree and emits
+     XML from the `xml do ... end` mapping blocks declared in `Base::*`.
+
+     ```xml
+     <cml xmlns="http://www.xml-cml.org/schema">
+       <molecule id="m1">
+         <atomArray>
+           <atom id="a1" elementType="H" count="2"/>
+           <atom id="a2" elementType="O"/>
+         </atomArray>
+       </molecule>
+     </cml>
+     ```
+</Steps>
+
+### Step-by-step: how a reaction becomes CML
+
+Reactions are richer — reactants and products each become their own
+molecule inside a `<substance>` wrapper.
+
+Input: `2H_2 + O_2 -> 2H_2O`
+
+<Steps>
+  1. **Parse.** Produces an `AsciiChem::Model::Reaction` with three
+     molecules (two reactants, one product) and arrow `:forward`.
+
+  2. **Walk to canonical.** Each reactant/product molecule is wrapped
+     in `Substance(role: :reactant|:product)` inside
+     `ReactantList`/`ProductList`.
+
+     ```ruby
+     Document(reactions: [
+       Reaction(id: "r1", arrow: :forward, type: "forward",
+         reactant_list: ReactantList(reactants: [
+           Reactant(substance: Substance(role: :reactant,
+             molecule: Molecule(id: "m1", count: "2", atoms: [
+               Atom(id: "a1", element: "H", count: "2")
+             ]))),
+           Reactant(substance: Substance(role: :reactant,
+             molecule: Molecule(id: "m2", atoms: [
+               Atom(id: "a2", element: "O", count: "2")
+             ])))
+         ]),
+         product_list: ProductList(products: [
+           Product(substance: Substance(role: :product,
+             molecule: Molecule(id: "m3", count: "2", atoms: [
+               Atom(id: "a3", element: "H", count: "2"),
+               Atom(id: "a4", element: "O")
+             ])))
+         ]))
+     ])
+     ```
+
+  3. **Translate + serialise.** The CML output nests molecules inside
+     `<substance>` elements:
+
+     ```xml
+     <cml xmlns="http://www.xml-cml.org/schema">
+       <reaction id="r1" title="forward" type="forward">
+         <reactantList>
+           <reactant>
+             <substance role="reactant">
+               <molecule id="m1" count="2">
+                 <atomArray>
+                   <atom id="a1" elementType="H" count="2"/>
+                 </atomArray>
+               </molecule>
+             </substance>
+           </reactant>
+           <reactant>
+             <substance role="reactant">
+               <molecule id="m2">
+                 <atomArray>
+                   <atom id="a2" elementType="O" count="2"/>
+                 </atomArray>
+               </molecule>
+             </substance>
+           </reactant>
+         </reactantList>
+         <productList>
+           <product>
+             <substance role="product">
+               <molecule id="m3" count="2">
+                 <atomArray>
+                   <atom id="a3" elementType="H" count="2"/>
+                   <atom id="a4" elementType="O"/>
+                 </atomArray>
+               </molecule>
+             </substance>
+           </product>
+         </productList>
+       </reaction>
+     </cml>
+     ```
+</Steps>
+
+### The `aci:` extension namespace
+
+CML's standard wire format covers element, isotope, charge, count,
+hydrogen count, and spin multiplicity — but **not** oxidation state,
+lone pairs, radical electrons, electron configurations, embedded
+math, group structure, or ring closures. Without a side channel,
+these fields are silently dropped on AsciiChem → CML → AsciiChem
+round-trip.
+
+AsciiChem solves this with an `aci:` (AsciiChem extension) namespace
+on the CML root:
+
+```xml
+<cml xmlns="http://www.xml-cml.org/schema"
+     xmlns:aci="https://asciichem.org/cml-ext">
+  <!-- aci: attributes and elements ride here -->
+</cml>
+```
+
+The namespace declaration appears only when at least one extension is
+present. CML tools that don't recognise the namespace ignore the
+attributes and elements — schema validity is preserved.
+
+**Three extension channels:**
+
+| Channel | Scope | What it carries |
+|---------|-------|-----------------|
+| `aci:` attributes on `<atom>` | Per-atom | Oxidation state, lone pairs, radical electrons, ring closures |
+| `<aci:group>` inside `<molecule>` | Per-molecule | Group structure (which atoms were parenthesised, multiplicity, bracket kind) |
+| `<aci:*>` top-level elements | Document-level | Electron config, embedded math, quoted text (position preserved) |
+
+Adding a new extension field is one entry in the appropriate frozen
+registry (`Extensions::FIELDS`, `Extensions::TOP_LEVEL_HANDLERS`, or
+`GroupExtensions::BRACKET_TO_WIRE`). No other code changes.
 
 ## Model-to-CML mapping
 
-| AsciiChem construct | Canonical class | CML element | Key attributes |
-|---|---|---|---|
-| `H_2O` | `Model::Molecule` | `<molecule>` | `id` |
+The complete mapping from AsciiChem constructs through the canonical
+model to CML elements:
+
+| AsciiChem | Canonical class | CML element | Key attributes |
+|-----------|----------------|-------------|----------------|
+| `H_2O` | `Model::Molecule` | `<molecule>` | `id`, `formalCharge`, `count` |
 | `H` | `Model::Atom` | `<atom>` | `id`, `elementType`, `count` |
 | `^14C` | `Model::Atom` | `<atom>` | `elementType`, `isotope` |
 | `Ca^2+` | `Model::Atom` | `<atom>` | `elementType`, `formalCharge` |
 | `A-B` | `Model::Bond` | `<bond>` | `atomRefs2`, `order` |
-| `A -> B` | `Model::Reaction` | `<reaction>` | `type`, `reactantList`, `productList` |
-| `A -> B -> C` | `Model::ReactionList` | `<reactionList>` | ordered `<reaction>` children |
+| `H_2C=CH_2` | `Model::Bond` | `<bond>` | `atomRefs2`, `order="D"` |
+| `A -> B` | `Model::Reaction` | `<reaction>` | `type`, `<reactantList>`, `<productList>` |
+| `Fe^(II)` | `Model::Atom` + ext | `<atom>` + `aci:oxidationState` | Extension attribute |
+| `::O` | `Model::Atom` + ext | `<atom>` + `aci:lonePairs` | Extension attribute |
+| `Ca(OH)_2` | `Model::Molecule` + ext | `<molecule>` + `<aci:group>` | Extension element |
+| `1s^2 2s^2` | (top-level ext) | `<aci:electronConfiguration>` | Extension top-level |
+| `` `K_c` `` | (top-level ext) | `<aci:embeddedMath>` | Extension top-level |
+
+## CML bond order codes
+
+CML uses single-letter (or two-letter) codes for bond orders.
+AsciiChem maps its internal bond kinds through the canonical model:
+
+| AsciiChem kind | CML order | Meaning |
+|----------------|-----------|---------|
+| `:single` | `S` | Single bond |
+| `:double` | `D` | Double bond |
+| `:triple` | `T` | Triple bond |
+| `:quadruple` | `Q` | Quadruple bond |
+| `:aromatic` | `A` | Aromatic bond |
+| `:wedge` | `W` | Stereo wedge (toward viewer) |
+| `:hash` | `H` | Stereo hash (away from viewer) |
+| `:dative` | `DG` | Dative / coordinate bond |
+| `:wavy` | `V` | Resonance / delocalised |
 
 ## Using CML from Ruby
 
 ```ruby
 require "asciichem"
 
+# AsciiChem text -> CML XML
 formula = AsciiChem.parse("H_2O")
-puts formula.to_cml
-# <cml>
-#   <molecule id="m1">
-#     <atomArray>
-#       <atom id="a1" elementType="H" count="2"/>
-#       <atom id="a2" elementType="O"/>
-#     </atomArray>
-#   </molecule>
-# </cml>
-```
+formula.to_cml
+# => "<cml xmlns=\"http://www.xml-cml.org/schema\">...</cml>"
 
-Parse CML back to AsciiChem:
-
-```ruby
+# CML XML -> AsciiChem text
 xml = File.read("ethanol.cml")
 formula = AsciiChem::Cml.parse(xml)
-puts formula.to_text  # => "C_2H_6O"
+formula.to_text  # => "C_2H_6O"
 ```
 
-## Using CML from the CLI
+### Using CML from the CLI
 
 ```bash
 # AsciiChem -> CML
 asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t cml
 
 # CML -> AsciiChem text
-asciichem parse-cml -i "<cml><molecule><atomArray><atom elementType=\"C\"/><atom elementType=\"O\" hydrogenCount=\"2\"/></atomArray></molecule></cml>"
+asciichem parse-cml -i "<cml>...</cml>"
+```
+
+## Using the chemicalml gem directly
+
+The canonical model and CML wire layer live in the `chemicalml` gem,
+not in AsciiChem. This separation keeps the canonical model reusable —
+other projects can use `Chemicalml::Model` without pulling in the
+AsciiChem parser.
+
+```ruby
+require "chemicalml"
+
+# Register the schema (idempotent — safe to call multiple times)
+Chemicalml::Cml::Schema3.ensure_registered!
+
+# Build a CML document from wire classes directly
+atom = Chemicalml::Cml::Atom.new(id: "a1", element_type: "C")
+mol  = Chemicalml::Cml::Molecule.new(
+        id: "m1",
+        atom_array: Chemicalml::Cml::AtomArray.new(atoms: [atom]))
+doc  = Chemicalml::Cml::Document.new(molecules: [mol])
+doc.to_xml
+
+# Parse CML XML — auto-detects schema, defaults to Schema 3
+doc = Chemicalml.parse(File.read("methane.cml"))
+doc = Chemicalml.parse(File.read("legacy.cml"), schema: :schema24)
+
+# Use the canonical model directly (no XML concerns)
+canon = Chemicalml::Model::Atom.new(element: "C", isotope: "14")
+canon.element  # => "C"
+canon.isotope  # => "14"
+
+# Translate between canonical and wire
+wire = Chemicalml::Cml::Translator.from_canonical(
+        Chemicalml::Model::Document.new(molecules: [canon_mol]))
+back = Chemicalml::Cml::Translator.to_canonical(wire)
+
+# Choose a schema version
+wire_24 = Chemicalml::Cml::Translator.from_canonical(
+           doc, schema: :schema24)
+```
+
+### Convention validation
+
+```ruby
+require "chemicalml"
+
+Chemicalml::Cml::Schema3.ensure_registered!
+doc = Chemicalml::Cml::Document.from_xml(File.read("molecule.cml"))
+
+# Validate against the molecular convention (12 constraints)
+violations = Chemicalml::Convention.validate(
+  doc, qname: "molecular")
+violations.each { |v| puts "#{v.path}: #{v.message}" }
+```
+
+### Dictionary lookup
+
+```ruby
+require "chemicalml"
+
+# All 8 built-in dictionaries load at startup
+dict = Chemicalml::Dictionary::Registry.lookup("cml")
+entry = dict.entries.find { |e| e.id == "molmass" }
+entry.term        # => "Molar Mass"
+entry.definition  # => "The mass of one mole of a substance."
+entry.units       # => "unit:g"
+entry.data_type   # => "xsd:double"
 ```
 
 ## Worked examples
@@ -89,10 +749,8 @@ asciichem parse-cml -i "<cml><molecule><atomArray><atom elementType=\"C\"/><atom
 H_2O
 ```
 
-The CML output:
-
 ```xml
-<cml>
+<cml xmlns="http://www.xml-cml.org/schema">
   <molecule id="m1">
     <atomArray>
       <atom id="a1" elementType="H" count="2"/>
@@ -108,7 +766,19 @@ The CML output:
 ^14C
 ```
 
-The isotope appears as the `isotope` attribute on the `<atom>` element.
+```xml
+<cml xmlns="http://www.xml-cml.org/schema">
+  <molecule id="m1">
+    <atomArray>
+      <atom id="a1" elementType="C" isotope="14"/>
+    </atomArray>
+  </molecule>
+</cml>
+```
+
+The prefix isotope binds to the atom — AsciiChem's semantic fix over
+AsciiMath. CML captures the binding natively as the `isotope`
+attribute on the `<atom>`.
 
 ### Calcium ion
 
@@ -116,77 +786,289 @@ The isotope appears as the `isotope` attribute on the `<atom>` element.
 Ca^2+
 ```
 
-The charge appears as `formalCharge` on the `<atom>`.
+```xml
+<cml xmlns="http://www.xml-cml.org/schema">
+  <molecule id="m1" formalCharge="+2">
+    <atomArray>
+      <atom id="a1" elementType="Ca" formalCharge="2+"/>
+    </atomArray>
+  </molecule>
+</cml>
+```
 
-### Haber process
+### Linear bonds (water as structural)
+
+```asciichem
+H-O-H
+```
+
+```xml
+<cml xmlns="http://www.xml-cml.org/schema">
+  <molecule id="m1">
+    <atomArray>
+      <atom id="a1" elementType="H"/>
+      <atom id="a2" elementType="O"/>
+      <atom id="a3" elementType="H"/>
+    </atomArray>
+    <bondArray>
+      <bond id="b1" atomRefs2="a1 a2" order="S"/>
+      <bond id="b2" atomRefs2="a2 a3" order="S"/>
+    </bondArray>
+  </molecule>
+</cml>
+```
+
+### Ethylene (double bond)
+
+```asciichem
+H_2C=CH_2
+```
+
+```xml
+<cml xmlns="http://www.xml-cml.org/schema">
+  <molecule id="m1">
+    <atomArray>
+      <atom id="a1" elementType="H" count="2"/>
+      <atom id="a2" elementType="C"/>
+      <atom id="a3" elementType="C"/>
+      <atom id="a4" elementType="H" count="2"/>
+    </atomArray>
+    <bondArray>
+      <bond id="b1" atomRefs2="a2 a3" order="D"/>
+    </bondArray>
+  </molecule>
+</cml>
+```
+
+### Oxidation state (aci: extension)
+
+```asciichem
+Fe^(II)
+```
+
+```xml
+<cml xmlns="http://www.xml-cml.org/schema"
+     xmlns:aci="https://asciichem.org/cml-ext">
+  <molecule id="m1">
+    <atomArray>
+      <atom id="a1" elementType="Fe" aci:oxidationState="II"/>
+    </atomArray>
+  </molecule>
+</cml>
+```
+
+### Lewis markers (aci: extension)
+
+```asciichem
+::O
+```
+
+Lone pairs and radical electrons ride the same `aci:` namespace:
+
+```xml
+<atom id="a1" elementType="O" aci:lonePairs="2"/>
+```
+
+### Groups (aci: extension)
+
+```asciichem
+Ca(OH)_2
+```
+
+Group structure is recorded as an `<aci:group>` child of the parent
+`<molecule>`. The atoms stay in the standard `<atomArray>` (flattened,
+with their counts multiplied by the group multiplicity); the
+`<aci:group>` records which atoms were originally grouped together:
+
+```xml
+<cml xmlns="http://www.xml-cml.org/schema"
+     xmlns:aci="https://asciichem.org/cml-ext">
+  <molecule id="m1">
+    <atomArray>
+      <atom id="a1" elementType="Ca"/>
+      <atom id="a2" elementType="O" count="2"/>
+      <atom id="a3" elementType="H" count="2"/>
+    </atomArray>
+    <aci:group multiplicity="2" bracket="paren" atomRefs="a2 a3"/>
+  </molecule>
+</cml>
+```
+
+All three bracket kinds are preserved: `paren` (`()`), `square`
+(`[]`), and `brace` (`{}`).
+
+### Electron configuration (aci: extension)
+
+```asciichem
+1s^2 2s^2 2p^6
+```
+
+Electron configuration rides as an `aci:` element inside `<cml>`,
+with `position` preserving its place in the formula's node list:
+
+```xml
+<cml xmlns="http://www.xml-cml.org/schema"
+     xmlns:aci="https://asciichem.org/cml-ext">
+  <aci:electronConfiguration position="0">1s^2 2s^2 2p^6</aci:electronConfiguration>
+</cml>
+```
+
+### Embedded math (aci: extension)
+
+```asciichem
+`K_c = [P]/[R]`
+```
+
+```xml
+<aci:embeddedMath position="0">K_c = [P]/[R]</aci:embeddedMath>
+```
+
+### Ring closures (aci: extension)
+
+```asciichem
+C1-C-C-C-C-C1
+```
+
+Ring closures (SMILES-style) ride as `aci:ringClosures` on atoms
+and as an extra `<bond>` element for the ring bond:
+
+```xml
+<molecule id="m1">
+  <atomArray>
+    <atom id="a1" elementType="C" aci:ringClosures="1"/>
+    <atom id="a2" elementType="C"/>
+    ...
+    <atom id="a6" elementType="C" aci:ringClosures="1"/>
+  </atomArray>
+  <bondArray>
+    <bond id="b1" atomRefs2="a1 a2" order="S"/>
+    ...
+    <bond id="b6" atomRefs2="a1 a6" order="S"/>
+  </bondArray>
+</molecule>
+```
+
+Ring closures work inside groups too: `(C1-C-C1)` round-trips
+correctly with both the group structure and ring bond preserved.
+
+### The Haber process
 
 ```asciichem
 N_2 + 3H_2 <=>[Fe][400C] 2NH_3
 ```
 
 The reaction serialises as a `<reaction>` element with
-`<reactantList>` and `<productList>`.
+`<reactantList>` and `<productList>`:
 
-## CML bond order codes
-
-CML uses single-letter codes for bond orders. AsciiChem maps its
-internal bond kinds as follows:
-
-| AsciiChem kind | CML order | Meaning |
-|---|---|---|
-| `:single` | `S` | Single bond |
-| `:double` | `D` | Double bond |
-| `:triple` | `T` | Triple bond |
-| `:quadruple` | `Q` | Quadruple bond |
-| `:wedge` | `W` | Stereo wedge |
-| `:hash` | `H` | Stereo hash |
-| `:dative` | `DG` | Dative / coordinate |
-
-## Limitations
-
-- **3D coordinates.** CML carries them; AsciiChem's model doesn't
-  yet. TODO 18 (2D structural via elk-rb) will add geometry.
-- **Spectroscopy / crystallography.** CML has extensive support;
-  AsciiChem doesn't model these.
-- **Lewis markers.** Lone pairs and radical electrons are in the
-  AsciiChem model but CML doesn't natively cover them. A future
-  `aci:` extension namespace will carry these.
-- **Stereochemistry.** `(R)`/`(S)`/`(E)`/`(Z)` markers are in the
-  AsciiChem model; CML represents them differently (via atom
-  parities). The translator will map them in a future update.
-
-## The chemml gem
-
-The CML layer is owned by the [chemml gem](https://github.com/lutaml/chemml),
-not by asciichem. This separation keeps the canonical model
-reusable — other projects can use `Chemml::Model` without pulling
-in the AsciiChem parser.
-
-```ruby
-require "chemml"
-
-# Build a CML document directly
-atom = Chemml::Cml::Atom.new(id: "a1", element_type: "C")
-mol  = Chemml::Cml::Molecule.new(id: "m1")
-doc  = Chemml::Cml::Document.new(molecules: [mol])
-doc.to_xml
-
-# Use the canonical model directly
-canon = Chemml::Model::Atom.new(element: "C", isotope: "14")
-canon.element  # => "C"
-canon.isotope  # => "14"
+```xml
+<cml xmlns="http://www.xml-cml.org/schema">
+  <reaction id="r1" title="equilibrium" type="equilibrium">
+    <reactantList>
+      <reactant>
+        <substance role="reactant">
+          <molecule id="m1">
+            <atomArray>
+              <atom id="a1" elementType="N" count="2"/>
+            </atomArray>
+          </molecule>
+        </substance>
+      </reactant>
+      <reactant>
+        <substance role="reactant">
+          <molecule id="m2" count="3">
+            <atomArray>
+              <atom id="a2" elementType="H" count="2"/>
+            </atomArray>
+          </molecule>
+        </substance>
+      </reactant>
+    </reactantList>
+    <productList>
+      <product>
+        <substance role="product">
+          <molecule id="m3" count="2">
+            <atomArray>
+              <atom id="a3" elementType="N"/>
+              <atom id="a4" elementType="H" count="3"/>
+            </atomArray>
+          </molecule>
+        </substance>
+      </product>
+    </productList>
+  </reaction>
+</cml>
 ```
 
 ## Round-trip verification
 
-The strongest correctness check is three-way round-trip:
+The strongest correctness check is **three-way round-trip**:
 
-1. Parse AsciiChem text to `AsciiChem::Model`.
-2. Convert to `Chemml::Model` (canonical).
-3. Serialise to CML XML.
-4. Parse CML XML back to `Chemml::Model`.
-5. Convert back to `AsciiChem::Model`.
-6. Render to AsciiChem text.
+1. Parse AsciiChem text → `AsciiChem::Model::Formula`
+2. Convert to `Chemicalml::Model::Document` (canonical)
+3. Serialise to CML XML via the wire layer
+4. Parse CML XML back through the canonical model
+5. Convert back to `AsciiChem::Model::Formula`
+6. Render to AsciiChem text
 
-The output text should equal the original input. The gem's spec
-suite verifies this for every canonical AsciiChem construct.
+The output text should equal the original input. The gem's spec suite
+verifies this for every canonical AsciiChem construct that the
+canonical model currently captures: water, isotopes, ions, reactions,
+equilibria, linear bonds, and structural chains.
+
+```ruby
+original = "2H_2 + O_2 -> 2H_2O"
+formula  = AsciiChem.parse(original)
+cml      = formula.to_cml
+back     = AsciiChem::Cml.parse(cml)
+back.to_text == original  # => true
+```
+
+## Limitations
+
+Most CML features now have full AsciiChem syntax and round-trip
+support. The remaining gaps fall into two groups.
+
+### Supported by `chemicalml` but not yet wired from AsciiChem
+
+These features exist in the `chemicalml` gem's canonical model and
+wire layer but have no AsciiChem text syntax yet:
+
+- **Fractional coordinates.** The canonical `Atom` carries
+  `xFract`/`yFract`/`zFract` for crystallographic unit-cell
+  coordinates. AsciiChem's `@(x,y)` syntax only covers Cartesian
+  2D/3D coordinates.
+- **Compchem modules.** `<module convention="convention:compchem">`-
+  rooted documents parse and round-trip through the canonical model;
+  AsciiChem has no compchem syntax.
+- **Spin multiplicity.** The canonical `Atom` has a
+  `spin_multiplicity` field for quantum-chemistry multiplicity
+  (singlet/doublet/triplet). AsciiChem has no syntax for this yet.
+
+### Still open
+
+- **Spectroscopy, crystallography, polymer notation.** CML has
+  extensive support (`<spectrum>`, `<peakList>`, `<crystal>`,
+  `<lattice>`, `<symmetry>`); AsciiChem doesn't have syntax for
+  these.
+- **Full CML pass-through.** Unknown CML elements (not recognized
+  by the adapter) are currently dropped. A future "opaque" pass-
+  through mode would preserve them as raw XML nodes.
+
+<CardGrid stagger>
+  <Card title="chemicalml gem" icon="seti:json">
+    The canonical model and CML wire layer:
+    [github.com/lutaml/chemicalml](https://github.com/lutaml/chemicalml)
+  </Card>
+  <Card title="CML specification" icon="open-book">
+    The Chemical Markup Language standard:
+    [xml-cml.org](https://www.xml-cml.org/)
+  </Card>
+  <Card title="lutaml-model" icon="setting">
+    The XML serialisation framework that powers the wire layer:
+    [github.com/lutaml/lutaml-model](https://github.com/lutaml/lutaml-model)
+  </Card>
+  <Card title="Round-trip spec" icon="arrow-undo">
+    See [Round-trip conformance](/reference/round-trip/) for the
+    canonicalisation rules that govern text-level round-tripping.
+  </Card>
+</CardGrid>

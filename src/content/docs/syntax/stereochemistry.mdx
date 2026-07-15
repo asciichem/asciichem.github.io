@@ -90,9 +90,16 @@ The Text formatter emits the Unicode form for alpha/beta. The
 ASCII spellings are accepted on input but not emitted on output —
 this is the canonicaliser's job.
 
-<Aside type="note" title="What's not modelled">
-  Per-atom stereo descriptors (e.g. marking which specific atom is the
-  stereocentre) require structural context. Linear AsciiChem captures
-  the molecule-level marker only. For atom-precise stereo, use
-  embedded comments or wait for 2D structural support (TODO 18).
+<Aside type="note" title="Atom-level stereo">
+  Per-atom chirality (R/S designation) is now supported via the `@R`
+  and `@S` suffixes. See [Atoms](./atoms/) for the full field list.
+
+  ```asciichem
+  C@R
+  C@S
+  ```
+
+  These map to CML `aci:atomParity` on the `<atom>` element.
+  Wedge/hash bonds (`>-`/`-<`) carry bond stereo via CML
+  `<bondStereo>`.
 </Aside>

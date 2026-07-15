@@ -1,0 +1,69 @@
+---
+title: Coordinates
+description: 2D and 3D atom coordinates for structural layout and CML round-trip.
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Atoms can carry explicit coordinates using the `@(x,y)` (2D) or
+`@(x,y,z)` (3D) suffix. These map to CML `x2`/`y2` or
+`x3`/`y3`/`z3` attributes on the `<atom>` element.
+
+## 2D coordinates
+
+```asciichem
+C@(10,20)
+```
+
+The two numbers inside `@(...)` are the x and y positions. Negative
+coordinates are supported.
+
+<Tabs>
+  <TabItem label="Source">
+    ```asciichem
+    C@(0,0)-O@(10,0)-H@(10,5)
+    ```
+  </TabItem>
+  <TabItem label="Meaning">
+    A water molecule with C at origin, O at (10,0), H at (10,5).
+  </TabItem>
+</Tabs>
+
+## 3D coordinates
+
+Add a third number for z-axis:
+
+```asciichem
+C@(1,2,3)
+```
+
+3D coordinates map to CML `x3`/`y3`/`z3` attributes. The Layout
+module uses pre-positioned atoms directly — elkrb layout is skipped
+when all atoms carry coordinates.
+
+## Negative coordinates
+
+```asciichem
+C@(0,-5)
+C@(-10.5,3.2)
+```
+
+## CML output
+
+2D coordinates produce `x2`/`y2` attributes:
+
+```xml
+<atom id="a1" elementType="C" x2="10" y2="20"/>
+```
+
+3D coordinates produce `x3`/`y3`/`z3` attributes:
+
+```xml
+<atom id="a1" elementType="C" x3="1.0" y3="2.0" z3="3.0"/>
+```
+
+## Round-trip
+
+Coordinates survive AsciiChem → CML → AsciiChem round-trip
+without loss. When parsed back, the Layout module uses the CML
+coordinates directly for SVG rendering.

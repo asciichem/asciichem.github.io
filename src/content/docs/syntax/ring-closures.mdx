@@ -1,0 +1,79 @@
+---
+title: Ring closures
+description: SMILES-style ring closure digits for cyclic compounds.
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Ring closures let you bond non-adjacent atoms using SMILES-style
+digit suffixes. Two atoms with the same digit become bonded.
+
+## Basic syntax
+
+A digit after an atom opens or closes a ring:
+
+```asciichem
+C1-C-C-C-C-C1
+```
+
+This is cyclohexane: the first `C1` and the last `C1` are bonded,
+closing the ring.
+
+## Multiple rings
+
+Different digits open different rings:
+
+```asciichem
+C1-C2-C-C1-C2
+```
+
+Rings 1 and 2 are independent.
+
+## Multiple closures on one atom
+
+An atom can open/close multiple rings simultaneously:
+
+```asciichem
+C12-C-C1-C2
+```
+
+This opens rings 1 and 2 on the first atom, closes ring 1 on the
+third atom, and closes ring 2 on the fourth.
+
+## Rings inside groups
+
+Ring closures work inside groups:
+
+```asciichem
+(C1-C-C-C-C-C1)
+((C1-C-C1))
+Ca(C1-C-C1)
+```
+
+The group structure is preserved alongside the ring bond through CML
+round-trip.
+
+## CML output
+
+Ring closure bonds appear as regular `<bond>` elements in CML,
+connecting the ring-closure atoms. The digit itself is preserved via
+the `aci:ringClosures` attribute so the round-trip is lossless:
+
+```xml
+<atom id="a1" elementType="C" aci:ringClosures="1"/>
+...
+<atom id="a6" elementType="C" aci:ringClosures="1"/>
+<bond id="b6" atomRefs2="a1 a6" order="S"/>
+```
+
+## Linter
+
+The `UnclosedRingCheck` linter catches ring closure digits that
+have no matching partner:
+
+```asciichem
+C1-C-C
+```
+
+This produces: `[error] Atom(C): Atom has unmatched ring closure
+digit(s) "1"`.

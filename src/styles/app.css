@@ -69,6 +69,25 @@ figure.asciichem-example {
   overflow: hidden;
 }
 
+.asciichem-example-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  background: var(--color-asciichem-accent);
+  color: #fff;
+}
+
+.asciichem-label {
+  padding: 0.3rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.asciichem-label:last-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .asciichem-example > .asciichem-item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -110,6 +129,15 @@ figure.asciichem-example {
 @media (max-width: 640px) {
   .asciichem-example > .asciichem-item {
     grid-template-columns: 1fr;
+  }
+
+  .asciichem-example-header {
+    grid-template-columns: 1fr;
+  }
+
+  .asciichem-label:last-child {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .asciichem-render {
@@ -232,4 +260,276 @@ figure.asciichem-example {
 @media (max-width: 640px) {
   .about-hero { grid-template-columns: 1fr; }
   .about-hero-logo { display: none; }
+}
+
+/* Brand overrides for Starlight components --------------------------- */
+
+/* Splash hero: subtle brand gradient background */
+.starlight--splash .sl-flex.sl-flex-col.sl-items-center .sl-flex {
+  width: 100%;
+}
+
+main.hero {
+  background:
+    radial-gradient(
+      ellipse at top left,
+      rgba(12, 74, 62, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at bottom right,
+      rgba(12, 74, 62, 0.04) 0%,
+      transparent 50%
+    );
+}
+
+/* Card grid: brand accent on hover */
+.starlight-card {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.starlight-card:hover {
+  border-color: var(--color-asciichem-accent) !important;
+  box-shadow: 0 4px 16px rgba(12, 74, 62, 0.12);
+  transform: translateY(-2px);
+}
+
+.starlight-card:hover .starlight-card__title {
+  color: var(--color-asciichem-accent);
+}
+
+/* Primary action button uses brand accent */
+.sl-flex.sl-justify-center a[href]:not([href*="//"]) {
+  transition: background-color 0.15s ease;
+}
+
+/* Link accent for active state uses brand color */
+[data-theme="dark"] .starlight-card:hover {
+  border-color: #2da677 !important;
+  box-shadow: 0 4px 16px rgba(45, 166, 119, 0.2);
+}
+
+[data-theme="dark"] .starlight-card:hover .starlight-card__title {
+  color: #2da677;
+}
+
+/* Table styling ------------------------------------------------------ */
+
+main table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-block: 1.5rem;
+  font-size: 0.9rem;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  border: 1px solid var(--sl-color-gray-5, #d4d4d4);
+}
+
+main thead {
+  background: var(--color-asciichem-accent);
+  color: #fff;
+}
+
+main thead th {
+  padding: 0.6rem 0.875rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: none;
+}
+
+main tbody tr {
+  border-bottom: 1px solid var(--sl-color-gray-7, #eee);
+  transition: background-color 0.1s ease;
+}
+
+main tbody tr:nth-child(even) {
+  background: var(--sl-color-gray-7, rgba(0, 0, 0, 0.02));
+}
+
+main tbody tr:hover {
+  background: var(--color-asciichem-accent-soft, #d9f0e6);
+}
+
+main tbody td {
+  padding: 0.5rem 0.875rem;
+  border: none;
+  vertical-align: top;
+}
+
+[data-theme="dark"] main thead {
+  background: #083027;
+}
+
+[data-theme="dark"] main tbody tr:hover {
+  background: rgba(45, 166, 119, 0.1);
+}
+
+main table code {
+  font-size: 0.85rem;
+}
+
+/* Focus-visible styles for keyboard navigation ---------------------- */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-asciichem-accent, #0c4a3e);
+  outline-offset: 2px;
+  border-radius: 0.2rem;
+}
+
+[data-theme="dark"] a:focus-visible,
+[data-theme="dark"] button:focus-visible,
+[data-theme="dark"] input:focus-visible,
+[data-theme="dark"] select:focus-visible,
+[data-theme="dark"] textarea:focus-visible,
+[data-theme="dark"] [tabindex]:focus-visible {
+  outline-color: #2da677;
+}
+
+/* Hero primary button: brand accent --------------------------------- */
+
+main.hero a.sl-c-link,
+main.hero a[href]:not([href*="//"]) {
+  background: var(--color-asciichem-accent, #0c4a3e);
+  border-color: var(--color-asciichem-accent, #0c4a3e);
+  color: #fff;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+main.hero a[href]:not([href*="//"]):hover {
+  background: #083027;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] main.hero a[href]:not([href*="//"]) {
+  background: #2da677;
+  border-color: #2da677;
+  color: #083027;
+}
+
+[data-theme="dark"] main.hero a[href]:not([href*="//"]):hover {
+  background: #1f8a5e;
+}
+
+/* Sidebar active link: brand accent --------------------------------- */
+
+.sidebar a[aria-current="page"] {
+  color: var(--color-asciichem-accent, #0c4a3e);
+  font-weight: 600;
+}
+
+.sidebar a[aria-current="page"]::before {
+  background: var(--color-asciichem-accent, #0c4a3e);
+}
+
+[data-theme="dark"] .sidebar a[aria-current="page"] {
+  color: #2da677;
+}
+
+[data-theme="dark"] .sidebar a[aria-current="page"]::before {
+  background: #2da677;
+}
+
+/* Smooth scrolling for anchor links --------------------------------- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Print styles ------------------------------------------------------ */
+
+@media print {
+  .header,
+  .mobile-nav,
+  .site-footer,
+  .right-group,
+  .nav-toggle,
+  .skip-link,
+  starlight-theme-select,
+  starlight-language-select,
+  starlight-search,
+  .social-icons {
+    display: none !important;
+  }
+
+  main,
+  .starlight--main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.4;
+    color: #000;
+    background: #fff !important;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #555;
+  }
+
+  a[href^="#"]::after,
+  a[href^="javascript"]::after {
+    content: "";
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+    color: #000;
+  }
+
+  table, figure, pre {
+    page-break-inside: avoid;
+  }
+
+  pre, code {
+    background: #f5f5f5 !important;
+    color: #000 !important;
+    border: 1px solid #ddd;
+  }
+
+  .asciichem-example-header {
+    background: #0c4a3e !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  thead {
+    background: #0c4a3e !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Respect reduced-motion preference --------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
