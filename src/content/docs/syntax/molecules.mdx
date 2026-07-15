@@ -1,11 +1,12 @@
 ---
 title: Molecules
-description: Sequences of atoms, parenthesised groups, and brackets.
+description: Sequences of atoms, parenthesised groups, brackets, and CML annotations.
 ---
 
 
 A molecule is an ordered sequence of atoms and groups, with an optional
-leading stoichiometric coefficient.
+leading stoichiometric coefficient, optional stereo prefix, and
+optional CML annotations.
 
 ## Simple molecules
 
@@ -17,6 +18,25 @@ C_6H_12O_6
 
 Each atom carries its own subscript. The model is `Molecule(nodes: [Atom,
 Atom, ...])`.
+
+## CML annotations
+
+Molecules can carry CML metadata via the `@key("value")` suffix:
+
+```asciichem
+H_2O @name("Water")@inchi("InChI=1/H2O/h1H2")
+```
+
+Supported annotations:
+- `@name("...")` — molecule name
+- `@inchi("...")`, `@smiles("...")`, `@cas("...")` — identifiers
+- `@title("...")` — molecule title
+- `@formula("H 2 O 1")` — concise formula
+- `@label("solvent")` — label
+- `@mw("18.015")` — any custom property
+- `@meta("key","value")` — metadata key-value pair
+
+See [Annotations](./annotations/) for details.
 
 ## Stoichiometric coefficients
 

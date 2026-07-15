@@ -1,0 +1,89 @@
+---
+title: Molecule annotations
+description: CML metadata annotations — names, identifiers, properties, labels, and more.
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Molecule annotations attach CML metadata to a molecule using the
+`@key("value")` suffix. Multiple annotations can be chained.
+
+## Names
+
+```asciichem
+H_2O @name("Water")
+```
+
+Maps to CML `<name>Water</name>`.
+
+## Identifiers
+
+Known identifier types (`inchi`, `smiles`, `cas`, `iupac`, `cid`,
+`chebi`) map to CML `<identifier convention="...">`:
+
+```asciichem
+C @inchi("InChI=1/C")
+C @smiles("C")
+C @cas("74-82-8")
+```
+
+## Title
+
+```asciichem
+H_2O @title("water molecule")
+```
+
+Sets the CML `title` attribute on `<molecule>`.
+
+## Formula
+
+```asciichem
+H_2O @formula("H 2 O 1")
+```
+
+Maps to CML `<formula concise="H 2 O 1"/>`.
+
+## Labels
+
+```asciichem
+H_2O @label("solvent")
+```
+
+Maps to CML `<label value="solvent"/>`.
+
+## Properties
+
+Any annotation key that isn't a known type (name, title, formula,
+label, or identifier convention) becomes a CML property:
+
+```asciichem
+H_2O @mw("18.015")
+H_2O @density("0.997")
+H_2O @logP("-0.5")
+```
+
+Maps to CML `<property title="mw"><scalar>18.015</scalar></property>`.
+
+## Metadata
+
+Key-value metadata pairs using `@meta("key","value")`:
+
+```asciichem
+H_2O @meta("creator","asciichem")
+H_2O @meta("source","NIST")@meta("year","2024")
+```
+
+## Multiple annotations
+
+Chain annotations without spaces between them:
+
+```asciichem
+H_2O @name("Water")@inchi("InChI=1/H2O/h1H2")@cas("7732-18-5")
+```
+
+## Round-trip
+
+All annotations survive AsciiChem → CML → AsciiChem round-trip
+without loss. Names, identifiers, title, formulas, labels, and
+properties use native CML elements. Metadata and AsciiChem-specific
+fields ride via the `aci:` extension namespace.
