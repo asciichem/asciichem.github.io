@@ -1,0 +1,176 @@
+---
+const year = new Date().getFullYear();
+
+const footerLinks = [
+  { label: "Guides", href: "/guides/getting-started/" },
+  { label: "Syntax", href: "/syntax/" },
+  { label: "Model", href: "/model/" },
+  { label: "Reference", href: "/reference/round-trip/" },
+  { label: "Examples", href: "/examples/" },
+  { label: "About", href: "/about/" },
+  { label: "News", href: "/news/" },
+];
+
+const ecosystemLinks = [
+  { label: "asciichem-ruby", href: "https://github.com/asciichem/asciichem-ruby" },
+  { label: "asciichem.github.io", href: "https://github.com/asciichem/asciichem.github.io" },
+  { label: "chemicalml", href: "https://github.com/lutaml/chemicalml" },
+  { label: "plurimath", href: "https://github.com/plurimath/plurimath" },
+];
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">AsciiChem</div>
+      <p class="footer-tagline">ASCII in, chemistry out.</p>
+      <p class="footer-license">
+        BSD-2-Clause &middot; maintained by
+        <a href="https://www.ribose.com">Ribose</a>
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <h4>Navigate</h4>
+      <ul>
+        {footerLinks.map((l) => (
+          <li><a href={l.href}>{l.label}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="footer-links">
+      <h4>Ecosystem</h4>
+      <ul>
+        {ecosystemLinks.map((l) => (
+          <li><a href={l.href} rel="noopener">{l.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>&copy; {year} AsciiChem contributors.</span>
+    <span class="footer-sep" aria-hidden="true">&middot;</span>
+    <a href="https://github.com/asciichem/asciichem.github.io/issues">Report an issue</a>
+  </div>
+</footer>
+
+<style is:global>
+  .site-footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sl-color-gray-5, #d4d4d4);
+    background:
+      radial-gradient(
+        ellipse at top,
+        rgba(12, 74, 62, 0.03) 0%,
+        transparent 60%
+      );
+    font-size: 0.9rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .footer-inner {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .footer-logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-asciichem-accent, #0c4a3e);
+    letter-spacing: -0.01em;
+  }
+
+  [data-theme="dark"] .footer-logo {
+    color: #2da677;
+  }
+
+  .footer-tagline {
+    font-style: italic;
+    color: var(--sl-color-gray-3);
+    margin: 0.25rem 0 0.5rem;
+  }
+
+  .footer-license {
+    font-size: 0.8rem;
+    margin: 0;
+    color: var(--sl-color-gray-3);
+  }
+
+  .footer-license a {
+    color: var(--sl-color-gray-3);
+    text-decoration: underline;
+  }
+
+  .footer-links h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sl-color-gray-3);
+    margin: 0 0 0.5rem;
+  }
+
+  .footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .footer-links a {
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-asciichem-accent, #0c4a3e);
+  }
+
+  [data-theme="dark"] .footer-links a:hover {
+    color: #2da677;
+  }
+
+  .footer-bottom {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-gray-7, #eee);
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .footer-bottom a {
+    color: var(--sl-color-gray-3);
+    text-decoration: underline;
+  }
+
+  .footer-sep {
+    opacity: 0.5;
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.3rem;
+    }
+
+    .footer-sep {
+      display: none;
+    }
+  }
+</style>

@@ -80,6 +80,10 @@ function buildFigure(source: string): string {
   const lines = source.split(/\r?\n/).filter((l) => l.length > 0);
   const items = lines.map((line) => buildItem(line)).join("\n  ");
   return `<figure class="asciichem-example">
+  <div class="asciichem-example-header">
+    <span class="asciichem-label">Source</span>
+    <span class="asciichem-label">Rendered</span>
+  </div>
   ${items}
 </figure>`;
 }

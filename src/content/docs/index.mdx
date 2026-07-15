@@ -14,13 +14,26 @@ hero:
       link: https://github.com/asciichem/asciichem-ruby
 ---
 
-import { Card, CardGrid } from "@astrojs/starlight/components";
+import { Card, CardGrid, Steps } from "@astrojs/starlight/components";
 
 AsciiChem is an ASCII syntax for representing **chemistry** — atoms, molecules,
 bonds, reactions, electron configurations, and the embedded mathematics that
 chemistry publications rely on.
 
 It is to chemistry what **AsciiMath** is to mathematics.
+
+## See it in action
+
+Type chemistry on any keyboard. AsciiChem parses it into a semantic model
+and renders it as MathML — no LaTeX, no Unicode, no special software.
+
+```asciichem
+H_2O
+2H_2 + O_2 -> 2H_2O
+N_2 + 3H_2 <=>[Fe][400C] 2NH_3
+^14C
+Ca^2+
+```
 
 ## Why another syntax?
 
@@ -66,18 +79,23 @@ bound to the atom. AsciiMath would emit `<msup><mi></mi><mn>14</mn></msup>`
 — an empty base followed by the atom. The binding is lost.
 :::
 
-## Get started
+## Get started in three steps
 
-```bash
-gem install asciichem
-```
+<Steps>
+  1. **Install the gem**
+     ```bash
+     gem install asciichem
+     ```
+  2. **Parse and render**
+     ```ruby
+     require "asciichem"
 
-```ruby
-require "asciichem"
-
-formula = AsciiChem.parse("2H_2 + O_2 -> 2H_2O")
-formula.to_mathml  # => "<math>...</math>"
-formula.to_text    # => "2H_2 + O_2 -> 2H_2O"
-```
+     formula = AsciiChem.parse("2H_2 + O_2 -> 2H_2O")
+     formula.to_mathml  # => "<math>...</math>"
+     formula.to_text    # => "2H_2 + O_2 -> 2H_2O"
+     ```
+  3. **Explore the [syntax guide](/syntax/)** — atoms, bonds, reactions,
+     electron configurations, and more.
+</Steps>
 
 Continue to the **[Getting started](/guides/getting-started/)** guide.
