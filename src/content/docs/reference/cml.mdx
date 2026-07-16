@@ -1025,42 +1025,34 @@ back.to_text == original  # => true
 
 ## Limitations
 
-The canonical model is currently narrower than the AsciiChem model.
-Some gaps are closed via the `aci:` extension namespace; others are
-still open. Each gap is guarded by a spec so the loss is explicit, not
-silent.
+Most CML features now have full AsciiChem syntax and round-trip
+support. The remaining gaps fall into two groups.
 
 ### Supported by `chemicalml` but not yet wired from AsciiChem
 
-The `chemicalml` gem (v0.2.0) now supports these natively in the
-canonical model and wire layer; AsciiChem's adapter doesn't yet
-produce or consume them:
+These features exist in the `chemicalml` gem's wire layer but have no
+AsciiChem text syntax yet:
 
-- **Atom coordinates.** The canonical `Atom` carries `x2`/`y2`,
-  `x3`/`y3`/`z3`, and `xFract`/`yFract`/`zFract`. AsciiChem's text
-  syntax has no coordinate notation yet (planned via the 2D structural
-  renderer).
-- **Stereochemistry.** The canonical model has `AtomParity` (with
-  `atom_refs4` + value) and `BondStereo` (with `atom_refs2` /
-  `atom_refs4` + value). AsciiChem's `(R)-` / `(S)-` / `(E)-` / `(Z)-`
-  prefixes parse into the AsciiChem model but don't yet map through
-  to `<atomParity>` / `<bondStereo>` elements.
-- **Molecule metadata.** The canonical `Molecule` has `names`,
-  `identifiers`, `formulas`, `properties`, and `labels` as
-  first-class children. AsciiChem's model has `Name` and `Identifier`
-  structs but the grammar doesn't yet parse them from text.
+- **Fractional coordinates.** The wire `Atom` carries
+  `xFract`/`yFract`/`zFract` for crystallographic unit-cell
+  coordinates. AsciiChem's `@(x,y)` syntax only covers Cartesian
+  2D/3D coordinates.
 - **Compchem modules.** `<module convention="convention:compchem">`-
-  rooted documents parse and round-trip through the canonical model;
+  rooted documents parse and round-trip through the wire layer;
   AsciiChem has no compchem syntax.
+- **Spin multiplicity.** The wire `Atom` has a `spin_multiplicity`
+  field for quantum-chemistry multiplicity. AsciiChem has no syntax
+  for this yet.
 
 ### Still open
 
-- **Reaction cascades.** `A -> B -> C` produces a `ReactionList` in
-  the canonical model but the CML wire layer doesn't yet serialise
-  `<reactionList>` at the document root.
 - **Spectroscopy, crystallography, polymer notation.** CML has
-  extensive support (the gem models all 121 elements); AsciiChem
-  doesn't have syntax for these.
+  extensive support (`<spectrum>`, `<peakList>`, `<crystal>`,
+  `<lattice>`, `<symmetry>`); AsciiChem doesn't have syntax for
+  these.
+- **Full CML pass-through.** Unknown CML elements (not recognized
+  by the adapter) are currently dropped. A future "opaque" pass-
+  through mode would preserve them as raw XML nodes.
 
 <CardGrid stagger>
   <Card title="chemicalml gem" icon="seti:json">
