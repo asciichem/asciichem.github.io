@@ -1,0 +1,89 @@
+---
+title: Crystallography
+description: Crystal structures with unit cell parameters, space groups, and fractional coordinates.
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+Crystallography extends AsciiChem beyond molecules to periodic
+crystal structures. The `crystal` keyword captures the unit cell
+and asymmetric unit in a compact ASCII notation.
+
+## Syntax
+
+```
+crystal[<name>](
+  a=<float>, b=<float>, c=<float>,
+  alpha=<float>, beta=<float>, gamma=<float>,
+  sg=<spacegroup>
+) {
+  <atoms with @f(x,y,z) fractional coords>
+}
+```
+
+- `crystal` is a keyword (lowercase, doesn't conflict with element
+  symbols which are uppercase).
+- `[name]` is an optional crystal name (e.g., the mineral or compound
+  name).
+- `(params)` carries unit cell parameters as `key=value` pairs.
+- `{atoms}` carries the asymmetric unit atoms using fractional
+  coordinates (`@f(x,y,z)`).
+
+## Worked examples
+
+### Sodium chloride (NaCl)
+
+```asciichem
+crystal[NaCl](a=5.64,b=5.64,c=5.64,alpha=90,beta=90,gamma=90,sg=Fm-3m){
+  Na@f(0,0,0)
+  Cl@f(0.5,0.5,0.5)
+}
+```
+
+### Silicon (diamond structure)
+
+```asciichem
+crystal[Si](a=5.43,b=5.43,c=5.43,alpha=90,beta=90,gamma=90,sg=Fd-3m){
+  Si@f(0,0,0)
+  Si@f(0.25,0.25,0.25)
+}
+```
+
+### Without space group
+
+```asciichem
+crystal[test](a=10,b=10,c=10){
+  C@f(0.1,0.1,0.1)
+  O@f(0.5,0.5,0.5)
+}
+```
+
+## Unit cell parameters
+
+| Parameter | Symbol | Unit | Example |
+|-----------|--------|------|---------|
+| `a` | a-axis length | Å | `5.64` |
+| `b` | b-axis length | Å | `5.64` |
+| `c` | c-axis length | Å | `5.64` |
+| `alpha` | α angle | degrees | `90` |
+| `beta` | β angle | degrees | `90` |
+| `gamma` | γ angle | degrees | `90` |
+| `sg` | Space group (Hermann-Mauguin) | — | `Fm-3m` |
+
+## Fractional coordinates
+
+Atoms inside a crystal use `@f(x,y,z)` for fractional coordinates
+(relative to the unit cell). These map to CML `xFract`/`yFract`/
+`zFract` attributes.
+
+See [Atoms](./atoms/) for the full atom annotation syntax.
+
+## Roadmap
+
+Crystallography is Phase 1 of the beyond-formulas expansion. Future
+phases (documented in `TODO.beyond-formulas/`) will add:
+
+- Spectroscopy (NMR, IR, MS)
+- Computational chemistry results
+- Z-Matrix internal coordinates
+- Reaction mechanisms with spectator ions
