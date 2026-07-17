@@ -21,10 +21,16 @@ captures:
 | `atom_parity`     | suffix (`@R`/`@S`) | `C@R`     |
 | `x2`, `y2`        | suffix (`@(x,y)`) | `C@(10,20)` |
 | `x3`, `y3`, `z3`  | suffix (`@(x,y,z)`) | `C@(1,2,3)` |
+| `spin_multiplicity` | suffix (`@m(N)`) | `C@m(2)` |
+| `atom_title`      | suffix (`@t("...")`) | `C@t("C1")` |
+| `x_fract`, `y_fract`, `z_fract` | suffix (`@f(x,y,z)`) | `C@f(0.5,0.25,0.75)` |
 | `ring_closures`   | suffix (digit)  | `C1`          |
 
+Multiple annotations chain in a fixed order:
+`C@(10,20)@R@m(2)@t("C1")@f(0.5,0.5,0.5)`.
+
 See also: [Coordinates](./coordinates/), [Ring closures](./ring-closures/),
-[Stereochemistry](./stereochemistry/).
+[Stereochemistry](./stereochemistry/), [Annotations](./annotations/).
 
 ## Element symbols
 
