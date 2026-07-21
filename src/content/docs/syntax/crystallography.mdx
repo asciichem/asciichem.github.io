@@ -78,6 +78,37 @@ Atoms inside a crystal use `@f(x,y,z)` for fractional coordinates
 
 See [Atoms](./atoms/) for the full atom annotation syntax.
 
+## CML wire (v0.9.0+)
+
+AsciiChem v0.9.0 migrates Crystal to native CML wire. The output is
+a `<molecule>` containing a native `<crystal>` child plus an
+`<atomArray>` with fractional coordinates — readable by any
+CML-aware tool without needing the AsciiChem extension namespace.
+
+```xml
+<molecule title="NaCl">
+  <atomArray>
+    <atom elementType="Na" xFract="0" yFract="0" zFract="0"/>
+    <atom elementType="Cl" xFract="0.5" yFract="0.5" zFract="0.5"/>
+  </atomArray>
+  <crystal>
+    <scalar title="a">5.64</scalar>
+    <scalar title="b">5.64</scalar>
+    <scalar title="c">5.64</scalar>
+    <scalar title="alpha">90</scalar>
+    <scalar title="beta">90</scalar>
+    <scalar title="gamma">90</scalar>
+    <symmetry spaceGroup="Fm-3m"/>
+  </crystal>
+</molecule>
+```
+
+:::note[Backwards compat]
+CML files written by older AsciiChem versions (using the
+`<aci:crystal>` text-carrier form) still parse correctly. The new
+emit always prefers native wire; the parse accepts either form.
+:::
+
 ## Roadmap
 
 Crystallography is Phase 1 of the beyond-formulas expansion. Future

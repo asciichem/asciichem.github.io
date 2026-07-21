@@ -6,6 +6,23 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.9: Native CML wire for Crystal
+
+v0.9.0 begins the migration from aci: text-carrier representation to
+native CML wire for the beyond-formulas constructs. Crystal is first:
+crystal nodes now emit as a `<molecule>` containing a native
+`<crystal>` child (with `<scalar>` cells and `<symmetry
+spaceGroup=...>`) plus an `<atomArray>` with fractional coordinates.
+
+Other CML tools — Avogadro, Jmol, Open Babel, any CML-aware reader —
+can now consume AsciiChem crystal output directly, without needing
+the AsciiChem-specific `aci:` extension namespace.
+
+Backwards compat preserved: legacy `aci:crystal` text-carrier XML
+still parses correctly. The next releases will migrate Spectrum,
+ZMatrix, Mechanism, Calculation, and reaction conditions to native
+wire following the same pattern.
+
 ## 2026-07-21 — AsciiChem v0.8: chemicalml 0.3.0 + Hydrogen implicit subscripts
 
 Two releases today, both addressing long-standing feature requests.
