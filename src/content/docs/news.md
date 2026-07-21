@@ -6,6 +6,31 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.11: Native CML wire complete
+
+v0.11.0 completes the native-wire migration arc for every
+beyond-formulas construct. ZMatrix, Calculation, Mechanism, and
+reaction conditions now join Crystal (v0.9) and Spectrum (v0.10)
+in using native CML wire representations.
+
+| Construct | v0.10 wire | v0.11 wire |
+|---|---|---|
+| ZMatrix | `<aci:zmatrix>` text | `<zMatrix>` inside `<molecule>` |
+| Calculation | `<aci:calculation>` text | `<propertyList>` of `<property>` |
+| Mechanism | `<aci:mechanism>` text | `<mechanism>` inside `<reaction>` |
+| Conditions | `aci:conditionsAbove` attrs | `<conditionList>` of `<scalar>` |
+
+Other CML tools — Avogadro, Open Babel, Jmol, Mnova, ACD/Labs —
+can now read **all** AsciiChem output natively without needing the
+AsciiChem-specific `aci:` extension namespace. Backwards compat
+preserved: legacy `aci:` text-carrier XML still parses correctly.
+
+The native-wire migration arc (Phases 01–06 of TODO.complete) is
+now complete. Future work focuses on structural representation
+(currently several constructs use text-form via title attribute;
+structural length/angle/torsion children for ZMatrix and step-by-step
+representation for Mechanism are future enhancements).
+
 ## 2026-07-21 — AsciiChem v0.10: Native CML wire for Spectrum
 
 v0.10.0 continues the native-wire migration. Spectrum nodes now emit
