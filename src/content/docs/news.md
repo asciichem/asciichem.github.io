@@ -6,6 +6,30 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.12-v0.14: Convenience methods, perf, CLI JSON
+
+Three releases continuing the architecture-quality push:
+
+### v0.14.0 — CLI JSON lint output
+
+`asciichem lint -f json` now emits diagnostics as a JSON array for
+tooling integration (CI, editors, downstream scripts). Each entry
+has `severity`, `message`, and `node` fields.
+
+### v0.13.0 — PeriodicTable atomic masses + formula weight
+
+`PeriodicTable.atomic_mass(symbol)` exposes IUPAC 2021 standard
+atomic weights for ~50 common elements. `Molecule#formula_weight`
+uses it to compute molecular weight directly — `parse("C_6H_12O_6")
+.nodes.first.formula_weight` returns `180.156`.
+
+### v0.12.0 — Hill formula, linter sorting, parser perf
+
+- `Molecule#hill_formula` — Hill-system canonical formula (C first,
+  H second, others alphabetical)
+- `Linter.run` sorts by severity then deduplicates
+- `Parser` caches Grammar/Transform instances (~15% throughput gain)
+
 ## 2026-07-21 — AsciiChem v0.11: Native CML wire complete
 
 v0.11.0 completes the native-wire migration arc for every
