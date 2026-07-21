@@ -6,6 +6,18 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.18: Strict body validation — TODO.complete FINISHED
+
+v0.18.0 completes the final item in TODO.complete (all 17 phases
+done). MechanismBuilder, SpectrumBuilder, and CalculationBuilder
+now validate body lines at parse time — malformed entries missing
+the `:` separator raise `ParseError` with line number and content,
+instead of being silently dropped.
+
+This wraps up the architectural improvement arc that started with
+chemicalml 0.3.0 adoption and native CML wire migration. Every
+TODO.complete workstream is now done.
+
 ## 2026-07-21 — AsciiChem v0.15-v0.17: parser errors, Crystal SVG, Point3
 
 Three releases finishing the TODO.complete workstream (16 of 17
