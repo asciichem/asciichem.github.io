@@ -6,6 +6,30 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.15-v0.17: parser errors, Crystal SVG, Point3
+
+Three releases finishing the TODO.complete workstream (16 of 17
+phases done; Phase 16 strict-grammar deferred as poor ROI):
+
+### v0.17.0 — Atom::Point3 value object
+
+`Atom::Point3` (Struct with x/y/z, to_a, magnitude). New
+`Atom#cartesian` and `Atom#fractional` accessors bundle the flat
+coordinate fields. Backwards compatible — flat accessors remain.
+
+### v0.16.0 — Crystal 2D SVG projection
+
+`Node#to_structural_svg` shortcut exposes the StructuralSvg
+formatter. For Crystal nodes, projects fractional coordinates onto
+the ab-plane with a unit cell outline and atoms placed at their
+projected positions.
+
+### v0.15.0 — Parser line/col error positions
+
+Parser error messages now report `line N, col M` for multi-line
+inputs instead of the global `char N` offset. The caret pointer
+is positioned on the relevant line.
+
 ## 2026-07-21 — AsciiChem v0.12-v0.14: Convenience methods, perf, CLI JSON
 
 Three releases continuing the architecture-quality push:
