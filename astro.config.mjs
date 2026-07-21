@@ -53,8 +53,16 @@ export default defineConfig({
             { label: "Bonds", slug: "syntax/bonds" },
             { label: "Reactions", slug: "syntax/reactions" },
             { label: "Stereochemistry", slug: "syntax/stereochemistry" },
+            { label: "Coordinates", slug: "syntax/coordinates" },
+            { label: "Ring closures", slug: "syntax/ring-closures" },
+            { label: "Annotations", slug: "syntax/annotations" },
             { label: "Electron configurations", slug: "syntax/electron-config" },
             { label: "Embedded math", slug: "syntax/embedded-math" },
+            { label: "Crystallography", slug: "syntax/crystallography" },
+            { label: "Spectroscopy", slug: "syntax/spectroscopy" },
+            { label: "Computational chemistry", slug: "syntax/calculation" },
+            { label: "Z-Matrix", slug: "syntax/zmatrix" },
+            { label: "Reaction mechanisms", slug: "syntax/mechanism" },
           ],
         },
         {
@@ -75,7 +83,15 @@ export default defineConfig({
         },
         {
           label: "Reference",
-          items: [{ autogenerate: { directory: "reference" } }],
+          items: [
+            { label: "Ruby API", slug: "reference/api" },
+            { label: "CLI", slug: "reference/cli" },
+            { label: "Output formats", slug: "reference/formats" },
+            { label: "Linter", slug: "reference/linter" },
+            { label: "CML round-trip", slug: "reference/cml" },
+            { label: "Round-trip conformance", slug: "reference/round-trip" },
+            { label: "IUPAC mapping", slug: "reference/iupac-mapping" },
+          ],
         },
         {
           label: "Examples",

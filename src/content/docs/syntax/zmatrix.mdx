@@ -1,0 +1,61 @@
+---
+title: Z-Matrix
+description: Internal coordinates (bond lengths, angles, torsions) in AsciiChem syntax.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+
+A Z-Matrix defines molecular geometry using internal coordinates:
+bond lengths, bond angles, and dihedral angles relative to
+previously-defined atoms.
+
+## Syntax
+
+```
+zmatrix{
+  atom
+  atom  ref1  distance
+  atom  ref1  distance  ref2  angle
+  atom  ref1  distance  ref2  angle  ref3  dihedral
+}
+```
+
+Each row defines one atom. The first row is the origin (no
+references). The second references one prior atom (distance only).
+The third references two (distance + angle). Subsequent rows
+reference three (distance + angle + dihedral).
+
+## Example: methane
+
+```asciichem
+zmatrix{
+  C1
+  H2  C1  1.09
+  H3  C1  1.09  H2  109.5
+  H4  C1  1.09  H2  109.5  H3  120.0
+}
+```
+
+- `C1` is the origin
+- `H2` is 1.09 Å from `C1`
+- `H3` is 1.09 Å from `C1`, with angle H2-C1-H3 = 109.5°
+- `H4` is 1.09 Å from `C1`, angle 109.5°, dihedral 120.0°
+
+## Units
+
+- Distances: Angstroms (Å)
+- Angles: degrees
+
+## CML wire (v0.11+)
+
+Emits as `<zMatrix>` inside a `<molecule>`:
+
+```xml
+<molecule>
+  <zMatrix>zmatrix{...}</zMatrix>
+</molecule>
+```
+
+Future enhancement: structural `<length>`, `<angle>`, `<torsion>`
+child elements per row.

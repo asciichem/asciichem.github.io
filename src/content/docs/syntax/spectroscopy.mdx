@@ -1,0 +1,75 @@
+---
+title: Spectroscopy
+description: NMR, IR, MS, and UV-Vis peak data in AsciiChem syntax.
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+
+AsciiChem captures spectroscopic data — NMR, IR, MS, UV-Vis — in
+a structured syntax that round-trips to native CML `<spectrum>` wire.
+
+## Syntax
+
+```
+spectrum[type](params){
+  position: intensity [multiplicity] ["assignment"]
+}
+```
+
+- `type` — spectrum kind: `nmr`, `ir`, `ms`, `uv`
+- `params` — key=value pairs (e.g. `type=1H`, `solvent=CDCl3`)
+- Each peak line: position, intensity, optional multiplicity and
+  quoted assignment
+
+## Examples
+
+### 1H NMR
+
+```asciichem
+spectrum[nmr](type=1H,solvent=CDCl3){
+  1.2: 3H s "CH3"
+  7.2: 5H m "ArH"
+}
+```
+
+### IR
+
+```asciichem
+spectrum[ir]{
+  3300: 100 "O-H stretch"
+  1700: 80 "C=O stretch"
+}
+```
+
+### Mass spectrometry
+
+```asciichem
+spectrum[ms]{
+  18: 100% "M+"
+  17: 20% "M-1"
+}
+```
+
+## Peak fields
+
+| Field | Required | Example |
+|---|---|---|
+| `position` | yes | `1.2` (ppm for NMR, cm⁻¹ for IR, m/z for MS) |
+| `intensity` | yes | `3H`, `100%`, `0.8` |
+| `multiplicity` | no | `s`, `d`, `t`, `q`, `m` (NMR only) |
+| `assignment` | no | `"CH3"` (in double quotes) |
+
+## CML wire (v0.10+)
+
+Emits as native `<spectrum>` with `<peakList>` of `<peak>` elements:
+
+```xml
+<molecule>
+  <spectrum title="nmr" format="1H" condition="CDCl3">
+    <peakList>
+      <peak title="CH3" xValue="1.2" yValue="3H" yMultiplicity="s"/>
+    </peakList>
+  </spectrum>
+</molecule>
+```

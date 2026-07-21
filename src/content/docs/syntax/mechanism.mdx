@@ -1,0 +1,60 @@
+---
+title: Reaction mechanisms
+description: Multi-step reaction pathways with spectator ions.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+
+A mechanism captures a multi-step reaction pathway with optional
+spectator ions.
+
+## Syntax
+
+```
+mechanism{
+  label: reaction
+  label: reaction
+  spectator: ion1 ion2 ...
+}
+```
+
+Each line is a `key: value` pair. Keys other than `spectator` are
+step labels (e.g. `step1`, `step2`).
+
+## Example: SN2 mechanism
+
+```asciichem
+mechanism{
+  step1: OH- + CH3Br -> CH3OH + Br-
+  spectator: Na+
+}
+```
+
+## Example: multi-step
+
+```asciichem
+mechanism{
+  step1: A + B -> C
+  step2: C -> D + E
+  spectator: Na+ K+
+}
+```
+
+## Validation (v0.18+)
+
+Each entry must have a `:` separator. Malformed entries raise
+`ParseError` at parse time with the offending line number.
+
+## CML wire (v0.11+)
+
+Emits as `<reaction>` with `<mechanism>` child:
+
+```xml
+<reaction>
+  <mechanism title="mechanism{...}" convention="asciichem:text"/>
+</reaction>
+```
+
+Future enhancement: structural `<reactionStepList>` with per-step
+reaction elements.
