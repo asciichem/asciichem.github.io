@@ -6,6 +6,19 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.10: Native CML wire for Spectrum
+
+v0.10.0 continues the native-wire migration. Spectrum nodes now emit
+as a `<molecule>` containing a native `<spectrum>` child (with
+`format` and `condition` attributes for nucleus/solvent) plus a
+`<peakList>` of `<peak>` elements. Each peak carries the standard
+CML attributes: `xValue` (position), `yValue` (intensity),
+`yMultiplicity` (s/d/t/q/m), and `title` (assignment).
+
+Spectrometry tools that consume CML (Mnova, ACD/Labs, etc.) can now
+read AsciiChem spectrum output directly. Legacy `aci:spectrum`
+text-carrier XML still parses for backwards compat.
+
 ## 2026-07-21 — AsciiChem v0.9: Native CML wire for Crystal
 
 v0.9.0 begins the migration from aci: text-carrier representation to
