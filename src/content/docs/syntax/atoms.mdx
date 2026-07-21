@@ -68,6 +68,30 @@ For multi-character subscripts, use braces:
 H_{2a}
 ```
 
+### Implicit subscripts on Hydrogen
+
+Hydrogen accepts bare digits as an implicit subscript, so common
+formulae can be written without `_`:
+
+```asciichem
+H2
+H2O
+CH4
+NH3
+```
+
+Each canonicalises to the explicit form on round-trip (`H_2`, `H_2O`,
+`CH_4`, `NH_3`).
+
+:::note[Why only Hydrogen?]
+Bare digits after other elements are already used for [SMILES-style
+ring closures](./ring-closures/) (`C1-C-C-C-C-C1` is cyclohexane).
+Hydrogen is the special case — it cannot form ring closures (only
+one bond), so bare digits after `H` are unambiguously subscripts.
+
+For other elements, use the explicit `_` form (`O_3`, `S_2`).
+:::
+
 ## Charges
 
 Charges are suffix superscripts in IUPAC number-then-sign form:
