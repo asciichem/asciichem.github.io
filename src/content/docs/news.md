@@ -6,6 +6,43 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-07-21 — AsciiChem v0.8: chemicalml 0.3.0 + Hydrogen implicit subscripts
+
+Two releases today, both addressing long-standing feature requests.
+
+### v0.8.0 — chemicalml 0.3.0 dependency
+
+chemicalml 0.3.0 fixes the wire serialization gaps that had blocked
+native CML round-trip for Crystal / Spectrum / ZMatrix / Mechanism /
+Calculation / reaction conditions. Molecule wire now serializes
+`<crystal>`, `<spectrum>`, `<zMatrix>`, `<propertyList>` children;
+Reaction wire now serializes `<conditionList>`, `<spectatorList>`,
+`<mechanism>` children.
+
+This unblocks the native-wire migration for the beyond-formulas
+constructs. The current aci: namespace carriers remain as a
+fallback; future releases will migrate each construct to its native
+CML form.
+
+v0.8.0 also adds a manual-dispatch GHA release workflow
+(`.github/workflows/release.yml`) so gem pushes no longer require
+maintainer laptops.
+
+### v0.7.0 — Implicit subscripts on Hydrogen
+
+Casual chemistry notation uses `H2O`, `CH4`, `NH3` without explicit
+underscores. AsciiChem now accepts both forms.
+
+The feature is **Hydrogen-only** because bare digits after other
+elements are already used for SMILES-style ring closures
+(`C1-C-C-C-C-C1` is cyclohexane). Hydrogen cannot form ring closures
+(only one bond), so bare digits after `H` are unambiguously
+subscripts. This covers ~99% of the actual user need (formula
+notation like `H2O`, `H2SO4`, `C6H12O6`) without breaking
+structural notation.
+
+For other elements, use the explicit form: `O_3`, `S_2`, `N_2`.
+
 ## 2026-07-14 — AsciiChem v0.2: the semantic model
 
 v0.2 is the release that gives AsciiChem a **real chemistry model**.
