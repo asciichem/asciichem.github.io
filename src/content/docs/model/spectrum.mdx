@@ -1,0 +1,24 @@
+---
+title: Spectrum
+description: Spectroscopy data model (NMR, IR, MS, UV-Vis).
+---
+
+Spectroscopic peak data with type, parameters, and peaks.
+
+## Fields
+
+| Field | Type | Example |
+|---|---|---|
+| `type` | String | `"nmr"` |
+| `params` | Hash | `{"type" => "1H", "solvent" => "CDCl3"}` |
+| `peaks` | Array<Peak> | See below |
+
+## Peak struct
+
+```ruby
+Spectrum::Peak = Struct.new(:position, :intensity,
+                            :multiplicity, :assignment,
+                            keyword_init: true)
+```
+
+See [Spectroscopy syntax](/syntax/spectroscopy/) for input format.

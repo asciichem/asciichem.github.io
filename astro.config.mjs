@@ -79,6 +79,11 @@ export default defineConfig({
             { label: "ElectronConfiguration", slug: "model/electron-configuration" },
             { label: "EmbeddedMath", slug: "model/embedded-math" },
             { label: "Text", slug: "model/text" },
+            { label: "Crystal", slug: "model/crystal" },
+            { label: "Spectrum", slug: "model/spectrum" },
+            { label: "Calculation", slug: "model/calculation" },
+            { label: "ZMatrix", slug: "model/zmatrix" },
+            { label: "Mechanism", slug: "model/mechanism" },
           ],
         },
         {

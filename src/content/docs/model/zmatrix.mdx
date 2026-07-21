@@ -1,0 +1,24 @@
+---
+title: ZMatrix
+description: Internal coordinates model (bond lengths, angles, torsions).
+---
+
+Molecular geometry via internal coordinates.
+
+## Fields
+
+| Field | Type | Example |
+|---|---|---|
+| `rows` | Array<ZRow> | See below |
+
+## ZRow struct
+
+```ruby
+ZMatrix::ZRow = Struct.new(:atom, :ref1, :distance,
+                           :ref2, :angle, :ref3, :dihedral,
+                           keyword_init: true)
+```
+
+Each row defines one atom relative to previously-defined atoms.
+
+See [Z-Matrix syntax](/syntax/zmatrix/) for input format.

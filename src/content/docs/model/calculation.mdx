@@ -1,0 +1,24 @@
+---
+title: Calculation
+description: Computational chemistry results model.
+---
+
+QC calculation results with method, basis set, and properties.
+
+## Fields
+
+| Field | Type | Example |
+|---|---|---|
+| `method` | String | `"b3lyp"` |
+| `basis` | String | `"6-31G*"` |
+| `properties` | Array<Property> | See below |
+
+## Property struct
+
+```ruby
+Calculation::Property = Struct.new(:title, :value, :units,
+                                   :dict_ref, :convention,
+                                   keyword_init: true)
+```
+
+See [Computational chemistry syntax](/syntax/calculation/) for input format.
