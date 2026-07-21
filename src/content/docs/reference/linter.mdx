@@ -1,0 +1,66 @@
+---
+title: Linter reference
+description: Chemistry validation checks and the linter framework.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+
+The AsciiChem linter is a separate opt-in pass that walks the model
+and reports chemistry errors. It does not modify the model.
+
+## Running
+
+```ruby
+formula = AsciiChem.parse("H_2 + O_2 -> H_2O")
+diagnostics = AsciiChem::Linter.run(formula)
+diagnostics.each { |d| puts d }
+```
+
+Or via CLI:
+
+```sh
+asciichem lint -i "H_2 + O_2 -> H_2O"
+asciichem lint -i "..." -f json
+```
+
+## Built-in checks
+
+| Check | Severity | What it validates |
+|---|---|---|
+| `BalanceCheck` | error | Stoichiometric atom conservation in reactions |
+| `ChargeBalanceCheck` | error | Charge conservation in reactions (v0.7+) |
+| `BracketBalanceCheck` | error | Group bracket consistency |
+| `CrystalSanityCheck` | error | Cell lengths positive, angles in (0, 180], fractional coords in [0, 1) |
+| `ZMatrixReferenceCheck` | error | References point to earlier rows; distances positive |
+| `SpectrumPeakCheck` | warning | Peak positions and intensities are numeric |
+| `ElementValidationCheck` | warning | Element symbols in the periodic table |
+| `IsotopeSanityCheck` | warning | Isotope mass ≥ atomic number |
+| `UnclosedRingCheck` | error | Ring closure digits have matching pairs |
+| `ValenceCheck` | error | Bond order + charge ≤ max valence |
+
+## Diagnostic object
+
+```ruby
+diagnostic.severity  # => :error, :warning, or :info
+diagnostic.message   # => "Reaction is not balanced: H: 2 vs 4"
+diagnostic.node       # => the Model::Node that triggered it
+```
+
+## Adding a custom check
+
+```ruby
+class MyCheck < AsciiChem::Linter::Base
+  register :my_check
+
+  def run(formula)
+    diagnostics = []
+    walk(formula) do |node|
+      # check each node...
+    end
+    diagnostics
+  end
+end
+```
+
+Self-registers at file-load time via `Linter::Base.register`.

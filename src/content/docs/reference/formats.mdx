@@ -1,0 +1,65 @@
+---
+title: Output formats
+description: MathML, Text, HTML, LaTeX, SVG, StructuralSvg, and CML.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+
+<CardGrid stagger>
+  <Card title="MathML" icon="seti:math">
+    Presentation MathML via Nokogiri. The headline semantic fix:
+    prefix isotopes bind to the atom (`^14C` → `<msup><mi>C</mi>
+    <mn>14</mn></msup>`), not to a phantom empty element.
+  </Card>
+  <Card title="Text" icon="seti:default">
+    Canonical AsciiChem text. Round-trip conformance:
+    `parse(s).to_text == s`. The Text formatter is the
+    canonicaliser.
+  </Card>
+  <Card title="HTML" icon="seti:html">
+    Inline HTML with `<sub>` and `<sup>` tags. Suitable for
+    pages that don't want to load MathJax.
+  </Card>
+  <Card title="LaTeX" icon="seti:tex">
+    Wrapped in mhchem's `\ce{...}`. Requires
+    `\usepackage[version=4]{mhchem}` in the preamble.
+  </Card>
+  <Card title="SVG (linear)" icon="seti:image">
+    Text rendered inside an SVG `<text>` element. Self-contained
+    vector output without external dependencies.
+  </Card>
+  <Card title="StructuralSvg" icon="seti:image">
+    2D structural diagrams via elkrb graph layout. For molecules
+    with bonds, produces skeletal formulae. For crystals, projects
+    fractional coordinates to 2D with unit cell outline (v0.16+).
+  </Card>
+  <Card title="CML" icon="seti:xml">
+    Chemical Markup Language via the chemicalml gem. Native wire
+    for all constructs (v0.9-v0.11); aci: extension namespace as
+    backwards-compat fallback.
+  </Card>
+</CardGrid>
+
+## Usage
+
+```ruby
+formula = AsciiChem.parse("H_2O")
+
+formula.to_mathml   # MathML XML string
+formula.to_text     # "H_2O"
+formula.to_html     # '<span class="asciichem">H<sub>2</sub>O</span>'
+formula.to_latex    # "\\ce{H2O}"
+formula.to_svg      # SVG XML string
+formula.to_structural_svg  # structural SVG (diagrams)
+formula.to_cml      # CML XML string
+```
+
+## CLI
+
+```sh
+asciichem convert -i "H_2O" -t mathml   # default
+asciichem convert -i "H_2O" -t html
+asciichem convert -i "H_2O" -t latex
+asciichem convert -i "H_2O" -t cml
+```

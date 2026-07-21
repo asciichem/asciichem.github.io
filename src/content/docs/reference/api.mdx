@@ -1,0 +1,74 @@
+---
+title: Ruby API
+description: AsciiChem.parse, Model classes, Formatter, and CML pipeline.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+
+## Parsing
+
+```ruby
+formula = AsciiChem.parse("2H_2 + O_2 -> 2H_2O")
+# => #<AsciiChem::Model::Formula>
+```
+
+## Model shortcuts
+
+Every `Model::Node` provides output shortcuts:
+
+```ruby
+formula.to_text        # canonical AsciiChem text
+formula.to_mathml      # MathML XML
+formula.to_html        # inline HTML
+formula.to_latex       # LaTeX (mhchem \ce{})
+formula.to_svg         # linear SVG wrapper
+formula.to_structural_svg  # 2D structural SVG (elkrb for molecules)
+formula.to_cml         # CML XML string
+```
+
+## Molecule convenience methods (v0.12+)
+
+```ruby
+mol = AsciiChem.parse("C_6H_12O_6").nodes.first
+
+mol.atom_count     # => 24 (total atoms with subscripts/mults)
+mol.hill_formula   # => "C6H12O6"
+mol.formula_weight # => 180.156 (IUPAC atomic masses)
+```
+
+## Atom value objects (v0.17+)
+
+```ruby
+atom = AsciiChem.parse("C@(1,2,3)").nodes.first.nodes.first
+
+atom.cartesian      # => #<Point3 x=1, y=2, z=3>
+atom.cartesian.to_a # => [1, 2, 3]
+atom.cartesian.magnitude  # => 3.74
+
+atom.fractional     # => nil (no fractional coords set)
+```
+
+## CML pipeline
+
+```ruby
+# AsciiChem → CML
+xml = AsciiChem::Cml.from_asciichem(formula)
+
+# CML → AsciiChem
+formula = AsciiChem::Cml.parse(xml)
+```
+
+## Linter
+
+```ruby
+diagnostics = AsciiChem::Linter.run(formula)
+diagnostics.any? { |d| d.severity == :error }  # => false if clean
+```
+
+## Formatter registry
+
+```ruby
+AsciiChem::Formatter[:mathml]  # => AsciiChem::Formatter::Mathml
+AsciiChem::Formatter.render(:html, formula)
+```

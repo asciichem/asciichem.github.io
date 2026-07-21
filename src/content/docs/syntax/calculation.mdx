@@ -1,0 +1,68 @@
+---
+title: Computational chemistry
+description: QC calculation results (energy, dipole, etc.) in AsciiChem syntax.
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+
+Computational chemistry results — method, basis set, and computed
+properties — in a structured syntax.
+
+## Syntax
+
+```
+calc(method/basis){
+  property: value [units]
+}
+```
+
+- `method` — computational method (e.g. `b3lyp`, `mp2`, `hf`)
+- `basis` — basis set (e.g. `6-31G*`, `cc-pVTZ`)
+- Each property line: `title: value [units]`
+
+## Example: DFT energy
+
+```asciichem
+calc(b3lyp/6-31G*){
+  energy: -234.5 Hartree
+  dipole: [0.1, 0.2, 0.3] Debye
+}
+```
+
+## Example: HF optimisation
+
+```asciichem
+calc(hf/sto-3g){
+  energy: -76.0 Hartree
+  HOMO: -0.5 Hartree
+  LUMO: 0.2 Hartree
+}
+```
+
+## Property fields
+
+| Field | Required | Example |
+|---|---|---|
+| `title` | yes | `energy`, `dipole`, `HOMO` |
+| `value` | yes | `-234.5` |
+| `units` | no | `Hartree`, `Debye`, `eV` |
+
+## Validation (v0.18+)
+
+Each property line must have a `:` separator. Malformed entries
+raise `ParseError` at parse time.
+
+## CML wire (v0.11+)
+
+Emits as `<molecule>` with `<propertyList>` of `<property>` children:
+
+```xml
+<molecule title="b3lyp/6-31G*">
+  <propertyList>
+    <property title="energy">
+      <scalar units="Hartree">-234.5</scalar>
+    </property>
+  </propertyList>
+</molecule>
+```

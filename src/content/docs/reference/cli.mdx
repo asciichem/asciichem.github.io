@@ -1,0 +1,70 @@
+---
+title: CLI reference
+description: asciichem command-line subcommands and options.
+---
+
+import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
+
+
+The `asciichem` CLI provides conversion, linting, and round-trip
+verification. Install via `gem install asciichem`.
+
+## convert
+
+Convert AsciiChem source to an output format.
+
+```sh
+asciichem convert -i "H_2O" -t mathml
+asciichem convert -i "2Na+ + SO_4^2- -> Na_2SO_4" -t cml
+asciichem convert -f input.asciichem -t html
+echo "H_2O" | asciichem convert -i - -t latex
+```
+
+### Options
+
+| Flag | Description |
+|---|---|
+| `-i, --input` | AsciiChem source text (or `-` for stdin) |
+| `-f, --file` | Read source from a file |
+| `-t, --format` | Output format: `mathml` (default), `text`, `html`, `latex`, `svg`, `cml` |
+
+## lint
+
+Run chemistry validation checks. Exits 1 if any errors found.
+
+```sh
+asciichem lint -i "H_2 + O_2 -> H_2O"
+asciichem lint -i "crystal[x](a=-1){Na@f(0,0,0)}" -f json
+```
+
+### Options
+
+| Flag | Description |
+|---|---|
+| `-i, --input` | AsciiChem source text |
+| `-f, --format` | Output format: `text` (default) or `json` |
+
+JSON output is an array of `{severity, message, node}` objects.
+
+## roundtrip
+
+Parse and re-emit text; exit non-zero if output differs from input.
+
+```sh
+asciichem roundtrip -i "H_2O"
+```
+
+## parse-cml
+
+Parse CML XML and emit AsciiChem text.
+
+```sh
+asciichem parse-cml -i "<cml xmlns=\"http://www.xml-cml.org/schema\">...</cml>"
+```
+
+## version
+
+```sh
+asciichem version
+asciichem --version
+```
