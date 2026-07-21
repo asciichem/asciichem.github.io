@@ -1,0 +1,22 @@
+---
+title: Mechanism
+description: Multi-step reaction pathway model.
+---
+
+A reaction mechanism: ordered steps with optional spectator ions.
+
+## Fields
+
+| Field | Type | Example |
+|---|---|---|
+| `steps` | Array<Step> | See below |
+| `spectators` | Array<String> | `["Na+"]` |
+
+## Step struct
+
+```ruby
+Mechanism::Step = Struct.new(:label, :reaction,
+                             keyword_init: true)
+```
+
+See [Reaction mechanisms syntax](/syntax/mechanism/) for input format.

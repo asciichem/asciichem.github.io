@@ -1,0 +1,30 @@
+---
+title: Crystal
+description: Crystal structure model with unit cell, space group, and fractional coordinates.
+---
+
+A crystal structure: unit cell parameters, space group, and
+asymmetric-unit atoms with fractional coordinates.
+
+## Fields
+
+| Field | Type | Example |
+|---|---|---|
+| `name` | String | `"NaCl"` |
+| `a`, `b`, `c` | Float | `5.64` |
+| `alpha`, `beta`, `gamma` | Float | `90` |
+| `spacegroup` | String | `"Fm-3m"` |
+| `atoms` | Array<Atom> | Atoms with `@f(x,y,z)` fractional coords |
+
+## Methods
+
+- `each_cell_param(format)` — iterates set cell params with format-specific labels
+- `CELL_PARAMS` — frozen array of cell parameter field names
+- `CELL_LABELS` — per-format label hash (text, mathml, html, latex)
+
+## Constants
+
+- `LENGTH_FIELDS = %i[a b c]`
+- `ANGLE_FIELDS = %i[alpha beta gamma]`
+
+See [Crystallography syntax](/syntax/crystallography/) for input format.
