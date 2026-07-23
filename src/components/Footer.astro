@@ -1,4 +1,6 @@
 ---
+import FloatingPlay from "./FloatingPlay.astro";
+
 const year = new Date().getFullYear();
 
 const footerLinks = [
@@ -56,6 +58,8 @@ const ecosystemLinks = [
   </div>
 </footer>
 
+<FloatingPlay />
+
 <style is:global>
   .site-footer {
     margin-top: 3rem;
@@ -64,7 +68,7 @@ const ecosystemLinks = [
     background:
       radial-gradient(
         ellipse at top,
-        rgba(12, 74, 62, 0.03) 0%,
+        rgba(186, 163, 0, 0.03) 0%,
         transparent 60%
       );
     font-size: 0.9rem;
@@ -81,12 +85,12 @@ const ecosystemLinks = [
   .footer-logo {
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--color-asciichem-accent, #0c4a3e);
+    color: var(--color-asciichem-accent, #baa300);
     letter-spacing: -0.01em;
   }
 
   [data-theme="dark"] .footer-logo {
-    color: #2da677;
+    color: #e7d67a;
   }
 
   .footer-tagline {
@@ -131,11 +135,11 @@ const ecosystemLinks = [
   }
 
   .footer-links a:hover {
-    color: var(--color-asciichem-accent, #0c4a3e);
+    color: var(--color-asciichem-accent, #baa300);
   }
 
   [data-theme="dark"] .footer-links a:hover {
-    color: #2da677;
+    color: #e7d67a;
   }
 
   .footer-bottom {

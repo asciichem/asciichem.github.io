@@ -1,0 +1,92 @@
+---
+/**
+ * SiteTitle — logo image + "Ascii[⬛C]hem" wordmark.
+ *
+ * The "C" sits on the same baseline as the surrounding text. The box
+ * is drawn around it with inline-block; the atomic number 6 is
+ * absolutely positioned at the bottom-right corner like a real
+ * periodic-table tile.
+ */
+---
+
+<div class="site-title-container">
+  <img class="site-title-logo site-title-logo--light" src="/asciichem-logo_icon-light.svg" alt="AsciiChem" width="28" height="28" />
+  <img class="site-title-logo site-title-logo--dark" src="/asciichem-logo_icon-dark.svg" alt="AsciiChem" width="28" height="28" />
+  <span class="site-title-wordmark">Ascii<span class="carbon-tile" title="Carbon — element 6">C<span class="carbon-tile-num">6</span></span>hem</span>
+</div>
+
+<style>
+  .site-title-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .site-title-logo {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .site-title-logo--dark {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .site-title-logo--light {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .site-title-logo--dark {
+    display: block;
+  }
+
+  .site-title-wordmark {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-text);
+    line-height: 1;
+  }
+
+  .carbon-tile {
+    display: inline-block;
+    position: relative;
+    border: 2px solid var(--color-asciichem-accent, #baa300);
+    border-radius: 0.18em;
+    background: var(--color-asciichem-accent-soft, #faf5e0);
+    padding: 0.06em 0.14em 0.02em;
+    margin: 0 0.01em;
+    font-weight: 800;
+    color: var(--color-asciichem-ink, #232323);
+    vertical-align: baseline;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .carbon-tile:hover {
+    transform: scale(1.08) rotate(-3deg);
+    box-shadow: 0 2px 8px rgba(186, 163, 0, 0.3);
+  }
+
+  .carbon-tile-num {
+    position: absolute;
+    bottom: 0.05em;
+    right: 0.12em;
+    font-size: 0.32em;
+    font-weight: 600;
+    color: var(--color-asciichem-accent-dark, #968400);
+    font-family: var(--font-mono);
+    line-height: 1;
+  }
+
+  :global([data-theme="dark"]) .carbon-tile {
+    border-color: var(--color-asciichem-gold-dark, #e7d67a);
+    background: rgba(231, 214, 122, 0.12);
+    color: var(--color-asciichem-ink-light, #d8d8d8);
+  }
+
+  :global([data-theme="dark"]) .carbon-tile-num {
+    color: var(--color-asciichem-gold-dark, #e7d67a);
+  }
+</style>

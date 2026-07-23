@@ -20,9 +20,51 @@ export default defineConfig({
       description:
         "An ASCII syntax for representing chemistry: atoms, molecules, bonds, reactions, electron configurations, and embedded mathematics.",
       logo: {
-        src: "./src/assets/logo.svg",
+        src: "./src/assets/logo-light.svg",
+        dark: "./src/assets/logo-dark.svg",
         replacesTitle: false,
       },
+      head: [
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/png",
+            href: "/favicon-96x96.png?v=20260723",
+            sizes: "96x96",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/svg+xml",
+            href: "/favicon.svg?v=20260723",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "shortcut icon",
+            href: "/favicon.ico?v=20260723",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "apple-touch-icon",
+            sizes: "180x180",
+            href: "/apple-touch-icon.png?v=20260723",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "manifest",
+            href: "/site.webmanifest?v=20260723",
+          },
+        },
+      ],
       pagefind: true,
       social: [
         {
@@ -34,6 +76,8 @@ export default defineConfig({
       components: {
         Header: "./src/components/Header.astro",
         Footer: "./src/components/Footer.astro",
+        ThemeSelect: "./src/components/ThemeToggle.astro",
+        SiteTitle: "./src/components/SiteTitle.astro",
       },
       sidebar: [
         {
@@ -89,6 +133,7 @@ export default defineConfig({
         {
           label: "Reference",
           items: [
+            { label: "Cheat sheet", slug: "reference/cheatsheet" },
             { label: "Ruby API", slug: "reference/api" },
             { label: "CLI", slug: "reference/cli" },
             { label: "Output formats", slug: "reference/formats" },
@@ -106,6 +151,7 @@ export default defineConfig({
           label: "Project",
           items: [
             { label: "About", slug: "about" },
+            { label: "Playground", slug: "playground" },
             { label: "News", slug: "news" },
           ],
         },

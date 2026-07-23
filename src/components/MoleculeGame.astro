@@ -1,0 +1,465 @@
+---
+/**
+ * MoleculeBuilder — an AsciiChem learning game.
+ *
+ * Players are shown a molecule name + description and must type the
+ * correct AsciiChem formula. Progressive difficulty, scoring, streaks,
+ * and hints. Every challenge teaches a different syntax construct.
+ */
+const challenges = [
+  // Tier 1: Basic subscripts
+  { name: "Water", formula: "H_2O", hint: "Two hydrogens, one oxygen", difficulty: 1, teach: "Subscripts use _" },
+  { name: "Carbon dioxide", formula: "CO_2", formula2: "C_1O_2", hint: "Carbon and two oxygens", difficulty: 1, teach: "Subscripts" },
+  { name: "Methane", formula: "CH_4", hint: "Carbon with four hydrogens", difficulty: 1, teach: "Subscripts" },
+  { name: "Ammonia", formula: "NH_3", hint: "Nitrogen with three hydrogens", difficulty: 1, teach: "Subscripts" },
+
+  // Tier 2: Charges + coefficients
+  { name: "Sodium ion", formula: "Na^+", hint: "Sodium with a positive charge", difficulty: 2, teach: "Charges use ^" },
+  { name: "Chloride ion", formula: "Cl^-", hint: "Chlorine with a negative charge", difficulty: 2, teach: "Charges" },
+  { name: "Calcium ion", formula: "Ca^2+", hint: "Calcium with a 2+ charge", difficulty: 2, teach: "Number-then-sign" },
+  { name: "Two water molecules", formula: "2H_2O", hint: "Coefficient goes in front", difficulty: 2, teach: "Coefficients" },
+
+  // Tier 3: Isotopes + groups
+  { name: "Carbon-14", formula: "^14C", hint: "The isotope goes BEFORE the element", difficulty: 3, teach: "Prefix isotopes" },
+  { name: "Calcium hydroxide", formula: "Ca(OH)_2", hint: "OH is in parentheses with a subscript", difficulty: 3, teach: "Groups" },
+  { name: "Sulfate ion", formula: "SO_4^2-", hint: "Sulfur, four oxygens, charge 2-", difficulty: 3, teach: "Charge on a group" },
+  { name: "Iodine-131", formula: "^131I", hint: "Isotope prefix then element", difficulty: 3, teach: "Prefix isotopes" },
+
+  // Tier 4: Bonds + reactions
+  { name: "Water (structural)", formula: "H-O-H", hint: "Show the bonds with dashes", difficulty: 4, teach: "Bonds" },
+  { name: "Ethylene", formula: "H_2C=CH_2", formula2: "H_2C=CH_2", hint: "Double bond between carbons", difficulty: 4, teach: "Double bonds" },
+  { name: "Combustion of hydrogen", formula: "2H_2 + O_2 -> 2H_2O", hint: "Two H₂ + one O₂ → two H₂O", difficulty: 4, teach: "Reactions" },
+  { name: "Acetylene", formula: "HC#CH", hint: "Triple bond between carbons", difficulty: 4, teach: "Triple bonds" },
+
+  // Tier 5: Advanced
+  { name: "Glucose", formula: "C_6H_12O_6", hint: "6 carbons, 12 hydrogens, 6 oxygens", difficulty: 5, teach: "Complex formulae" },
+  { name: "Haber process", formula: "N_2 + 3H_2 <=> 2NH_3", hint: "Equilibrium arrow is <=>", difficulty: 5, teach: "Equilibrium" },
+  { name: "Iron(III)", formula: "Fe^(III)", hint: "Oxidation state in Roman numerals, in parens", difficulty: 5, teach: "Oxidation states" },
+  { name: "Hexacyanoferrate", formula: "[Fe(CN)_6]^4-", hint: "Square brackets, six CN groups, charge 4-", difficulty: 5, teach: "Complex ions" },
+];
+---
+
+<div class="molecule-game" id="molecule-game">
+  <div class="game-header">
+    <div class="game-score">
+      <span class="game-stat-label">Score</span>
+      <span class="game-stat-value" id="game-score">0</span>
+    </div>
+    <div class="game-streak">
+      <span class="game-stat-label">Streak</span>
+      <span class="game-stat-value" id="game-streak">0 🔥</span>
+    </div>
+    <div class="game-solved">
+      <span class="game-stat-label">Solved</span>
+      <span class="game-stat-value" id="game-solved">0/<span id="game-total">{challenges.length}</span></span>
+    </div>
+  </div>
+
+  <div class="game-challenge" id="game-challenge">
+    <div class="game-difficulty" id="game-difficulty">⭐</div>
+    <h3 class="game-molecule-name" id="game-molecule-name">Click Start!</h3>
+    <p class="game-hint" id="game-hint">Press the button to begin the AsciiChem challenge.</p>
+    <div class="game-teach" id="game-teach"></div>
+  </div>
+
+  <div class="game-input-row">
+    <input
+      type="text"
+      id="game-input"
+      class="game-input"
+      placeholder="Type the AsciiChem formula..."
+      autocomplete="off"
+      spellcheck="false"
+      disabled
+    />
+    <button id="game-submit" class="game-btn game-btn--submit" disabled>Check</button>
+    <button id="game-start" class="game-btn game-btn--start">Start</button>
+    <button id="game-skip" class="game-btn game-btn--skip" disabled>Skip</button>
+  </div>
+
+  <div class="game-feedback" id="game-feedback"></div>
+
+  <div class="game-progress" id="game-progress"></div>
+</div>
+
+<style>
+  .molecule-game {
+    border: 2px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-block: 1.5rem;
+    background:
+      linear-gradient(135deg, rgba(186, 163, 0, 0.03), transparent),
+      var(--sl-color-bg, #fff);
+  }
+
+  .game-header {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-7, #eee);
+  }
+
+  .game-score, .game-streak, .game-solved {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .game-stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sl-color-gray-3, #888);
+    font-weight: 600;
+  }
+
+  .game-stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-asciichem-accent, #baa300);
+    font-family: var(--font-mono, monospace);
+  }
+
+  [data-theme="dark"] .game-stat-value { color: #e7d67a; }
+
+  .game-challenge {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    background: var(--sl-color-gray-7, #f5f5f5);
+    margin-bottom: 1.25rem;
+    min-height: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .game-difficulty {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .game-molecule-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--sl-color-text, #1a1a1a);
+  }
+
+  .game-hint {
+    font-size: 0.95rem;
+    color: var(--sl-color-gray-3, #666);
+    margin: 0;
+    max-width: 30rem;
+  }
+
+  .game-teach {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+    background: var(--color-asciichem-accent-soft, #faf5e0);
+    color: var(--color-asciichem-accent, #baa300);
+    border-radius: 999px;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .game-teach:empty { display: none; }
+
+  .game-input-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .game-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 1.05rem;
+    border: 2px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg, #fff);
+    color: var(--sl-color-text, #1a1a1a);
+    transition: border-color 0.2s ease;
+  }
+
+  .game-input:focus {
+    outline: none;
+    border-color: var(--color-asciichem-accent, #baa300);
+  }
+
+  .game-input:disabled {
+    opacity: 0.5;
+  }
+
+  .game-input.correct {
+    border-color: #e7d67a;
+    background: rgba(231, 214, 122, 0.1);
+  }
+
+  .game-input.wrong {
+    border-color: #e06633;
+    background: rgba(224, 102, 51, 0.1);
+    animation: shake 0.3s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  .game-btn {
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .game-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .game-btn--start {
+    background: var(--color-asciichem-accent, #baa300);
+    color: #fff;
+  }
+
+  [data-theme="dark"] .game-btn--start { background: #e7d67a; color: #968400; }
+
+  .game-btn--submit {
+    background: var(--color-asciichem-accent, #baa300);
+    color: #fff;
+  }
+
+  [data-theme="dark"] .game-btn--submit { background: #e7d67a; color: #968400; }
+
+  .game-btn--skip {
+    background: var(--sl-color-gray-5, #e0e0e0);
+    color: var(--sl-color-text, #333);
+  }
+
+  .game-feedback {
+    min-height: 2rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .game-feedback.correct { color: #e7d67a; }
+  .game-feedback.wrong { color: #e06633; }
+
+  .game-progress {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+
+  .game-progress-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--sl-color-gray-5, #ccc);
+    transition: all 0.2s ease;
+  }
+
+  .game-progress-dot.solved { background: #e7d67a; }
+  .game-progress-dot.skipped { background: #e06633; }
+  .game-progress-dot.current {
+    background: var(--color-asciichem-accent, #baa300);
+    transform: scale(1.4);
+  }
+</style>
+
+<script>
+  const challenges = [
+    { name: "Water", answers: ["H_2O"], hint: "Two hydrogens, one oxygen", difficulty: 1, teach: "Subscripts use _" },
+    { name: "Carbon dioxide", answers: ["CO_2"], hint: "Carbon and two oxygens", difficulty: 1, teach: "Subscripts" },
+    { name: "Methane", answers: ["CH_4"], hint: "Carbon with four hydrogens", difficulty: 1, teach: "Subscripts" },
+    { name: "Ammonia", answers: ["NH_3"], hint: "Nitrogen with three hydrogens", difficulty: 1, teach: "Subscripts" },
+    { name: "Sodium ion", answers: ["Na^+","Na+","Na^1+"], hint: "Sodium with a positive charge", difficulty: 2, teach: "Charges use ^" },
+    { name: "Chloride ion", answers: ["Cl^-","Cl-"], hint: "Chlorine with a negative charge", difficulty: 2, teach: "Charges" },
+    { name: "Calcium ion", answers: ["Ca^2+","Ca+2","Ca2+","Ca^2+","Ca^+2"], hint: "Calcium with a 2+ charge", difficulty: 2, teach: "Number-then-sign" },
+    { name: "Two water molecules", answers: ["2H_2O"], hint: "Coefficient goes in front", difficulty: 2, teach: "Coefficients" },
+    { name: "Carbon-14", answers: ["^14C"], hint: "The isotope goes BEFORE the element", difficulty: 3, teach: "Prefix isotopes" },
+    { name: "Calcium hydroxide", answers: ["Ca(OH)_2"], hint: "OH is in parentheses with a subscript", difficulty: 3, teach: "Groups" },
+    { name: "Sulfate ion", answers: ["SO_4^2-","SO4^2-"], hint: "Sulfur, four oxygens, charge 2-", difficulty: 3, teach: "Charge on a group" },
+    { name: "Iodine-131", answers: ["^131I"], hint: "Isotope prefix then element", difficulty: 3, teach: "Prefix isotopes" },
+    { name: "Water (structural)", answers: ["H-O-H"], hint: "Show the bonds with dashes", difficulty: 4, teach: "Bonds" },
+    { name: "Ethylene", answers: ["H_2C=CH_2"], hint: "Double bond between carbons", difficulty: 4, teach: "Double bonds" },
+    { name: "Combustion of hydrogen", answers: ["2H_2 + O_2 -> 2H_2O","2H_2+O_2->2H_2O","2H_2 + O_2 -> 2H_2O"], hint: "Two H₂ + one O₂ → two H₂O", difficulty: 4, teach: "Reactions" },
+    { name: "Acetylene", answers: ["HC#CH"], hint: "Triple bond between carbons", difficulty: 4, teach: "Triple bonds" },
+    { name: "Glucose", answers: ["C_6H_12O_6"], hint: "6 carbons, 12 hydrogens, 6 oxygens", difficulty: 5, teach: "Complex formulae" },
+    { name: "Haber process", answers: ["N_2 + 3H_2 <=> 2NH_3","N_2+3H_2<=>2NH_3"], hint: "Equilibrium arrow is <=>", difficulty: 5, teach: "Equilibrium" },
+    { name: "Iron(III)", answers: ["Fe^(III)"], hint: "Oxidation state in Roman numerals, in parens", difficulty: 5, teach: "Oxidation states" },
+    { name: "Hexacyanoferrate", answers: ["[Fe(CN)_6]^4-"], hint: "Square brackets, six CN groups, charge 4-", difficulty: 5, teach: "Complex ions" },
+  ];
+
+  let state = {
+    index: 0,
+    score: 0,
+    streak: 0,
+    solved: 0,
+    results: [] as Array<"solved" | "skipped" | "pending">,
+  };
+
+  const els = {
+    game: document.getElementById("molecule-game")!,
+    score: document.getElementById("game-score")!,
+    streak: document.getElementById("game-streak")!,
+    solved: document.getElementById("game-solved")!,
+    total: document.getElementById("game-total")!,
+    difficulty: document.getElementById("game-difficulty")!,
+    name: document.getElementById("game-molecule-name")!,
+    hint: document.getElementById("game-hint")!,
+    teach: document.getElementById("game-teach")!,
+    input: document.getElementById("game-input") as HTMLInputElement,
+    submit: document.getElementById("game-submit") as HTMLButtonElement,
+    start: document.getElementById("game-start") as HTMLButtonElement,
+    skip: document.getElementById("game-skip") as HTMLButtonElement,
+    feedback: document.getElementById("game-feedback")!,
+    progress: document.getElementById("game-progress")!,
+  };
+
+  els.total.textContent = String(challenges.length);
+  state.results = challenges.map(() => "pending");
+  renderProgress();
+
+  function renderProgress() {
+    els.progress.innerHTML = "";
+    state.results.forEach((result, i) => {
+      const dot = document.createElement("div");
+      dot.className = "game-progress-dot";
+      if (result === "solved") dot.classList.add("solved");
+      else if (result === "skipped") dot.classList.add("skipped");
+      if (i === state.index) dot.classList.add("current");
+      els.progress.appendChild(dot);
+    });
+  }
+
+  function showChallenge() {
+    const ch = challenges[state.index];
+    els.difficulty.textContent = "⭐".repeat(Math.min(ch.difficulty, 5));
+    els.name.textContent = ch.name;
+    els.hint.textContent = ch.hint;
+    els.teach.textContent = "";
+    els.input.value = "";
+    els.input.className = "game-input";
+    els.input.disabled = false;
+    els.submit.disabled = false;
+    els.skip.disabled = false;
+    els.start.style.display = "none";
+    els.feedback.textContent = "";
+    els.feedback.className = "game-feedback";
+    els.input.focus();
+    renderProgress();
+  }
+
+  function normalize(s: string): string {
+    return s.replace(/\s+/g, "").replace(/\^1\+/g, "^+").replace(/\^1-/g, "^-");
+  }
+
+  function check() {
+    const ch = challenges[state.index];
+    const userAnswer = normalize(els.input.value.trim());
+    const correct = ch.answers.some((a) => normalize(a) === userAnswer);
+
+    if (correct) {
+      const points = ch.difficulty * 10 + state.streak * 5;
+      state.score += points;
+      state.streak++;
+      state.solved++;
+      state.results[state.index] = "solved";
+      els.input.classList.add("correct");
+      els.feedback.textContent = `✅ Correct! +${points} points`;
+      els.feedback.classList.add("correct");
+      els.teach.textContent = `📖 ${ch.teach}`;
+      const sound = (window as any).asciichemSound;
+      if (sound?.isEnabled()) {
+        const atoms = ch.answers[0].match(/[A-Z][a-z]?/g) || [];
+        atoms.slice(0, 6).forEach((el, i) => {
+          setTimeout(() => sound.playAtom(el, { duration: 0.2, gain: 0.5 }), i * 120);
+        });
+      }
+    } else {
+      state.streak = 0;
+      els.input.classList.add("wrong");
+      els.feedback.textContent = `❌ Not quite. The answer is: ${ch.answers[0]}`;
+      els.feedback.classList.add("wrong");
+      els.teach.textContent = `📖 ${ch.teach}`;
+      const sound = (window as any).asciichemSound;
+      if (sound?.isEnabled()) sound.playAtom("H", { duration: 0.3, gain: 0.3 });
+    }
+
+    updateStats();
+    els.input.disabled = true;
+    els.submit.disabled = true;
+
+    setTimeout(() => {
+      state.index++;
+      if (state.index >= challenges.length) {
+        gameOver();
+      } else {
+        showChallenge();
+      }
+    }, 2200);
+  }
+
+  function skip() {
+    state.streak = 0;
+    state.results[state.index] = "skipped";
+    els.feedback.textContent = `⏭️ Skipped. The answer was: ${challenges[state.index].answers[0]}`;
+    els.feedback.classList.add("wrong");
+    state.index++;
+    updateStats();
+    setTimeout(() => {
+      if (state.index >= challenges.length) gameOver();
+      else showChallenge();
+    }, 2000);
+  }
+
+  function updateStats() {
+    els.score.textContent = String(state.score);
+    els.streak.textContent = `${state.streak} 🔥`;
+    els.solved.textContent = `${state.solved}/${challenges.length}`;
+    renderProgress();
+  }
+
+  function gameOver() {
+    els.input.disabled = true;
+    els.submit.disabled = true;
+    els.skip.disabled = true;
+    els.difficulty.textContent = "🏆";
+    els.name.textContent = `Game Over! Final score: ${state.score}`;
+    els.hint.textContent = `You solved ${state.solved} out of ${challenges.length} molecules.`;
+    els.teach.textContent = state.solved === challenges.length
+      ? "🎉 Perfect score! You're an AsciiChem master!"
+      : "Play again to try the ones you missed!";
+    els.feedback.textContent = "";
+    els.start.style.display = "";
+    els.start.textContent = "Play Again";
+    if (state.solved >= 10) {
+      (window as any).asciichem?._unlock?.("quiz-master");
+    }
+  }
+
+  els.start.addEventListener("click", () => {
+    state = { index: 0, score: 0, streak: 0, solved: 0, results: challenges.map(() => "pending") };
+    showChallenge();
+  });
+
+  els.submit.addEventListener("click", check);
+  els.skip.addEventListener("click", skip);
+  els.input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !els.submit.disabled) check();
+  });
+</script>

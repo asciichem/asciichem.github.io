@@ -1,0 +1,102 @@
+---
+/**
+ * FloatingPlayButton — a discoverable entry point to the games.
+ *
+ * Appears on every page in the bottom-right corner. Links to the
+ * playground where all three games live. Dismissible per session.
+ */
+const currentPath = Astro.url.pathname;
+const isPlayground = currentPath.startsWith("/playground");
+---
+
+{!isPlayground && (
+  <a href="/playground/" class="floating-play" aria-label="Play AsciiChem games" title="Play games →">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+    <span class="floating-play-label">Play</span>
+    <span class="floating-play-pulse"></span>
+  </a>
+)}
+
+<style>
+  .floating-play {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.1rem 0.7rem 0.85rem;
+    background: var(--color-asciichem-accent, #baa300);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(186, 163, 0, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .floating-play {
+    background: #e7d67a;
+    color: #968400;
+    box-shadow: 0 4px 16px rgba(231, 214, 122, 0.35);
+  }
+
+  .floating-play:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 24px rgba(186, 163, 0, 0.45);
+  }
+
+  .floating-play svg {
+    flex-shrink: 0;
+  }
+
+  .floating-play-label {
+    white-space: nowrap;
+  }
+
+  .floating-play-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-asciichem-accent, #baa300);
+    opacity: 0;
+    animation: playPulse 2.5s ease-out infinite;
+    pointer-events: none;
+  }
+
+  [data-theme="dark"] .floating-play-pulse {
+    border-color: #e7d67a;
+  }
+
+  @keyframes playPulse {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.4); }
+  }
+
+  @media (max-width: 640px) {
+    .floating-play {
+      bottom: 1rem;
+      right: 1rem;
+      padding: 0.6rem 0.95rem 0.6rem 0.7rem;
+    }
+
+    .floating-play-label {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .floating-play-pulse {
+      animation: none;
+      display: none;
+    }
+    .floating-play:hover {
+      transform: none;
+    }
+  }
+</style>

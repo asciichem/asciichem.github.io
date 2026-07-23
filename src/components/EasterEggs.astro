@@ -1,0 +1,494 @@
+---
+/**
+ * Site-wide easter eggs. Loaded globally via the Header (which is on
+ * every page). Includes:
+ *
+ * - Konami code → party mode (floating molecules + rainbow)
+ * - Console ASCII art for developers
+ * - Logo click 5× → AsciiChem jingle
+ * - Typing 'explosion' on the playground → screen shake + boom
+ *
+ * All animations respect prefers-reduced-motion.
+ */
+---
+
+<script>
+  import "../scripts/sound-engine.ts";
+  import "../scripts/asciichem-cli.ts";
+
+  // --- Console art -------------------------------------------------------
+  const consoleStyle1 = "color: #baa300; font-size: 14px; font-weight: bold;";
+  const consoleStyle2 = "color: #e7d67a; font-size: 12px;";
+  const consoleStyle3 = "color: #666; font-size: 11px;";
+
+  console.log(
+    "%c\n" +
+      "    ╔═══════════════════════════════╗\n" +
+      "    ║      A s c i i C h e m        ║\n" +
+      "    ║   ASCII in, chemistry out.    ║\n" +
+      "    ╚═══════════════════════════════╝\n",
+    consoleStyle1,
+  );
+  console.log(
+    "%c🔮 Found a secret! The site has easter eggs.\n" +
+      "%c   • Click atoms in examples to hear them\n" +
+      "%c   • Click the logo 5× for a jingle\n" +
+      "%c   • Try the Konami code\n" +
+      "%c   • Visit /playground/ to compose molecules\n" +
+      "%c\nBuilt with Astro, Starlight, and Web Audio API. No tracking.\n",
+    consoleStyle2, consoleStyle3, consoleStyle3, consoleStyle3, consoleStyle2,
+  );
+
+  // --- Konami code → party mode -----------------------------------------
+  const KONAMI = [
+    "ArrowUp", "ArrowUp",
+    "ArrowDown", "ArrowDown",
+    "ArrowLeft", "ArrowRight",
+    "ArrowLeft", "ArrowRight",
+    "KeyB", "KeyA",
+  ];
+  let konamiIndex = 0;
+  const partyMolecules = ["⚛️", "🧪", "⚗️", "🔬", "🧬", "💎", "🔥", "✨", "💫", "🌟"];
+  let partyActive = false;
+
+  function activatePartyMode() {
+    if (partyActive) return;
+    partyActive = true;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (window.asciichemSound?.isEnabled()) {
+      window.asciichemSound.playJingle();
+    }
+
+    if (reduced) {
+      flashBanner("🎉 Party mode activated! 🎉");
+      setTimeout(() => { partyActive = false; }, 3000);
+      return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.id = "party-overlay";
+    overlay.style.cssText = `
+      position: fixed; inset: 0; pointer-events: none;
+      z-index: 99998; overflow: hidden;
+    `;
+    document.body.appendChild(overlay);
+
+    for (let i = 0; i < 40; i++) {
+      const el = document.createElement("div");
+      const mol = partyMolecules[Math.floor(Math.random() * partyMolecules.length)];
+      el.textContent = mol;
+      el.style.cssText = `
+        position: absolute;
+        font-size: ${1.5 + Math.random() * 2}rem;
+        left: ${Math.random() * 100}vw;
+        top: -5vh;
+        opacity: ${0.6 + Math.random() * 0.4};
+        animation: partyFall ${3 + Math.random() * 4}s linear forwards;
+        animation-delay: ${Math.random() * 3}s;
+      `;
+      overlay.appendChild(el);
+    }
+
+    if (!document.getElementById("party-styles")) {
+      const style = document.createElement("style");
+      style.id = "party-styles";
+      style.textContent = `
+        @keyframes partyFall {
+          to { transform: translateY(110vh) rotate(720deg); }
+        }
+        @keyframes partyRainbow {
+          0% { filter: hue-rotate(0deg); }
+          100% { filter: hue-rotate(360deg); }
+        }
+        .party-mode body *:not(#party-overlay):not(#party-overlay *) {
+          animation: partyRainbow 2s linear infinite;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.documentElement.classList.add("party-mode");
+
+    flashBanner("🎉 PARTY MODE! 🎉 Chemistry is fun! ⚗️");
+
+    setTimeout(() => {
+      overlay.remove();
+      document.documentElement.classList.remove("party-mode");
+      partyActive = false;
+    }, 8000);
+  }
+
+  function flashBanner(text: string) {
+    const banner = document.createElement("div");
+    banner.textContent = text;
+    banner.style.cssText = `
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 99999; padding: 1.5rem 3rem;
+      background: var(--color-asciichem-accent, #baa300);
+      color: #fff; font-size: 1.5rem; font-weight: 700;
+      border-radius: 1rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      animation: partyBannerPop 0.5s ease forwards;
+      pointer-events: none;
+    `;
+    document.body.appendChild(banner);
+
+    if (!document.getElementById("party-banner-styles")) {
+      const style = document.createElement("style");
+      style.id = "party-banner-styles";
+      style.textContent = `
+        @keyframes partyBannerPop {
+          0% { transform: translate(-50%, -50%) scale(0) rotate(-10deg); }
+          50% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+          100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    setTimeout(() => {
+      banner.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+      banner.style.opacity = "0";
+      banner.style.transform = "translate(-50%, -50%) scale(0.8)";
+      setTimeout(() => banner.remove(), 500);
+    }, 2500);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.code === KONAMI[konamiIndex]) {
+      konamiIndex++;
+      if (konamiIndex === KONAMI.length) {
+        konamiIndex = 0;
+        activatePartyMode();
+      }
+    } else {
+      konamiIndex = e.code === KONAMI[0] ? 1 : 0;
+    }
+  });
+
+  // --- Sound toggle sync -------------------------------------------------
+  function updateSoundToggles(enabled: boolean) {
+    document.querySelectorAll<HTMLButtonElement>(".sound-toggle").forEach((btn) => {
+      btn.setAttribute("aria-pressed", String(enabled));
+      btn.dataset.enabled = String(enabled);
+    });
+  }
+
+  // --- Syntax-aware easter eggs (teach AsciiChem by doing) ---------------
+  // Each trigger detects valid AsciiChem syntax or a chemistry keyword,
+  // fires a themed effect, AND shows an educational "discovery card"
+  // explaining what the syntax means.
+
+  let typedBuffer = "";
+
+  interface SyntaxTrigger {
+    match: RegExp;
+    syntax: string;
+    explain: string;
+    action: () => void;
+    icon: string;
+  }
+
+  const SYNTAX_TRIGGERS: SyntaxTrigger[] = [
+    {
+      match: /\bH_?2O\b|^water$|rain/i,
+      syntax: "H_2O",
+      explain: "2 Hydrogen atoms + 1 Oxygen. The _ makes a subscript.",
+      icon: "🌧️",
+      action: triggerRain,
+    },
+    {
+      match: /\bAu\b|gold/i,
+      syntax: "Au",
+      explain: "Gold — symbol from Latin 'aurum'. Atomic number 79.",
+      icon: "🥇",
+      action: () => window.asciichem?.gold(),
+    },
+    {
+      match: /\bNe\b|neon/i,
+      syntax: "Ne",
+      explain: "Neon — noble gas. Sine waveform = smooth, calm tone.",
+      icon: "💡",
+      action: () => window.asciichem?.neon(),
+    },
+    {
+      match: /\bC_?2H_?5OH\b|ethanol|booze|alcohol/i,
+      syntax: "C_2H_5OH",
+      explain: "Ethanol — 2 Carbon, 6 Hydrogen, 1 Oxygen. The OH group makes it an alcohol.",
+      icon: "🍺",
+      action: () => window.asciichem?.caffeine(),
+    },
+    {
+      match: /caffeine|coffee|C_?8H_?10N_?4O_?2/i,
+      syntax: "C_8H_10N_4O_2",
+      explain: "Caffeine — 8 Carbon, 10 Hydrogen, 4 Nitrogen, 2 Oxygen. Try playing it!",
+      icon: "☕",
+      action: () => window.asciichem?.caffeine(),
+    },
+    {
+      match: /explosion|boom|detonate|2H_?2\s*\+\s*O_?2/i,
+      syntax: "2H_2 + O_2 -> 2H_2O",
+      explain: "Combustion: 2 H₂ + 1 O₂ → 2 H₂O. The -> arrow means a forward reaction.",
+      icon: "💥",
+      action: triggerExplosion,
+    },
+    {
+      match: /entropy|chaos/i,
+      syntax: "(disorder)",
+      explain: "Entropy always increases. In AsciiChem, reactions are written with -> or <=>.",
+      icon: "🌪️",
+      action: () => window.asciichem?.entropy(),
+    },
+    {
+      match: /\bmole\b|avogadro/i,
+      syntax: "6.022×10²³",
+      explain: "One mole = 6.022 × 10²³ particles. Avogadro's number.",
+      icon: "🕳️",
+      action: () => window.asciichem?.mole(),
+    },
+    {
+      match: /sing|melody|periodic/i,
+      syntax: "H He Li Be B C N O F Ne...",
+      explain: "Elements in atomic-number order. Each has a unique tone based on its number.",
+      icon: "🎼",
+      action: () => window.asciichem?.sing(),
+    },
+    {
+      match: /\^14C|carbon.?14|isotope/i,
+      syntax: "^14C",
+      explain: "Prefix isotope: ^14 binds to the following atom. AsciiChem's semantic fix.",
+      icon: "☢️",
+      action: () => showLearnCard("^14C", "Carbon-14 — the isotope prefix ^ goes BEFORE the element symbol, binding to it."),
+    },
+    {
+      match: /Ca\^?2\+?|calcium/i,
+      syntax: "Ca^2+",
+      explain: "Charge suffix: number-then-sign per IUPAC convention.",
+      icon: "⚡",
+      action: () => showLearnCard("Ca^2+", "Calcium ion — ^2+ means charge +2. IUPAC: number first, then sign."),
+    },
+    {
+      match: /Fe\^\(?II|iron.?ii|oxidation/i,
+      syntax: "Fe^(II)",
+      explain: "Oxidation state in Roman numerals, wrapped in parens.",
+      icon: "🔬",
+      action: () => showLearnCard("Fe^(II)", "Iron(II) — ^(II) is the oxidation state in Roman numerals."),
+    },
+    {
+      match: /<=>|equilibrium/i,
+      syntax: "A <=> B",
+      explain: "Equilibrium arrow: <=>. Add conditions: <=>[catalyst][temp]",
+      icon: "⚖️",
+      action: () => showLearnCard("A <=> B", "Equilibrium — both forward and reverse reactions occur. Try: N_2 + 3H_2 <=>[Fe][400C] 2NH_3"),
+    },
+    {
+      match: /bond|single.?bond|double.?bond|triple.?bond/i,
+      syntax: "- = #",
+      explain: "Bonds: - single, = double, # triple. Also: ## quadruple, >- wedge, ~> dative.",
+      icon: "🔗",
+      action: () => showLearnCard("H-O-H", "Structural bonds sit between atoms. Try: H_2C=CH_2 (ethylene) or HC#CH (acetylene)"),
+    },
+    {
+      match: /reset|normal|clear/i,
+      syntax: "",
+      explain: "Effects reset.",
+      icon: "✨",
+      action: () => window.asciichem?.reset(),
+    },
+    {
+      match: /\bhelp\b|\bhint\b/i,
+      syntax: "",
+      explain: "Type asciichem.help() in the console for the full command list!",
+      icon: "💡",
+      action: () => console.log('%c💡 Type asciichem.help() in the console — or visit /playground/ for games!', "color: #e7d67a; font-weight: bold; font-size: 1.1em;"),
+    },
+  ];
+
+  function showLearnCard(syntax: string, explain: string): void {
+    const existing = document.querySelector(".learn-card");
+    if (existing) existing.remove();
+
+    const card = document.createElement("div");
+    card.className = "learn-card";
+    card.innerHTML = `
+      <div class="learn-card-icon">🧪</div>
+      <div class="learn-card-body">
+        <code class="learn-card-syntax">${syntax}</code>
+        <p class="learn-card-explain">${explain}</p>
+      </div>
+      <button class="learn-card-close" aria-label="Dismiss">×</button>
+    `;
+
+    if (!document.getElementById("learn-card-styles")) {
+      const style = document.createElement("style");
+      style.id = "learn-card-styles";
+      style.textContent = `
+        .learn-card {
+          position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 99999;
+          display: flex; align-items: flex-start; gap: 0.75rem;
+          max-width: 22rem; padding: 1rem 1.25rem;
+          background: var(--sl-color-bg, #fff);
+          border: 2px solid var(--color-asciichem-accent, #baa300);
+          border-radius: 0.75rem;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+          animation: learnCardIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        [data-theme="dark"] .learn-card { border-color: #e7d67a; }
+        .learn-card-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .learn-card-body { flex: 1; min-width: 0; }
+        .learn-card-syntax {
+          display: inline-block; padding: 0.15rem 0.5rem;
+          background: var(--color-asciichem-accent-soft, #faf5e0);
+          color: var(--color-asciichem-accent, #baa300);
+          border-radius: 0.25rem; font-size: 0.95rem; font-weight: 700;
+          font-family: var(--font-mono, monospace);
+          margin-bottom: 0.35rem;
+        }
+        .learn-card-explain {
+          margin: 0; font-size: 0.85rem; line-height: 1.45;
+          color: var(--sl-color-text, #333);
+        }
+        .learn-card-close {
+          background: none; border: none; font-size: 1.25rem;
+          color: var(--sl-color-gray-3, #999); cursor: pointer;
+          padding: 0; line-height: 1; flex-shrink: 0;
+        }
+        .learn-card-close:hover { color: var(--sl-color-text, #333); }
+        @keyframes learnCardIn {
+          from { transform: translateY(20px) scale(0.95); opacity: 0; }
+          to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes learnCardOut {
+          to { transform: translateY(20px) scale(0.95); opacity: 0; }
+        }
+        @media (max-width: 640px) {
+          .learn-card { bottom: 4.5rem; right: 1rem; left: 1rem; max-width: none; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.body.appendChild(card);
+    card.querySelector(".learn-card-close")?.addEventListener("click", () => {
+      card.style.animation = "learnCardOut 0.2s ease-in forwards";
+      setTimeout(() => card.remove(), 200);
+    });
+    setTimeout(() => {
+      if (card.parentElement) {
+        card.style.animation = "learnCardOut 0.2s ease-in forwards";
+        setTimeout(() => card.remove(), 200);
+      }
+    }, 6000);
+  }
+
+  function triggerRain() {
+    if (window.asciichemSound?.isEnabled()) {
+      window.asciichemSound.playSequence([
+        { element: "H", count: 2 }, { element: "O", count: 1 },
+      ]);
+    }
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:99998;overflow:hidden;";
+    document.body.appendChild(overlay);
+    for (let i = 0; i < 50; i++) {
+      const drop = document.createElement("div");
+      drop.textContent = "💧";
+      drop.style.cssText = `position:absolute;font-size:1rem;left:${Math.random()*100}vw;top:-5vh;animation:rainFallKey ${1.5+Math.random()*2}s linear forwards;animation-delay:${Math.random()*2}s;`;
+      overlay.appendChild(drop);
+    }
+    if (!document.getElementById("rain-key-styles")) {
+      const s = document.createElement("style");
+      s.id = "rain-key-styles";
+      s.textContent = "@keyframes rainFallKey { to { transform: translateY(110vh); } }";
+      document.head.appendChild(s);
+    }
+    setTimeout(() => overlay.remove(), 5000);
+  }
+
+  let triggerCooldown = false;
+
+  function checkSyntaxTriggers() {
+    if (triggerCooldown) return;
+    for (const trigger of SYNTAX_TRIGGERS) {
+      if (trigger.match.test(typedBuffer)) {
+        typedBuffer = "";
+        triggerCooldown = true;
+        setTimeout(() => { triggerCooldown = false; }, 3000);
+        trigger.action();
+        showLearnCard(trigger.syntax, trigger.explain);
+        console.log(`%c${trigger.icon} %c${trigger.syntax}%c — ${trigger.explain}`,
+          "font-size: 1.3em;",
+          "color: #baa300; font-weight: bold; font-family: monospace;",
+          "color: #666;");
+        return;
+      }
+    }
+  }
+
+  // For input/textarea: use 'input' event (fires AFTER the value updates,
+  // so the buffer includes the character just typed).
+  document.addEventListener("input", (e) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      typedBuffer = (e.target as HTMLInputElement).value;
+      checkSyntaxTriggers();
+    }
+  });
+
+  // For page body (not in an input): build the buffer character by character.
+  document.addEventListener("keydown", (e) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key.length === 1) {
+      typedBuffer += e.key;
+      if (typedBuffer.length > 40) typedBuffer = typedBuffer.slice(-40);
+      checkSyntaxTriggers();
+    }
+  });
+
+  function triggerExplosion() {
+    if (window.asciichemSound?.isEnabled()) {
+      window.asciichemSound.playExplosion();
+    }
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    const flash = document.createElement("div");
+    flash.style.cssText = `
+      position: fixed; inset: 0; z-index: 99999; pointer-events: none;
+      background: radial-gradient(circle, rgba(255,200,0,0.8), rgba(255,100,0,0.4), transparent 70%);
+      animation: explosionFlash 0.6s ease-out forwards;
+    `;
+    document.body.appendChild(flash);
+
+    if (!document.getElementById("explosion-styles")) {
+      const style = document.createElement("style");
+      style.id = "explosion-styles";
+      style.textContent = `
+        @keyframes explosionFlash {
+          0% { opacity: 0; }
+          15% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        @keyframes screenShake {
+          0%, 100% { transform: translate(0, 0); }
+          10% { transform: translate(-4px, -2px); }
+          20% { transform: translate(4px, 2px); }
+          30% { transform: translate(-3px, 3px); }
+          40% { transform: translate(3px, -3px); }
+          50% { transform: translate(-2px, 1px); }
+          60% { transform: translate(2px, -1px); }
+          70% { transform: translate(-1px, 2px); }
+          80% { transform: translate(1px, -2px); }
+          90% { transform: translate(-1px, 0); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.body.style.animation = "screenShake 0.5s ease-in-out";
+    setTimeout(() => { document.body.style.animation = ""; }, 500);
+    setTimeout(() => flash.remove(), 600);
+  }
+</script>
