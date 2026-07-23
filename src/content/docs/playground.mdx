@@ -1,0 +1,148 @@
+---
+title: Playground
+description: Play chemistry games, compose molecules as music, and learn the syntax interactively.
+---
+
+import ChemistryPlayer from "../../components/ChemistryPlayer.astro";
+import MoleculeGame from "../../components/MoleculeGame.astro";
+import QuizGame from "../../components/QuizGame.astro";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+Welcome to the AsciiChem **playground** — where chemistry becomes
+games, music, and learning. Three interactive experiences teach the
+syntax from different angles.
+
+## Chemistry Quiz
+
+Test your knowledge of elements, symbols, atomic numbers, and
+chemistry trivia. 10 random questions, immediate feedback with
+explanations, streak bonuses. No console needed — play right here.
+
+<QuizGame />
+
+## Molecule Builder Challenge
+
+Learn AsciiChem syntax by solving real chemistry challenges. Each
+molecule teaches a different construct — subscripts, charges,
+isotopes, bonds, reactions, and more. 20 challenges across 5
+difficulty tiers.
+
+<MoleculeGame />
+
+## Chemistry Sound Player
+
+Type a formula and press Play. Or click any preset. Each element maps
+to a musical note based on its atomic number, and each element family
+has its own waveform.
+
+<ChemistryPlayer />
+
+## How it works
+
+Each element maps to a musical note via a **pentatonic scale** — a
+five-note scale that sounds pleasant in any combination. The atomic
+number determines the note and octave:
+
+| Element | Atomic # | Note | Waveform | Why |
+|---------|----------|------|----------|-----|
+| H | 1 | C4 | sine+harmonic | Nonmetal — organic, pure |
+| He | 2 | D4 | sine | Noble gas — smooth, ethereal |
+| Li | 3 | E4 | square | Alkali metal — sharp, reactive |
+| C | 6 | A4 | sine+harmonic | Nonmetal — the basis of life |
+| N | 7 | C5 | sine+harmonic | Nonmetal — like H, an octave up |
+| O | 8 | D5 | sine+harmonic | Nonmetal — bright |
+| Ne | 10 | G4 | sine | Noble gas — calm |
+| Na | 11 | A4 | square | Alkali — like lithium's cousin |
+| Fe | 26 | E5 | triangle | Transition metal — warm, metallic |
+| Au | 79 | D6 | triangle | Transition metal — precious, bright |
+
+Because each family has its own waveform, you can **hear** the
+chemistry. A molecule full of noble gases sounds calm and flowing.
+An alkali-halogen reaction sounds sharp and energetic.
+
+## Try these
+
+<CardGrid stagger>
+  <Card title="Caffeine" icon="pencil">
+    `C_8H_10N_4O_2` — a long, layered melody. Eight carbons, four
+    nitrogens, two oxygens.
+  </Card>
+  <Card title="Ethanol" icon="pencil">
+    `C_2H_6O` — the sound of a party. Two carbons and an oxygen.
+  </Card>
+  <Card title="Glucose" icon="pencil">
+    `C_6H_12O_6` — 24 atoms = a full phrase.
+  </Card>
+  <Card title="Haber process" icon="pencil">
+    `N_2 + 3H_2 <=>[Fe] 2NH_3` — nitrogen and hydrogen becoming
+    ammonia. The melody shifts when it crosses the arrow.
+  </Card>
+</CardGrid>
+
+## Easter eggs that teach syntax
+
+The site responds to **AsciiChem syntax** typed anywhere. Each trigger
+fires a themed effect AND shows a discovery card explaining what the
+syntax means. Experiment to learn:
+
+| Type this... | ...to learn this | Effect |
+|---|---|---|
+| `H_2O` | Subscripts (`_2` = ×2) | 🌧️ Rain |
+| `Au` | Element symbols (Au = gold) | 🥇 Gold rush |
+| `Ne` | Noble gases | 💡 Neon glow |
+| `^14C` | Prefix isotopes | ☢️ Discovery card |
+| `Ca^2+` | Charges (number-then-sign) | ⚡ Discovery card |
+| `Fe^(II)` | Oxidation states | 🔬 Discovery card |
+| `<=>` | Equilibrium arrows | ⚖️ Discovery card |
+| `2H_2 + O_2` | Stoichiometry + reactions | 💥 Explosion |
+| `caffeine` | Caffeine formula `C_8H_10N_4O_2` | ☕ Hyper focus |
+| `bond` | Bond types (`-` `=` `#`) | 🔗 Discovery card |
+| Konami code | (just for fun) | 🎉 Party mode |
+
+Open the **developer console** (F12) and type `help()` for the full
+command list:
+
+```javascript
+help()                    // Lists ALL commands + syntax triggers
+asciichem.compose("H_2O") // Play any molecule — shows what atoms are playing
+asciichem.fact("Au")      // Random fact about gold + its tone
+asciichem.weight("H_2O")  // Molecular weight: 18.015 g/mol
+asciichem.sing()          // Periodic table melody
+asciichem.achievements()  // Your badge collection (12 to unlock)
+```
+
+- **Click any atom** in a rendered example to hear its tone.
+- The **🎮 button** in the bottom-right corner links here from any page.
+- **12 achievements** to unlock — check with `asciichem.achievements()`.
+
+## Technical notes
+
+The sound engine uses the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+exclusively — no audio files, no dependencies. Every tone is
+synthesised live from an oscillator node with an ADSR envelope.
+
+The element → frequency mapping uses a pentatonic scale
+(C, D, E, G, A) cycling through octaves. This ensures every
+combination sounds consonant — there are no dissonant intervals in a
+pentatonic scale.
+
+The waveform per element family:
+
+| Family | Waveform | Character |
+|--------|----------|-----------|
+| Noble gases | sine | Smooth, calm |
+| Nonmetals (H, C, N, O) | sine + octave harmonic | Organic, pure |
+| Alkali metals | square | Sharp, energetic |
+| Alkaline earth | triangle | Warm, steady |
+| Halogens | sawtooth | Bright, aggressive |
+| Transition metals | triangle | Metallic, warm |
+
+Sound is **off by default** for new visitors and can be toggled via
+the speaker icon in the header. Your preference is saved to
+`localStorage`.
+
+:::note[Accessibility]
+All audio features respect `prefers-reduced-motion`. The visual
+animations (atom highlighting, confetti) are disabled when the user
+has motion reduction enabled. Sound itself is always opt-in.
+:::

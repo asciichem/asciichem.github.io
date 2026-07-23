@@ -1,0 +1,390 @@
+---
+/**
+ * ChemistryPlayer — type a molecule, hear it play.
+ *
+ * Each element has a unique tone based on its atomic number
+ * (pentatonic scale) and waveform (element family). Water sounds
+ * different from methane. Reactions play as a melody.
+ */
+const presets = [
+  { label: "Water", formula: "H_2O" },
+  { label: "Methane", formula: "CH_4" },
+  { label: "Glucose", formula: "C_6H_12O_6" },
+  { label: "Ethanol", formula: "C_2H_6O" },
+  { label: "Ammonia", formula: "NH_3" },
+  { label: "Sulfuric acid", formula: "H_2SO_4" },
+  { label: "Combustion", formula: "2H_2 + O_2 -> 2H_2O" },
+  { label: "Haber", formula: "N_2 + 3H_2 <=>[Fe] 2NH_3" },
+];
+
+const elementColors: Record<string, string> = {
+  H: "#ffffff", He: "#d9ffff", Li: "#cc80ff", Be: "#c2ff00",
+  B: "#ffb5b5", C: "#909090", N: "#3050f8", O: "#ff0d0d",
+  F: "#90e050", Ne: "#b3e3f5", Na: "#ab5cf2", Mg: "#8aff00",
+  Al: "#bfa6a6", Si: "#f0c8a0", P: "#ff8000", S: "#ffff30",
+  Cl: "#1ff01f", K: "#8f40d4", Ca: "#3dff00", Fe: "#e06633",
+  Cu: "#c88033", Zn: "#7d80b0", Br: "#a62929", I: "#940094",
+};
+---
+
+<div class="chemistry-player" id="chemistry-player">
+  <div class="player-input-row">
+    <input
+      type="text"
+      id="player-input"
+      class="player-input"
+      placeholder="Type a formula: H_2O, CH_4, 2H_2 + O_2 -> 2H_2O"
+      value="H_2O"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="player-play" class="player-btn player-btn--play" aria-label="Play molecule">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <span>Play</span>
+    </button>
+  </div>
+
+  <div class="player-presets">
+    {presets.map((p) => (
+      <button class="player-preset" data-formula={p.formula}>{p.label}</button>
+    ))}
+  </div>
+
+  <div class="player-display" id="player-display">
+    <div class="player-display-hint">Press Play to hear the molecule</div>
+  </div>
+
+  <div class="player-legend">
+    <span class="player-legend-item">
+      <span class="legend-dot legend-dot--metal"></span> Metals = triangle
+    </span>
+    <span class="player-legend-item">
+      <span class="legend-dot legend-dot--noble"></span> Noble gases = sine
+    </span>
+    <span class="player-legend-item">
+      <span class="legend-dot legend-dot--halogen"></span> Halogens = sawtooth
+    </span>
+    <span class="player-legend-item">
+      <span class="legend-dot legend-dot--alkali"></span> Alkali = square
+    </span>
+  </div>
+</div>
+
+<style>
+  .chemistry-player {
+    border: 1px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-block: 1.5rem;
+    background:
+      radial-gradient(ellipse at top, rgba(186, 163, 0, 0.04), transparent 70%),
+      var(--sl-color-bg, #fff);
+  }
+
+  .player-input-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .player-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 1.05rem;
+    border: 2px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg, #fff);
+    color: var(--sl-color-text, #1a1a1a);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .player-input:focus {
+    outline: none;
+    border-color: var(--color-asciichem-accent, #baa300);
+    box-shadow: 0 0 0 3px rgba(186, 163, 0, 0.15);
+  }
+
+  [data-theme="dark"] .player-input:focus {
+    border-color: #e7d67a;
+    box-shadow: 0 0 0 3px rgba(231, 214, 122, 0.2);
+  }
+
+  .player-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .player-btn--play {
+    background: var(--color-asciichem-accent, #baa300);
+    color: #fff;
+  }
+
+  .player-btn--play:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(186, 163, 0, 0.3);
+  }
+
+  [data-theme="dark"] .player-btn--play {
+    background: #e7d67a;
+    color: #968400;
+  }
+
+  .player-btn--play.playing {
+    background: var(--sl-color-gray-5, #d4d4d4);
+    color: var(--sl-color-text, #1a1a1a);
+    pointer-events: none;
+  }
+
+  .player-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .player-preset {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--sl-color-text, #1a1a1a);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .player-preset:hover {
+    border-color: var(--color-asciichem-accent, #baa300);
+    background: var(--color-asciichem-accent-soft, #faf5e0);
+  }
+
+  [data-theme="dark"] .player-preset:hover {
+    border-color: #e7d67a;
+    background: rgba(231, 214, 122, 0.1);
+  }
+
+  .player-display {
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--sl-color-gray-7, #f5f5f5);
+    margin-bottom: 1rem;
+  }
+
+  .player-display-hint {
+    color: var(--sl-color-gray-3, #888);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  .player-atom {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 2px solid var(--sl-color-gray-5, #ccc);
+    color: #1a1a1a;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+  }
+
+  .player-atom[data-count]::after {
+    content: attr(data-count);
+    position: absolute;
+    bottom: -0.15rem;
+    right: -0.15rem;
+    font-size: 0.65rem;
+    background: var(--sl-color-gray-5, #ccc);
+    border-radius: 999px;
+    padding: 0.05rem 0.3rem;
+    line-height: 1.2;
+  }
+
+  .player-atom.playing {
+    transform: scale(1.35);
+    box-shadow: 0 0 1.5rem currentColor;
+    z-index: 10;
+  }
+
+  .player-arrow {
+    font-size: 1.2rem;
+    color: var(--sl-color-gray-3, #888);
+    margin: 0 0.25rem;
+  }
+
+  .player-plus {
+    color: var(--sl-color-gray-3, #888);
+    margin: 0 0.15rem;
+  }
+
+  .player-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--sl-color-gray-3, #666);
+  }
+
+  .player-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+  }
+
+  .legend-dot--metal { background: #8aff00; }
+  .legend-dot--noble { background: #b3e3f5; border: 1px solid #88c8e0; }
+  .legend-dot--halogen { background: #1ff01f; }
+  .legend-dot--alkali { background: #ab5cf2; }
+</style>
+
+<script>
+  import "../scripts/sound-engine.ts";
+
+  const player = document.getElementById("chemistry-player")!;
+  const input = document.getElementById("player-input") as HTMLInputElement;
+  const playBtn = document.getElementById("player-play")!;
+  const display = document.getElementById("player-display")!;
+  const presets = player.querySelectorAll<HTMLButtonElement>(".player-preset");
+
+  const elementColors: Record<string, string> = {
+    H: "#ffffff", He: "#d9ffff", Li: "#cc80ff", C: "#909090",
+    N: "#3050f8", O: "#ff0d0d", F: "#90e050", Ne: "#b3e3f5",
+    Na: "#ab5cf2", Mg: "#8aff00", P: "#ff8000", S: "#ffff30",
+    Cl: "#1ff01f", K: "#8f40d4", Ca: "#3dff00", Fe: "#e06633",
+    Cu: "#c88033", Zn: "#7d80b0", Br: "#a62929", I: "#940094",
+  };
+
+  function extractAtoms(formula: string): Array<{ element: string; count: number; separator?: string }> {
+    const atoms: Array<{ element: string; count: number; separator?: string }> = [];
+    const parts = formula.split(/\s*(->|<=>|<-|<->|\+)\s*/);
+
+    for (const part of parts) {
+      if (/^(->|<=>|<-|<->|\+)$/.test(part)) {
+        if (part === "+") {
+          atoms.push({ element: "+", count: 0, separator: "plus" });
+        } else {
+          atoms.push({ element: part, count: 0, separator: "arrow" });
+        }
+        continue;
+      }
+      const clean = part.replace(/\([^)]*\)/g, "").replace(/\^[0-9ICXV]+/g, "");
+      const tokenRegex = /([A-Z][a-z]?)(?:_(\d+))?/g;
+      let match;
+      while ((match = tokenRegex.exec(clean)) !== null) {
+        const element = match[1];
+        const count = match[2] ? parseInt(match[2], 10) : 1;
+        if (element.length > 0 && element[0] === element[0].toUpperCase()) {
+          atoms.push({ element, count });
+        }
+      }
+    }
+    return atoms;
+  }
+
+  function renderDisplay(atoms: Array<{ element: string; count: number; separator?: string }>) {
+    display.innerHTML = "";
+    if (atoms.length === 0) {
+      display.innerHTML = '<div class="player-display-hint">No atoms found — try H_2O</div>';
+      return;
+    }
+    atoms.forEach((atom, idx) => {
+      if (atom.separator === "arrow") {
+        const arrow = document.createElement("span");
+        arrow.className = "player-arrow";
+        arrow.textContent = atom.element;
+        display.appendChild(arrow);
+      } else if (atom.separator === "plus") {
+        const plus = document.createElement("span");
+        plus.className = "player-plus";
+        plus.textContent = "+";
+        display.appendChild(plus);
+      } else {
+        const el = document.createElement("span");
+        el.className = "player-atom";
+        el.dataset.index = String(idx);
+        el.dataset.element = atom.element;
+        el.textContent = atom.element;
+        el.style.background = elementColors[atom.element] || "#e0e0e0";
+        if (atom.count > 1) el.dataset.count = String(atom.count);
+        display.appendChild(el);
+      }
+    });
+  }
+
+  function play() {
+    const sound = window.asciichemSound;
+    if (!sound) return;
+
+    const formula = input.value.trim();
+    if (!formula) return;
+
+    const atoms = extractAtoms(formula);
+    renderDisplay(atoms);
+
+    playBtn.classList.add("playing");
+    const playBtnInner = playBtn.querySelector("span");
+    if (playBtnInner) playBtnInner.textContent = "Playing...";
+
+    const playable = atoms.filter((a) => !a.separator);
+    sound.playSequence(playable, {
+      onAtomPlay: (index) => {
+        const atomEls = display.querySelectorAll<HTMLElement>(".player-atom");
+        atomEls.forEach((el) => el.classList.remove("playing"));
+        let playableIdx = -1;
+        atomEls.forEach((el) => {
+          const atom = atoms[parseInt(el.dataset.index!, 10)];
+          if (!atom.separator) playableIdx++;
+          if (playableIdx === index) el.classList.add("playing");
+        });
+      },
+      onComplete: () => {
+        display.querySelectorAll<HTMLElement>(".player-atom").forEach((el) =>
+          el.classList.remove("playing"),
+        );
+        playBtn.classList.remove("playing");
+        if (playBtnInner) playBtnInner.textContent = "Play";
+      },
+    });
+  }
+
+  playBtn.addEventListener("click", play);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") play();
+  });
+
+  presets.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      input.value = btn.dataset.formula || "";
+      play();
+    });
+  });
+</script>

@@ -1,0 +1,235 @@
+---
+title: Syntax cheat sheet
+description: Every AsciiChem construct on one page — atoms, bonds, reactions, electrons, and more.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+A single-page reference for every construct AsciiChem can encode.
+Print it, bookmark it, or scan it before writing chemistry.
+
+## Elements and atoms
+
+| Construct | Syntax | Example | Notes |
+|-----------|--------|---------|-------|
+| Element symbol | Capital + optional lowercase | `H`, `He`, `Uue` | One or two letters |
+| Subscript (multiplicity) | `_N` after atom | `H_2`, `H_2O` | Binds to preceding atom |
+| Multi-char subscript | `_{...}` | `H_{2a}` | Braces for non-numeric |
+| Stoichiometric coefficient | Leading digits | `2H_2O`, `3H_2` | Distinct from subscript |
+
+```asciichem
+H
+He
+H_2
+H_2O
+C_6H_12O_6
+2H_2O
+```
+
+## Isotopes and charge
+
+| Construct | Syntax | Example | Notes |
+|-----------|--------|---------|-------|
+| Prefix isotope | `^N` before atom | `^14C`, `^238U` | Binds to following atom |
+| Charge (suffix) | `^N±` after atom | `Ca^2+`, `Cl^-` | IUPAC number-then-sign |
+| Oxidation state | `^(Roman)` | `Fe^(II)`, `Mn^(VII)` | Roman numerals in parens |
+
+```asciichem
+^14C
+^131I
+^238U
+Ca^2+
+Cl^-
+SO_4^2-
+Fe^(II)
+Fe^(III)
+```
+
+:::note[The headline semantic fix]
+`^14C` binds the isotope to the atom — one `Atom` with `isotope: "14"`.
+AsciiMath would produce an empty phantom base followed by the atom,
+losing the binding entirely.
+:::
+
+## Groups (parenthesised sub-formulae)
+
+| Bracket | Syntax | Example |
+|---------|--------|---------|
+| Parentheses | `(...)` | `Ca(OH)_2` |
+| Square brackets | `[...]` | `[Fe(CN)_6]^4-` |
+| Braces | `{...}` | `{NH_4}_2SO_4` |
+
+Bracket kind is **preserved through round-trip** — `()` stays `()`,
+`[]` stays `[]`.
+
+```asciichem
+Ca(OH)_2
+(NH_4)_2SO_4
+[Fe(CN)_6]^4-
+[Co(NH_3)_6]^3+
+```
+
+## Bonds (8 kinds)
+
+| Kind | Syntax | Example | CML order |
+|------|--------|---------|-----------|
+| Single | `-` | `H-O-H` | `S` |
+| Double | `=` | `H_2C=CH_2` | `D` |
+| Triple | `#` | `HC#CH` | `T` |
+| Quadruple | `##` | `Re##Re` | `Q` |
+| Wedge (toward viewer) | `>-` | `C>-H` | `W` |
+| Hash (away from viewer) | `-<` | `C-<H` | `H` |
+| Dative / coordinate | `~>` | `NH_3~>BF_3` | `DG` |
+| Wavy / resonance | `~~` | `A~~B` | `V` |
+
+```asciichem
+H-O-H
+H_2C=CH_2
+HC#CH
+Re##Re
+C>-H
+C-<H
+NH_3~>BF_3
+A~~B
+```
+
+:::tip[Why `~>` for dative?]
+The `->` sequence is already the reaction arrow. `~>` was chosen to
+avoid collision while evoking the donation direction of a coordinate
+bond.
+:::
+
+## Stereochemistry
+
+| Construct | Syntax | Example |
+|-----------|--------|---------|
+| R/S configuration | `(R)-`, `(S)-` | `(R)-CH_3`, `(S)-CH(OH)COOH` |
+| E/Z geometry | `(E)-`, `(Z)-` | `(E)-CH=CH`, `(Z)-A=B` |
+| Greek alpha/beta | `(alpha)-`, `(beta)-` | `(alpha)-C`, `(beta)-C` |
+| Greek Unicode | `(α)-`, `(β)-` | `(α)-C` |
+
+AsciiMath-style typed words (`alpha`, `beta`) are accepted alongside
+the Unicode symbols.
+
+```asciichem
+(R)-CH_3
+(S)-CH(OH)COOH
+(E)-CH=CH
+(Z)-A=B
+(alpha)-C
+(beta)-C
+```
+
+## Lewis structures
+
+| Construct | Syntax | Example | Meaning |
+|-----------|--------|---------|---------|
+| Lone pair prefix | `:` or `::` | `:O`, `::O` | 1 or 2 lone pairs |
+| Radical suffix | `.` | `Cl.`, `O=O..` | Unpaired electron(s) |
+
+```asciichem
+:O
+::O
+Cl.
+O=O..
+```
+
+## Reactions
+
+| Arrow | Syntax | Kind | Example |
+|-------|--------|------|---------|
+| Forward | `->` | `:forward` | `2H_2 + O_2 -> 2H_2O` |
+| Reverse | `<-` | `:reverse` | `A <- B` |
+| Equilibrium | `<=>` | `:equilibrium` | `N_2 + 3H_2 <=> 2NH_3` |
+| Resonance | `<->` | `:resonance` | `A <-> B` |
+
+### Conditions (above/below the arrow)
+
+Conditions sit in bracketed groups immediately after the arrow. The
+first `[...]` is the **above** condition (catalyst); the second is
+the **below** condition (temperature, pressure).
+
+```asciichem
+N_2 + 3H_2 <=>[Fe][400C] 2NH_3
+A <=>[H_2O] B
+```
+
+### Reaction cascades (multi-step)
+
+```asciichem
+A -> B -> C
+2A -> 2B -> 2C
+A <=>[Fe][T] B -> C
+```
+
+Multi-step chains promote to a single `ReactionCascade`.
+
+## Electron configurations
+
+Two or more `orbital^occupancy` pairs:
+
+```asciichem
+1s^2 2s^2
+1s^2 2s^2 2p^6 3s^2 3p^6 4s^2 3d^10
+```
+
+Ground state of zinc.
+
+## Embedded mathematics
+
+Backtick-delimited runs are parsed by Plurimath:
+
+`````asciichem
+`K_c = [P]/[R]`
+`x^2 + y^2`
+`rate = k[A]^2[B]`
+`````
+
+Use embedded math for equilibrium constants, rate laws, and
+thermodynamic expressions that sit naturally inside chemistry.
+
+## Combining everything
+
+Real chemistry mixes every construct:
+
+```asciichem
+^14C_6H_12O_6 + 6O_2 -> 6CO_2 + 6H_2O    `Delta G = -2870 kJ/mol`
+```
+
+A radioactive glucose combustion with embedded thermodynamics.
+
+## Canonicalisation rules
+
+| Construct | Input | Output | Rule |
+|-----------|-------|--------|------|
+| Charge | `Ca^+2` | `Ca^2+` | IUPAC number-then-sign |
+| Everything else | — | unchanged | The formatter only normalises marker spellings |
+
+## Quick lookup by use case
+
+<CardGrid stagger>
+  <Card title="Writing a formula" icon="pencil">
+    Elements + subscripts: `H_2SO_4`, `C_6H_12O_6`
+  </Card>
+  <Card title="Writing an ion" icon="pencil">
+    Element + charge: `Na^+`, `SO_4^2-`
+  </Card>
+  <Card title="Writing an isotope" icon="pencil">
+    Prefix isotope: `^14C`, `^131I`
+  </Card>
+  <Card title="Writing a reaction" icon="pencil">
+    Reactants `->` products: `2H_2 + O_2 -> 2H_2O`
+  </Card>
+  <Card title="Writing equilibrium" icon="pencil">
+    Use `<=>` with conditions: `N_2 + 3H_2 <=>[Fe][400C] 2NH_3`
+  </Card>
+  <Card title="Writing a bond" icon="pencil">
+    Between atoms: `H-O-H`, `HC#CH`, `H_2C=CH_2`
+  </Card>
+  <Card title="Writing a group" icon="pencil">
+    Parenthesised: `Ca(OH)_2`, `(NH_4)_2SO_4`
+  </Card>
+  <Card title="Writing math" icon="pencil">
+    Backtick-wrapped: `` `K_a = [H+][A-]/[HA]` ``
+  </Card>
+</CardGrid>

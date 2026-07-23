@@ -1,16 +1,39 @@
 @import "tailwindcss";
 
 /*
- * AsciiChem design tokens. Starlight owns the docs theme; tokens
- * here layer on top for the AsciiChem brand.
+ * AsciiChem design tokens — extracted from the official logo.
+ * Light logo: charcoal #232323, gold #baa300, blue #21a1ea.
+ * Dark logo:  light #d8d8d8, soft gold #e7d67a, ice blue #98e6ff.
+ *
+ * The palette is designed for an elegant scientific feel —
+ * muted gold like old chemistry manuscripts, precise charcoal
+ * ink, and a single blue accent for interactive elements.
  */
 @theme {
-  --color-asciichem-accent: #0c4a3e;
-  --color-asciichem-accent-soft: #d9f0e6;
-  --color-asciichem-ink: #1a1a1a;
+  --color-asciichem-accent: #baa300;
+  --color-asciichem-accent-soft: #faf5e0;
+  --color-asciichem-accent-dark: #968400;
+  --color-asciichem-blue: #1a8cd8;
+  --color-asciichem-blue-soft: #e4f2fb;
+  --color-asciichem-ink: #232323;
+  --color-asciichem-ink-light: #d8d8d8;
+  --color-asciichem-gold-dark: #e7d67a;
+  --color-asciichem-blue-dark: #98e6ff;
+  --font-serif: "Iowan Old Style", "Source Serif Pro", "Palatino Linotype",
+    Georgia, ui-serif, serif;
   --font-mono: "Spline Sans Mono", "JetBrains Mono", ui-monospace,
     SFMono-Regular, Menlo, monospace;
 }
+
+/* Elegant scientific typography for headings */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.015em;
+}
+
+h1 { font-weight: 700; }
+h2 { font-weight: 700; letter-spacing: -0.02em; }
+h3 { font-weight: 600; }
 
 /* MathML rendering — let chemistry display cleanly inline. */
 math {
@@ -29,19 +52,21 @@ mrow > mo {
   padding-inline: 0.15em;
 }
 
-/* Expressive-code blocks: pin to Starlight theme tokens. Tailwind 4's
- * preflight resets can otherwise leave code blocks white-on-white in
- * dark mode.
+/* Expressive-code: explicit dark/light values so code blocks never
+ * end up white-on-white in dark mode. Starlight's own theme variables
+ * can be unreliable through the Tailwind cascade.
  */
 :root {
-  --ec-theme-background: var(--sl-color-bg, #ffffff);
-  --ec-theme-text: var(--sl-color-text, #1a1a1a);
+  --ec-theme-background: #ffffff;
+  --ec-theme-text: #1a1a1a;
+  --ec-theme-border: #e4e4e7;
   color-scheme: light dark;
 }
 
 :root[data-theme="dark"] {
-  --ec-theme-background: var(--sl-color-bg, #1a1a1a);
-  --ec-theme-text: var(--sl-color-text, #ffffff);
+  --ec-theme-background: #18181b;
+  --ec-theme-text: #e4e4e7;
+  --ec-theme-border: #27272a;
 }
 
 .expressive-code,
@@ -49,6 +74,10 @@ mrow > mo {
 .expressive-code code {
   background: var(--ec-theme-background) !important;
   color: var(--ec-theme-text) !important;
+}
+
+.expressive-code pre {
+  border-color: var(--ec-theme-border) !important;
 }
 
 /* Inline AsciiChem source snippets inside running prose. */
@@ -207,11 +236,11 @@ figure.asciichem-example {
 .light-card .logo-card-header { color: #475569; }
 
 .dark-card {
-  background: linear-gradient(135deg, #0c4a3e 0%, #083027 100%);
+  background: linear-gradient(135deg, #baa300 0%, #968400 100%);
   border: 1px solid #1a6e5a;
 }
 
-.dark-card .logo-card-header { color: #d9f0e6; }
+.dark-card .logo-card-header { color: #faf5e0; }
 .dark-card img { filter: invert(1) brightness(1.4); }
 
 .logo-display {
@@ -273,12 +302,12 @@ main.hero {
   background:
     radial-gradient(
       ellipse at top left,
-      rgba(12, 74, 62, 0.06) 0%,
+      rgba(186, 163, 0, 0.06) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse at bottom right,
-      rgba(12, 74, 62, 0.04) 0%,
+      rgba(186, 163, 0, 0.04) 0%,
       transparent 50%
     );
 }
@@ -293,7 +322,7 @@ main.hero {
 
 .starlight-card:hover {
   border-color: var(--color-asciichem-accent) !important;
-  box-shadow: 0 4px 16px rgba(12, 74, 62, 0.12);
+  box-shadow: 0 4px 16px rgba(186, 163, 0, 0.12);
   transform: translateY(-2px);
 }
 
@@ -308,12 +337,12 @@ main.hero {
 
 /* Link accent for active state uses brand color */
 [data-theme="dark"] .starlight-card:hover {
-  border-color: #2da677 !important;
-  box-shadow: 0 4px 16px rgba(45, 166, 119, 0.2);
+  border-color: #e7d67a !important;
+  box-shadow: 0 4px 16px rgba(231, 214, 122, 0.2);
 }
 
 [data-theme="dark"] .starlight-card:hover .starlight-card__title {
-  color: #2da677;
+  color: #e7d67a;
 }
 
 /* Table styling ------------------------------------------------------ */
@@ -353,7 +382,7 @@ main tbody tr:nth-child(even) {
 }
 
 main tbody tr:hover {
-  background: var(--color-asciichem-accent-soft, #d9f0e6);
+  background: var(--color-asciichem-accent-soft, #faf5e0);
 }
 
 main tbody td {
@@ -363,11 +392,11 @@ main tbody td {
 }
 
 [data-theme="dark"] main thead {
-  background: #083027;
+  background: #968400;
 }
 
 [data-theme="dark"] main tbody tr:hover {
-  background: rgba(45, 166, 119, 0.1);
+  background: rgba(231, 214, 122, 0.1);
 }
 
 main table code {
@@ -382,7 +411,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--color-asciichem-accent, #0c4a3e);
+  outline: 2px solid var(--color-asciichem-accent, #baa300);
   outline-offset: 2px;
   border-radius: 0.2rem;
 }
@@ -393,28 +422,28 @@ textarea:focus-visible,
 [data-theme="dark"] select:focus-visible,
 [data-theme="dark"] textarea:focus-visible,
 [data-theme="dark"] [tabindex]:focus-visible {
-  outline-color: #2da677;
+  outline-color: #e7d67a;
 }
 
 /* Hero primary button: brand accent --------------------------------- */
 
 main.hero a.sl-c-link,
 main.hero a[href]:not([href*="//"]) {
-  background: var(--color-asciichem-accent, #0c4a3e);
-  border-color: var(--color-asciichem-accent, #0c4a3e);
+  background: var(--color-asciichem-accent, #baa300);
+  border-color: var(--color-asciichem-accent, #baa300);
   color: #fff;
   transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 main.hero a[href]:not([href*="//"]):hover {
-  background: #083027;
+  background: #968400;
   transform: translateY(-1px);
 }
 
 [data-theme="dark"] main.hero a[href]:not([href*="//"]) {
-  background: #2da677;
-  border-color: #2da677;
-  color: #083027;
+  background: #e7d67a;
+  border-color: #e7d67a;
+  color: #968400;
 }
 
 [data-theme="dark"] main.hero a[href]:not([href*="//"]):hover {
@@ -424,20 +453,20 @@ main.hero a[href]:not([href*="//"]):hover {
 /* Sidebar active link: brand accent --------------------------------- */
 
 .sidebar a[aria-current="page"] {
-  color: var(--color-asciichem-accent, #0c4a3e);
+  color: var(--color-asciichem-accent, #baa300);
   font-weight: 600;
 }
 
 .sidebar a[aria-current="page"]::before {
-  background: var(--color-asciichem-accent, #0c4a3e);
+  background: var(--color-asciichem-accent, #baa300);
 }
 
 [data-theme="dark"] .sidebar a[aria-current="page"] {
-  color: #2da677;
+  color: #e7d67a;
 }
 
 [data-theme="dark"] .sidebar a[aria-current="page"]::before {
-  background: #2da677;
+  background: #e7d67a;
 }
 
 /* Smooth scrolling for anchor links --------------------------------- */
@@ -509,13 +538,13 @@ html {
   }
 
   .asciichem-example-header {
-    background: #0c4a3e !important;
+    background: #baa300 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   thead {
-    background: #0c4a3e !important;
+    background: #baa300 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

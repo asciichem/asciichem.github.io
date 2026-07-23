@@ -1,0 +1,441 @@
+---
+/**
+ * QuizGame — an on-page interactive chemistry quiz.
+ *
+ * Visible question cards, answer input, immediate feedback with
+ * explanations, score tracking, and streaks. Not hidden in the
+ * console — this is the discoverable version of the quiz.
+ */
+---
+
+<div class="quiz-game" id="quiz-game">
+  <div class="quiz-header">
+    <div class="quiz-stat">
+      <span class="quiz-stat-label">Score</span>
+      <span class="quiz-stat-value" id="quiz-score">0</span>
+    </div>
+    <div class="quiz-stat">
+      <span class="quiz-stat-label">Streak</span>
+      <span class="quiz-stat-value" id="quiz-streak">0 🔥</span>
+    </div>
+    <div class="quiz-stat">
+      <span class="quiz-stat-label">Correct</span>
+      <span class="quiz-stat-value" id="quiz-correct">0/0</span>
+    </div>
+  </div>
+
+  <div class="quiz-card" id="quiz-card">
+    <div class="quiz-card-inner" id="quiz-card-inner">
+      <div class="quiz-start-screen" id="quiz-start-screen">
+        <div class="quiz-icon">🧪</div>
+        <h3>Chemistry Quiz</h3>
+        <p class="quiz-desc">
+          Test your knowledge of elements, symbols, atomic numbers,
+          and chemistry trivia. 10 questions, immediate feedback,
+          streak bonuses.
+        </p>
+        <button class="quiz-btn quiz-btn--primary" id="quiz-start-btn">
+          Start Quiz
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .quiz-game {
+    border: 2px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-block: 1.5rem;
+    background:
+      linear-gradient(135deg, rgba(186, 163, 0, 0.03), transparent),
+      var(--sl-color-bg, #fff);
+  }
+
+  .quiz-header {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sl-color-gray-7, #eee);
+  }
+
+  .quiz-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .quiz-stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sl-color-gray-3, #888);
+    font-weight: 600;
+  }
+
+  .quiz-stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-asciichem-accent, #baa300);
+    font-family: var(--font-mono, monospace);
+  }
+
+  [data-theme="dark"] .quiz-stat-value { color: #e7d67a; }
+
+  .quiz-card {
+    min-height: 12rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    background: var(--sl-color-gray-7, #f5f5f5);
+  }
+
+  .quiz-card-inner {
+    width: 100%;
+    max-width: 36rem;
+    text-align: center;
+  }
+
+  .quiz-start-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .quiz-icon {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .quiz-card-inner h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--sl-color-text, #1a1a1a);
+  }
+
+  .quiz-desc {
+    font-size: 0.9rem;
+    color: var(--sl-color-gray-3, #666);
+    max-width: 28rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .quiz-question-num {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-asciichem-accent, #baa300);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  [data-theme="dark"] .quiz-question-num { color: #e7d67a; }
+
+  .quiz-question {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--sl-color-text, #1a1a1a);
+    margin: 0 0 1.25rem;
+    line-height: 1.4;
+  }
+
+  .quiz-answer-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .quiz-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 1rem;
+    border: 2px solid var(--sl-color-gray-5, #d4d4d4);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg, #fff);
+    color: var(--sl-color-text, #1a1a1a);
+    transition: border-color 0.2s ease;
+  }
+
+  .quiz-input:focus {
+    outline: none;
+    border-color: var(--color-asciichem-accent, #baa300);
+  }
+
+  [data-theme="dark"] .quiz-input:focus { border-color: #e7d67a; }
+
+  .quiz-btn {
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .quiz-btn--primary {
+    background: var(--color-asciichem-accent, #baa300);
+    color: #fff;
+  }
+
+  [data-theme="dark"] .quiz-btn--primary { background: #e7d67a; color: #968400; }
+
+  .quiz-btn--primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(186,163,0,0.3);
+  }
+
+  .quiz-btn--secondary {
+    background: var(--sl-color-gray-5, #e0e0e0);
+    color: var(--sl-color-text, #333);
+  }
+
+  .quiz-feedback {
+    min-height: 3rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+  }
+
+  .quiz-feedback.correct {
+    background: rgba(231, 214, 122, 0.1);
+    color: #e7d67a;
+    border: 1px solid rgba(231, 214, 122, 0.3);
+  }
+
+  .quiz-feedback.wrong {
+    background: rgba(224, 102, 51, 0.1);
+    color: #e06633;
+    border: 1px solid rgba(224, 102, 51, 0.3);
+  }
+
+  .quiz-feedback strong { font-weight: 700; }
+
+  .quiz-progress-bar {
+    height: 4px;
+    background: var(--sl-color-gray-5, #e0e0e0);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--color-asciichem-accent, #baa300);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  [data-theme="dark"] .quiz-progress-fill { background: #e7d67a; }
+
+  .quiz-result-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .quiz-result-icon {
+    font-size: 3.5rem;
+  }
+
+  .quiz-result-score {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-asciichem-accent, #baa300);
+    font-family: var(--font-mono, monospace);
+  }
+
+  [data-theme="dark"] .quiz-result-score { color: #e7d67a; }
+
+  .quiz-result-message {
+    font-size: 1rem;
+    color: var(--sl-color-gray-3, #666);
+    max-width: 28rem;
+    text-align: center;
+  }
+</style>
+
+<script>
+  const QUESTIONS = [
+    { q: "What is the atomic number of Carbon?", a: ["6"], explain: "Carbon is element 6 — the basis of all organic chemistry." },
+    { q: "What is the atomic number of Oxygen?", a: ["8"], explain: "Oxygen is element 8 — 21% of the atmosphere, essential for respiration." },
+    { q: "What is the atomic number of Gold?", a: ["79"], explain: "Gold is element 79 — the most malleable metal known." },
+    { q: "What is the atomic number of Iron?", a: ["26"], explain: "Iron is element 26 — the heaviest element stars can produce by fusion." },
+    { q: "What is the atomic number of Hydrogen?", a: ["1"], explain: "Hydrogen is element 1 — the lightest and most abundant element in the universe." },
+    { q: "What element has the symbol Na?", a: ["sodium", "natrium"], explain: "Na comes from 'natrium' — the Latin name for sodium." },
+    { q: "What element has the symbol K?", a: ["potassium", "kalium"], explain: "K comes from 'kalium' — why potassium is K, not P." },
+    { q: "What element has the symbol Fe?", a: ["iron", "ferrum"], explain: "Fe comes from 'ferrum' — Latin for iron." },
+    { q: "What element has the symbol Au?", a: ["gold", "aurum"], explain: "Au comes from 'aurum' — Latin for gold, meaning 'shining dawn'." },
+    { q: "What element has the symbol Hg?", a: ["mercury", "hydrargyrum"], explain: "Hg comes from 'hydrargyrum' — 'liquid silver' in Greek." },
+    { q: "What element has the symbol Pb?", a: ["lead", "plumbum"], explain: "Pb comes from 'plumbum' — the origin of the word 'plumbing'." },
+    { q: "What element has the symbol Ag?", a: ["silver", "argentum"], explain: "Ag comes from 'argentum' — Argentina is named after silver." },
+    { q: "What is the symbol for Sodium?", a: ["na"], explain: "Sodium's symbol is Na — from the Latin 'natrium'." },
+    { q: "What is the symbol for Potassium?", a: ["k"], explain: "Potassium's symbol is K — from the Latin 'kalium'." },
+    { q: "What is the symbol for Magnesium?", a: ["mg"], explain: "Magnesium's symbol is Mg — atomic number 12." },
+    { q: "What is the symbol for Calcium?", a: ["ca"], explain: "Calcium's symbol is Ca — essential for bones and teeth." },
+    { q: "How many atoms are in one mole? (use e notation)", a: ["6.022e23", "6.022*10^23", "6.022x10^23", "avogadro's number"], explain: "Avogadro's number: 6.022 × 10²³ — one mole of any substance." },
+    { q: "What gas makes up 78% of Earth's atmosphere?", a: ["nitrogen", "n2", "n_2"], explain: "Nitrogen (N₂) — 78% of air, but inert and unreactive at room temperature." },
+    { q: "What is the lightest element?", a: ["hydrogen", "h", "h2", "h_2"], explain: "Hydrogen — element 1, 75% of the universe's normal matter." },
+    { q: "What element is diamond made of?", a: ["carbon", "c"], explain: "Diamond is pure carbon — just arranged differently from graphite." },
+    { q: "What is the only liquid metal at room temperature?", a: ["mercury", "hg"], explain: "Mercury (Hg) — the 'mad hatter' poison." },
+    { q: "What noble gas glows orange-red in signs?", a: ["neon", "ne"], explain: "Neon — only orange-red signs are true neon. Other colors use different gases." },
+    { q: "What is the most abundant element in the universe?", a: ["hydrogen", "h"], explain: "Hydrogen — 75% of all normal matter in the universe." },
+    { q: "What element has atomic number 92?", a: ["uranium", "u"], explain: "Uranium — the heaviest naturally occurring element." },
+  ];
+
+  interface State {
+    questions: typeof QUESTIONS;
+    idx: number;
+    score: number;
+    streak: number;
+    correct: number;
+    answered: boolean;
+  }
+
+  let state: State | null = null;
+
+  const els = {
+    card: document.getElementById("quiz-card-inner")!,
+    score: document.getElementById("quiz-score")!,
+    streak: document.getElementById("quiz-streak")!,
+    correct: document.getElementById("quiz-correct")!,
+    startBtn: document.getElementById("quiz-start-btn")!,
+  };
+
+  function shuffle<T>(arr: T[]): T[] {
+    return [...arr].sort(() => Math.random() - 0.5);
+  }
+
+  function start() {
+    const questions = shuffle(QUESTIONS).slice(0, 10);
+    state = { questions, idx: 0, score: 0, streak: 0, correct: 0, answered: false };
+    updateStats();
+    renderQuestion();
+  }
+
+  function normalize(s: string): string {
+    return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/[._^]/g, "");
+  }
+
+  function renderQuestion() {
+    if (!state) return;
+    const q = state.questions[state.idx];
+    els.card.innerHTML = `
+      <div class="quiz-question-num">Question ${state.idx + 1} of ${state.questions.length}</div>
+      <p class="quiz-question">${q.q}</p>
+      <div class="quiz-answer-row">
+        <input type="text" class="quiz-input" id="quiz-input" placeholder="Type your answer..." autocomplete="off" />
+        <button class="quiz-btn quiz-btn--primary" id="quiz-submit">Check</button>
+      </div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width: ${(state.idx / state.questions.length) * 100}%"></div></div>
+    `;
+    const input = document.getElementById("quiz-input") as HTMLInputElement;
+    input.focus();
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !state?.answered) submit();
+    });
+    document.getElementById("quiz-submit")!.addEventListener("click", submit);
+  }
+
+  function submit() {
+    if (!state || state.answered) return;
+    const input = document.getElementById("quiz-input") as HTMLInputElement;
+    const feedback = document.getElementById("quiz-feedback")!;
+    const q = state.questions[state.idx];
+    const userAnswer = normalize(input.value);
+    const correct = q.a.some((a) => normalize(a) === userAnswer);
+
+    state.answered = true;
+
+    if (correct) {
+      const points = 10 + state.streak * 5;
+      state.score += points;
+      state.streak++;
+      state.correct++;
+      feedback.className = "quiz-feedback correct";
+      feedback.innerHTML = `<strong>✅ Correct! +${points} points</strong><br>${q.explain}`;
+      const sound = (window as any).asciichemSound;
+      if (sound?.isEnabled()) {
+        sound.playAtom("C", { duration: 0.2, gain: 0.5 });
+        setTimeout(() => sound.playAtom("E", { duration: 0.2, gain: 0.5 }), 100);
+        setTimeout(() => sound.playAtom("G", { duration: 0.3, gain: 0.5 }), 200);
+      }
+    } else {
+      state.streak = 0;
+      feedback.className = "quiz-feedback wrong";
+      feedback.innerHTML = `<strong>❌ Not quite.</strong> The answer was: <strong>${q.a[0]}</strong><br>${q.explain}`;
+      const sound = (window as any).asciichemSound;
+      if (sound?.isEnabled()) sound.playAtom("H", { duration: 0.4, gain: 0.3 });
+    }
+
+    updateStats();
+    input.disabled = true;
+    (document.getElementById("quiz-submit") as HTMLButtonElement).disabled = true;
+
+    const btnText = state.idx + 1 >= state.questions.length ? "See Results" : "Next Question →";
+    feedback.innerHTML += `<br><button class="quiz-btn quiz-btn--primary" id="quiz-next" style="margin-top: 0.75rem;">${btnText}</button>`;
+    document.getElementById("quiz-next")!.addEventListener("click", next);
+  }
+
+  function next() {
+    if (!state) return;
+    state.idx++;
+    state.answered = false;
+    if (state.idx >= state.questions.length) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResults() {
+    if (!state) return;
+    const pct = Math.round((state.correct / state.questions.length) * 100);
+    let icon = "🎓";
+    let msg = "";
+    if (pct === 100) { icon = "🏆"; msg = "Perfect score! You're a chemistry genius!"; }
+    else if (pct >= 80) { icon = "🥇"; msg = "Outstanding! You know your elements well."; }
+    else if (pct >= 60) { icon = "🥈"; msg = "Great job! A little more practice and you'll be a pro."; }
+    else if (pct >= 40) { icon = "🥉"; msg = "Not bad! Review the cheat sheet and try again."; }
+    else { icon = "📚"; msg = "Keep studying! Every chemist started here."; }
+
+    els.card.innerHTML = `
+      <div class="quiz-result-screen">
+        <div class="quiz-result-icon">${icon}</div>
+        <div class="quiz-result-score">${state.correct} / ${state.questions.length}</div>
+        <div class="quiz-result-message">${msg}</div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <button class="quiz-btn quiz-btn--primary" id="quiz-restart">Play Again</button>
+          <a href="/reference/cheatsheet/" class="quiz-btn quiz-btn--secondary" style="text-decoration:none;display:flex;align-items:center;">Study Guide</a>
+        </div>
+      </div>
+    `;
+    document.getElementById("quiz-restart")!.addEventListener("click", start);
+
+    if (state.correct >= 8) {
+      (window as any).asciichem?._unlock?.("quiz-master");
+    }
+  }
+
+  function updateStats() {
+    if (!state) return;
+    els.score.textContent = String(state.score);
+    els.streak.textContent = `${state.streak} 🔥`;
+    els.correct.textContent = `${state.correct}/${state.questions.length}`;
+  }
+
+  els.startBtn.addEventListener("click", start);
+</script>
