@@ -67,6 +67,52 @@ prioritised on its own merits.
 25 (independent)
 ```
 
+## v2 — TODO.v2 execution backlog
+
+These TODOs execute the v2 strategy that lives at the workspace root
+(`~/src/asciichem/TODO.v2/` — strategy documents) following the
+glossarist ecosystem pattern (`concept-model` → ruby/js
+implementations). Each file names the TODO.v2 plan it implements.
+
+| # | Title | Repo | Status |
+|---|---|---|---|
+| 29 | [asciichem-model scaffold](29-asciichem-model-scaffold.md) | new `asciichem-model` | in-progress (TODO.v2 01) |
+| 30 | [Model node schemas + canonical wire](30-model-node-schemas.md) | `asciichem-model` | pending (TODO.v2 01) |
+| 31 | [Identity model schemas](31-identity-model-schemas.md) | `asciichem-model` | pending (TODO.v2 01) |
+| 32 | [Model type generator + validators](32-model-type-generator.md) | `asciichem-model` | pending (TODO.v2 01) |
+| 33 | [asciichem-tests scaffold](33-asciichem-tests-scaffold.md) | new `asciichem-tests` | pending (TODO.v2 02) |
+| 34 | [Corpus migration + identifier fixtures](34-corpus-migration.md) | `asciichem-tests` | pending (TODO.v2 02) |
+| 35 | [Identifier validators + linter checks](35-identifier-validators.md) | gem | **done** (TODO.v2 07 L1) |
+| 36 | [ADR-0001 language bindings](36-adr-language-bindings.md) | `asciichem-model` | **done** (TODO.v2 04) |
+| 37 | [Gem intake of model + corpus](37-gem-model-intake.md) | gem | pending (TODO.v2 03) |
+| 38 | [Resolver framework + cache](38-resolver-framework.md) | gem | pending (TODO.v2 07 L2) |
+| 39 | [PubChem adapter](39-pubchem-adapter.md) | gem | pending (TODO.v2 07 L2) |
+| 40 | [Common Chemistry adapter](40-common-chemistry-adapter.md) | gem | blocked: maintainer licence sign-off (TODO.v2 07 L2) |
+| 41 | [CLI resolve/validate](41-cli-resolve-validate.md) | gem | pending (TODO.v2 07 L3) |
+| 42 | [SMILES reader/writer](42-smiles-interop.md) | gem | pending (TODO.v2 09) |
+| 43 | [Molfile reader/writer](43-molfile-interop.md) | gem | pending (TODO.v2 09) |
+| 44 | [Citation builder + profiles + CLI](44-citation-builder.md) | gem | pending (TODO.v2 08) |
+| 45 | [Cite syntax + CML mapping](45-cite-syntax.md) | gem + site | pending (TODO.v2 08) |
+| 46 | [TypeScript API](46-typescript-api.md) | new `asciichem-ts` | pending on 36 (TODO.v2 05) |
+| 47 | [Python API](47-python-api.md) | new `asciichem-py` | pending on 36 (TODO.v2 06) |
+| 48 | [InChI engine + cross-check](48-inchi-engine.md) | gem + engines | pending (TODO.v2 10) |
+| 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | pending (TODO.v2 08) |
+| 50 | [Site v2 guides](50-site-guides-v2.md) | site | pending (TODO.v2 07/08) |
+| 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | pending on 46 (TODO.v2 12) |
+| 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **P1** — diagnosed 2026-09-09, fix pending |
+
+## Status snapshot (2026-09-09)
+
+- **Done:** 35 (identifier validators + 2 linter checks + 35 spec
+  examples, all green), 36 (ADR-0001).
+- **In progress:** 29 — `asciichem-model` scaffolded at the workspace
+  root (seed schemas atom/molecule/identifier + lutaml defs +
+  examples + self-check specs green); git init + PR pending.
+- **Open bug:** 52 — the gem's full spec suite terminates early with
+  randomly truncated example counts (pre-existing, reproduced on
+  pristine main; dry-run collection is stable at 788). Fixed before
+  trusting CI signal for anything else.
+
 ## Conventions
 
 - **Status field** in each TODO file: `pending`, `in-progress`, `done`,
