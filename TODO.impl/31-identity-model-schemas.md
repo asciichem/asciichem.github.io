@@ -1,7 +1,10 @@
 # 31 — Identity model schemas
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** **done** (2026-09-09 — asciichem-model#1:
+  `provenance` + `substance-record` schemas, lutaml definitions,
+  aspirin worked example; identifiers each carry provenance,
+  attribution line required for NC-licensed sources)
 - **Depends on:** 29
 - **Implements:** TODO.v2 01 (identity part)
 

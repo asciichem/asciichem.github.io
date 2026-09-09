@@ -1,7 +1,7 @@
 # 30 — Model node schemas + canonical wire form
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** in-progress (2026-09-09 — core chemistry nodes shipped in asciichem-model#1: formula, group, bond, reaction, reaction-cascade + seed atom/molecule/identifier; remaining: electron-configuration, embedded-math, text, name, mechanism, spectrum, crystal, zmatrix, calculation + negative examples)
 - **Depends on:** 29
 - **Implements:** TODO.v2 01
 

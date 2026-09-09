@@ -1,7 +1,7 @@
 # 34 — Corpus migration + identifier fixtures
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** in-progress (2026-09-09 — CML round-trip set migrated and gem-verified in asciichem-tests#1, CI validation added; remaining: fuzz corpus, edge-case remainder, linter expectations)
 - **Depends on:** 33
 - **Implements:** TODO.v2 02
 
