@@ -1,7 +1,13 @@
 # 52 — Non-deterministic spec-suite truncation (pre-existing)
 
 - **Priority:** P1 (blocks trustworthy CI signal for everything else)
-- **Status:** pending (diagnosed 2026-09-09; root cause not yet fixed)
+- **Status:** **done** (2026-09-09 — root cause found and fixed in
+  asciichem-ruby#52: `Cli#lint` calls `Kernel#exit` even when clean,
+  and the cli spec `run` helper did not trap `SystemExit`; RSpec
+  aborts on SystemExit, prints the partial summary with the exit's
+  own status, and skips the remaining examples — order-dependent
+  truncation. Helper now rescues SystemExit; five consecutive full
+  runs execute all 788 examples.)
 - **Depends on:** nothing
 - **Discovered during:** 35
 

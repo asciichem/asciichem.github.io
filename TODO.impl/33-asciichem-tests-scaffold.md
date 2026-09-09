@@ -1,7 +1,10 @@
 # 33 — `asciichem-tests` repo scaffold (corpus format + runner contract)
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** **done** (2026-09-09 — repo created:
+  https://github.com/asciichem/asciichem-tests; fixture format +
+  runner contract + conformance.json schema + 49 seed fixtures whose
+  flags are verified against the reference gem)
 - **Depends on:** 29 (schema forms)
 - **Implements:** TODO.v2 02
 

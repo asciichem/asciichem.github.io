@@ -80,7 +80,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 30 | [Model node schemas + canonical wire](30-model-node-schemas.md) | `asciichem-model` | pending (TODO.v2 01) |
 | 31 | [Identity model schemas](31-identity-model-schemas.md) | `asciichem-model` | pending (TODO.v2 01) |
 | 32 | [Model type generator + validators](32-model-type-generator.md) | `asciichem-model` | pending (TODO.v2 01) |
-| 33 | [asciichem-tests scaffold](33-asciichem-tests-scaffold.md) | new `asciichem-tests` | pending (TODO.v2 02) |
+| 33 | [asciichem-tests scaffold](33-asciichem-tests-scaffold.md) | new `asciichem-tests` | **done** (TODO.v2 02) |
 | 34 | [Corpus migration + identifier fixtures](34-corpus-migration.md) | `asciichem-tests` | pending (TODO.v2 02) |
 | 35 | [Identifier validators + linter checks](35-identifier-validators.md) | gem | **done** (TODO.v2 07 L1) |
 | 36 | [ADR-0001 language bindings](36-adr-language-bindings.md) | `asciichem-model` | **done** (TODO.v2 04) |
@@ -99,19 +99,24 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | pending (TODO.v2 08) |
 | 50 | [Site v2 guides](50-site-guides-v2.md) | site | pending (TODO.v2 07/08) |
 | 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | pending on 46 (TODO.v2 12) |
-| 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **P1** — diagnosed 2026-09-09, fix pending |
+| 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **done** — fixed in asciichem-ruby#52 |
 
 ## Status snapshot (2026-09-09)
 
-- **Done:** 35 (identifier validators + 2 linter checks + 35 spec
-  examples, all green), 36 (ADR-0001).
-- **In progress:** 29 — `asciichem-model` scaffolded at the workspace
-  root (seed schemas atom/molecule/identifier + lutaml defs +
-  examples + self-check specs green); git init + PR pending.
-- **Open bug:** 52 — the gem's full spec suite terminates early with
-  randomly truncated example counts (pre-existing, reproduced on
-  pristine main; dry-run collection is stable at 788). Fixed before
-  trusting CI signal for anything else.
+- **Done:** 33 (asciichem-tests repo: fixture format, runner
+  contract, conformance.json schema, 49 verified seed fixtures),
+  35 (identifier validators + 2 linter checks + 35 spec examples,
+  all green), 36 (ADR-0001), 52 (suite-truncation root cause fixed —
+  cli spec helper now traps SystemExit; five consecutive full runs
+  execute all 788 examples).
+- **Repos created:** asciichem/asciichem-model (scaffold + ADR-0001,
+  seed schemas + lutaml defs + self-check specs),
+  asciichem/asciichem-tests (corpus scaffold + seed fixtures).
+- **Open PRs:** asciichem-ruby#52 (feat: identifier validation +
+  suite fix), this repo #31 (this backlog).
+- **Next:** 30/31 (full node + identity schemas), 34 (corpus
+  migration), 37 (gem intake) — then the P2 resolver/interchange/
+  citation track and the TS/PY APIs per ADR-0001.
 
 ## Conventions
 
