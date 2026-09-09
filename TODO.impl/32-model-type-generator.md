@@ -1,7 +1,7 @@
 # 32 — Model type generator + validator suite
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** **done** (2026-09-09 — asciichem-model#2: Validators (json_schemer, positive+negative examples in CI) and SchemaTypeGenerator + exe + rake drift check; tagged v0.2.0)
 - **Depends on:** 29, 30
 - **Implements:** TODO.v2 01 (generator + validators)
 
