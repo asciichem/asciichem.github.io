@@ -155,6 +155,10 @@ export default defineConfig({
             { label: "News", slug: "news" },
           ],
         },
+          {
+            label: "Ecosystem",
+            items: [{ label: "asciichem-model", slug: "models" }],
+          },
       ],
       customCss: ["./src/styles/app.css"],
     }),

@@ -100,6 +100,8 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 50 | [Site v2 guides](50-site-guides-v2.md) | site | pending (TODO.v2 07/08) |
 | 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | pending on 46 (TODO.v2 12) |
 | 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **done** — fixed in asciichem-ruby#52 |
+| 53 | [Site live renderer + /models page](53-site-live-renderer-models.md) | site, ts | **done** — asciichem-ts v0.1.0 + this PR |
+| 54 | [Migrate games' inline parser to asciichem-ts](54-site-games-parser-migration.md) | site | **pending** |
 
 ## Status snapshot (2026-09-09)
 

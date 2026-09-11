@@ -1,0 +1,210 @@
+---
+/**
+ * Live AsciiChem renderer: client-side parse + render via the
+ * corpus-conformant asciichem-ts package (npm `asciichem`). Modes:
+ * 2D structural diagram (authored bonds), typographic SVG, canonical
+ * text, and the asciichem-model v1 wire JSON.
+ *
+ * Formula-only molecules render typographically in diagram mode: a
+ * formula is not a structure (C2H6O is ethanol or dimethyl ether) —
+ * structure comes from authored bonds/rings or database identifiers.
+ */
+interface Props {
+  initial?: string;
+}
+
+const initial = Astro.props.initial ?? "CH_3-CH_2-OH";
+---
+
+<section class="live-renderer">
+  <div class="lr-row">
+    <div class="lr-editor">
+      <label for="lr-src">AsciiChem source</label>
+      <textarea id="lr-src" spellcheck="false" autocomplete="off">{initial}</textarea>
+      <div class="lr-presets" role="group" aria-label="Preset examples">
+        <button type="button" data-preset="CH_3-CH_2-OH">ethanol chain</button>
+        <button type="button" data-preset="C1-C-C-C-C-C1">cyclohexane</button>
+        <button type="button" data-preset="H-O-H">water</button>
+        <button type="button" data-preset="^14C">isotope</button>
+        <button type="button" data-preset="2H_2 + O_2 ->[heat] 2H_2O">reaction</button>
+        <button type="button" data-preset="Ca^2+">charge</button>
+      </div>
+    </div>
+    <div class="lr-result">
+      <div class="lr-modes" role="tablist" aria-label="Output mode">
+        <button type="button" class="lr-mode is-active" data-mode="structural" role="tab">Diagram</button>
+        <button type="button" class="lr-mode" data-mode="typographic" role="tab">Typography</button>
+        <button type="button" class="lr-mode" data-mode="text" role="tab">Text</button>
+        <button type="button" class="lr-mode" data-mode="wire" role="tab">Wire JSON</button>
+      </div>
+      <div class="lr-output" id="lr-output" aria-live="polite"></div>
+    </div>
+  </div>
+  <p class="lr-error" id="lr-error" hidden></p>
+  <p class="lr-note">
+    Parsed in your browser by
+    <a href="https://github.com/asciichem/asciichem-ts" rel="noopener noreferrer">asciichem-ts</a>
+    — the same shared corpus the Ruby reference passes. Diagrams are
+    drawn only from bonds you author; a bare formula renders
+    typographically because a formula alone does not determine a
+    structure.
+  </p>
+</section>
+
+<style>
+  .live-renderer {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-block: 1.5rem;
+  }
+  .lr-row {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+  @media (max-width: 50rem) {
+    .lr-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  .lr-editor label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.375rem;
+  }
+  .live-renderer textarea {
+    width: 100%;
+    min-height: 6.5rem;
+    font-family: var(--sl-font-mono);
+    font-size: 0.95rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-4);
+    background: var(--sl-color-black);
+    color: var(--sl-color-white);
+    resize: vertical;
+  }
+  .lr-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+  }
+  .lr-presets button,
+  .lr-modes button {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-4);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .lr-presets button:hover,
+  .lr-modes button:hover {
+    border-color: var(--sl-color-accent);
+  }
+  .lr-modes {
+    display: flex;
+    gap: 0.375rem;
+    margin-bottom: 0.625rem;
+  }
+  .lr-mode.is-active {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-black);
+  }
+  .lr-output {
+    min-height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    overflow: auto;
+  }
+  .lr-output svg {
+    max-width: 100%;
+    height: auto;
+    color: var(--sl-color-white);
+  }
+  .lr-output pre {
+    margin: 0;
+    width: 100%;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .lr-error {
+    color: #f87171;
+    font-family: var(--sl-font-mono);
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+  }
+  .lr-note {
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-2);
+    margin-block: 0.75rem 0;
+  }
+</style>
+
+<script>
+  import { parse } from "asciichem";
+
+  const input = document.getElementById("lr-src") as HTMLTextAreaElement;
+  const output = document.getElementById("lr-output")!;
+  const errorBox = document.getElementById("lr-error") as HTMLParagraphElement;
+  let mode = "structural";
+
+  function render(): void {
+    errorBox.hidden = true;
+    output.replaceChildren();
+    try {
+      const formula = parse(input.value);
+      if (mode === "wire") {
+        const pre = document.createElement("pre");
+        pre.textContent = JSON.stringify(formula.toModelJSON(), null, 2);
+        output.append(pre);
+      } else if (mode === "text") {
+        const pre = document.createElement("pre");
+        pre.textContent = formula.toText();
+        output.append(pre);
+      } else {
+        const svg =
+          mode === "structural" ? formula.toStructuralSvg() : formula.toSvg();
+        const holder = document.createElement("div");
+        holder.innerHTML = svg;
+        const rendered = holder.firstElementChild;
+        if (rendered) output.append(rendered);
+      }
+    } catch (error) {
+      errorBox.textContent = error instanceof Error ? error.message : String(error);
+      errorBox.hidden = false;
+    }
+  }
+
+  input.addEventListener("input", render);
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
+    button.addEventListener("click", () => {
+      document
+        .querySelector(".lr-mode.is-active")
+        ?.classList.remove("is-active");
+      button.classList.add("is-active");
+      mode = button.dataset.mode ?? "structural";
+      render();
+    });
+  }
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-presets button")) {
+    button.addEventListener("click", () => {
+      input.value = button.dataset.preset ?? "";
+      render();
+    });
+  }
+
+  render();
+</script>
