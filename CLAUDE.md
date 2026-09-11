@@ -48,13 +48,16 @@ mirrors the plurimath ecosystem layout.
 
 | Repo | Path from here | Role |
 |---|---|---|
-| `asciichem.github.io` | `.` (this repo) | Astro spec site, examples, renderings |
-| `asciichem-ruby` | `../asciichem-ruby` | Parser gem: AsciiChem → model → MathML/SVG |
+| `asciichem.github.io` | `.` (this repo) | Astro spec site, examples, renderings, playground |
+| `asciichem-ruby` | `../asciichem-ruby` | Reference implementation: parser gem → model → MathML/Text/HTML/LaTeX/SVG/CML |
+| `asciichem-model` | `../asciichem-model` | Shared contract: versioned JSON Schemas + validators + generated TS types for the wire form |
+| `asciichem-tests` | `../asciichem-tests` | Shared conformance corpus every implementation runs in CI |
+| `asciichem-ts` | `../asciichem-ts` | TypeScript implementation (npm `asciichem`), corpus-conformant; powers the live renderer |
 
-When a spec page describes syntax, the gem must implement it; when the gem
-adds a feature, a spec page must document it. Cross-repo changes belong in
-the same logical unit of work and should reference each other in their
-commit/PR messages.
+When a spec page describes syntax, the reference gem must implement it;
+when the gem adds a feature, a spec page must document it. Cross-repo
+changes belong in the same logical unit of work and should reference each
+other in their commit/PR messages.
 
 ## Reference projects (read these before starting)
 
@@ -221,9 +224,14 @@ to main. Every change goes through a PR. For cross-repo changes (spec page
   namespace's file. See global CLAUDE.md rule 9.
 - **No `double()` in specs.** Use real model instances or lightweight
   `Struct`s. See global CLAUDE.md "NEVER USE DOUBLES IN SPECS".
-- **Never reimplement the parser in the site.** If the site needs to render
-  an example, it calls the gem. A second parser in TypeScript would
-  silently drift from the canonical Ruby one.
+- **The single-contract rule (v2).** Static, correctness-critical examples
+  render via the reference gem at build time. Client-side interactive
+  rendering (the playground live renderer) uses asciichem-ts, which is
+  legitimate because it passes the same shared corpus (asciichem-tests)
+  and validates against the same schemas (asciichem-model) in its CI.
+  What remains forbidden is an unverified third parser — e.g. the
+  games' inline mini-parser, whose migration is tracked in
+  `TODO.impl/54-site-games-parser-migration.md`.
 - **Never delete source files** (original artwork, reference PDFs,
   upstream `mhchem`/`chemfig` package sources downloaded for study, IUPAC
   PDFs). The site may inline derived SVG/PNG, but the originals stay. See
