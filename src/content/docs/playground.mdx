@@ -6,11 +6,21 @@ description: Play chemistry games, compose molecules as music, and learn the syn
 import ChemistryPlayer from "../../components/ChemistryPlayer.astro";
 import MoleculeGame from "../../components/MoleculeGame.astro";
 import QuizGame from "../../components/QuizGame.astro";
+import LiveRenderer from "../../components/LiveRenderer.astro";
 import { Card, CardGrid } from "@astrojs/starlight/components";
 
 Welcome to the AsciiChem **playground** — where chemistry becomes
-games, music, and learning. Three interactive experiences teach the
-syntax from different angles.
+diagrams, games, music, and learning. Everything interactive teaches
+the syntax from a different angle.
+
+## Live renderer
+
+Type any AsciiChem expression and watch it parse and render in your
+browser — as a 2D structural diagram (from the bonds you author), as
+typographic SVG, as canonical text, or as the
+[asciichem-model](/models/) wire JSON.
+
+<LiveRenderer />
 
 ## Chemistry Quiz
 

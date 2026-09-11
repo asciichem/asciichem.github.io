@@ -1,0 +1,80 @@
+---
+title: asciichem-model
+description: The shared semantic model — versioned JSON Schemas, validators, and generated types that every AsciiChem implementation speaks.
+---
+
+**[asciichem-model](https://github.com/asciichem/asciichem-model)** is
+the canonical interchange contract of the AsciiChem ecosystem. Every
+implementation — the Ruby reference gem,
+[asciichem-ts](https://github.com/asciichem/asciichem-ts) (npm
+`asciichem`), and the planned Python API — emits and ingests the same
+JSON wire form, validated against the same versioned schemas. One
+dataset, many implementations, no drift.
+
+## What's in the package
+
+| Layer | What it provides |
+|---|---|
+| `schemas/v1/*.yaml` | 19 JSON Schemas (draft 2020-12) — one per node type: formula, atom, molecule, group, bond, reaction, reaction-cascade, electron-configuration, embedded-math, text, name, identifier, mechanism, spectrum, crystal, zmatrix, calculation, provenance, substance-record |
+| `models/asciichem/*.lutaml` | The source of truth: lutaml model definitions the schemas are maintained against |
+| `lib/asciichem_model/validators.rb` | Ruby validators (memoized schema loading; `if/then` type discriminators — no exponential `anyOf` dispatch) |
+| `schemas/v1/types/*.ts` | Generated TypeScript types, so TS consumers get the contract as types, not strings |
+| `schemas/v1/examples/` | Numbered positive and negative examples (`99-*` are must-reject cases) |
+
+## The wire form
+
+`toModelJSON()` on any parsed formula produces the canonical JSON.
+Every implementation emits this same shape:
+
+```json
+{
+  "type": "formula",
+  "nodes": [
+    {
+      "type": "molecule",
+      "nodes": [
+        { "type": "atom", "element": "H", "subscript": "2" },
+        { "type": "atom", "element": "O" }
+      ],
+      "identifiers": [
+        { "type": "identifier", "value": "7732-18-5", "convention": "cas" }
+      ]
+    }
+  ]
+}
+```
+
+Ingest it with `AsciiChem.from_model_json(json)` (Ruby) or
+`fromModelJSON(json)` (TypeScript). The lossless core set round-trips;
+beyond-core node types (spectra, crystals, …) are emission-only until
+their corpus round-trip levels land.
+
+## How each implementation consumes it
+
+- **Ruby (`asciichem` gem):** gem dependency
+  (`asciichem-model ~> 0.3`); validators run in the conformance suite.
+- **TypeScript (`asciichem` npm package):** the generated types are
+  vendored via `scripts/update-model-types.sh` pinned to a model tag,
+  and CI validates every corpus emission against the schemas.
+
+## Versioning and vendoring
+
+The v1 schema line is versioned per
+[SemVer](https://github.com/asciichem/asciichem-model#versioning) —
+additive changes bump the patch line within v1; breaking changes open
+a `v2` directory and never mutate v1. Consumers pin to a released tag
+and regenerate. Schemas are identified by repo-pinned `$id`s, so a
+document is always validated against exactly the schema set it was
+authored for.
+
+## Conformance
+
+The behavioral contract lives next door in
+[asciichem-tests](https://github.com/asciichem/asciichem-tests): a
+shared corpus (parser acceptance, identifiers, CML round-trip, fuzz,
+linter expectations) that every implementation runs in its own CI.
+An implementation states which corpus levels (L0–L4) it passes — the
+single-contract rule that replaced "one parser".
+
+- Ruby reference: L0, L1, L3, L4 at 100% of current corpus levels.
+- asciichem-ts: parse/reject, L0, L1 at 100%.
