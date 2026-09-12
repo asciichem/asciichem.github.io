@@ -106,6 +106,8 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 56 | [SMILES/molfile corpus fixtures](56-structure-corpus.md) | tests | **done** — v0.3.0 |
 | 57 | [Ruby SMILES + molfile implementation](57-ruby-structure-interchange.md) | gem | **done** — #55 |
 | 58 | [TypeScript SMILES + molfile implementation](58-ts-structure-interchange.md) | ts | **done** — ts#2 |
+| 59 | [De-gem asciichem-model](59-degem-asciichem-model.md) | model, gem, site | **done** — model#12, gem#57 |
+| 60 | [CLI --from smiles/molfile](60-cli-from-structure.md) | gem | **done** — 0.22.0 |
 
 ## Status snapshot (2026-09-09)
 
