@@ -1,7 +1,7 @@
 # 39 — PubChem resolver adapter
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** done — gem#59 (synonyms/citation-profile follow-ups noted)
 - **Depends on:** 38
 - **Implements:** TODO.v2 07 Layer 2
 
