@@ -51,11 +51,18 @@ their corpus round-trip levels land.
 
 ## How each implementation consumes it
 
-- **Ruby (`asciichem` gem):** gem dependency
-  (`asciichem-model ~> 0.3`); validators run in the conformance suite.
+- **Ruby (`asciichem` gem):** the schemas are vendored into
+  `spec/schemas` (`scripts/update-model-schemas.sh`, pinned to a model
+  tag) and validation runs through `json_schemer` in the conformance
+  suite — no gem dependency.
 - **TypeScript (`asciichem` npm package):** the generated types are
   vendored via `scripts/update-model-types.sh` pinned to a model tag,
   and CI validates every corpus emission against the schemas.
+
+This repository is **not distributed as a package** — it is the
+implementation-independent source of truth this page documents (the
+glossarist pattern: the Ruby implementation is self-contained; the
+contract repo serves documentation and vendoring).
 
 ## Versioning and vendoring
 
