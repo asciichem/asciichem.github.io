@@ -86,6 +86,7 @@ export default defineConfig({
             { label: "Getting started", slug: "guides/getting-started" },
             { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
             { label: "What's new in v0.2", slug: "guides/whats-new" },
+            { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
           ],
         },
         {

@@ -1,0 +1,70 @@
+---
+title: Structures and resolution
+description: Bring database chemistry into AsciiChem — SMILES and molfile ingestion, and resolving identifiers into substance records.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+AsciiChem's model has two more front doors besides the ASCII syntax:
+**structure interchange** (SMILES, molfile) and **resolution**
+(identifiers → substance records). Both land in the same semantic
+model, so every formatter and the wire form work unchanged.
+
+## Structure interchange
+
+A molecular formula is not a structure — `C_2H_6O` is ethanol or
+dimethyl ether. The chemistry world carries connectivity as SMILES or
+connection tables (molfile/SDF), and so does AsciiChem:
+
+```ruby
+AsciiChem.parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O")  # aspirin
+AsciiChem.parse_molfile(molfile_text)                # V2000, coordinates preserved
+```
+
+Both produce ordinary `Model::Molecule`s: bonds, ring closures,
+charges, isotopes, aromaticity. Render them (`to_structural_svg`),
+re-emit them (`to_smiles` — a deterministic writer; aspirin
+round-trips exactly), or serialise to the [wire form](/models/).
+
+From the CLI:
+
+```sh
+asciichem convert -i "CCO" --from smiles -t structural-svg
+asciichem convert -f ethanol.mol --from molfile -t model-json
+```
+
+The supported subset is honest about its edges: chirality (`@`) and
+E/Z bond directions (`/` `\`) raise actionable errors rather than
+silently dropping stereo.
+
+## Resolution
+
+Resolution turns identifiers into substance records with provenance
+(TODO.v2 07). The default source is PubChem (keyless, permissive);
+more sources are opt-in because sources carry license obligations.
+
+```ruby
+substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
+substance.identifier_value("inchikey")   # => "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
+substance.structure.to_structural_svg    # parsed from the source SMILES
+substance.to_model_json                  # canonical substance record
+```
+
+Every result carries provenance — source, retrieved-at, attribution —
+because the citation track emits one bibitem per (substance, source).
+Results are cached in your user cache directory; `--refresh`
+bypasses it.
+
+```sh
+asciichem resolve --name aspirin --source pubchem
+asciichem validate -i 'H_2O @cas("7732-18-5")'   # offline
+```
+
+<CardGrid stagger>
+  <Card title="Wire form" icon="seti:json">
+    The canonical JSON every implementation emits — [/models](/models/).
+  </Card>
+  <Card title="Live renderer" icon="seti:default">
+    Parse and draw structures in the browser — [/playground](/playground/).
+  </Card>
+</CardGrid>

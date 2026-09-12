@@ -1,30 +1,28 @@
-# 54 — Migrate the site games' inline parser to asciichem-ts
+# 54 — MoleculeGame answer equivalence via the real parser
 
 - **Priority:** P3
-- **Status:** pending
-- **Repos:** asciichem.github.io
+- **Status:** done (corrected 2026-09-12)
+- **Repo:** asciichem.github.io
 
-## Problem
+## Problem (corrected)
 
-`src/scripts/asciichem-cli.ts` (~38 KB) is a hand-rolled TS
-mini-parser used by the playground games (MoleculeGame,
-ChemistryPlayer, QuizGame). It predates the single-contract rule and
-will drift from the reference grammar. Games are not
-correctness-critical paths, but drift means teaching users syntax
-the real parser rejects (or missing syntax it accepts).
+The original write-up claimed the games ran on a hand-rolled
+mini-parser; that was a misreading — `src/scripts/asciichem-cli.ts`
+is the easter-egg console (sound, achievements, element facts), not a
+parser, and stays untouched. The real gap: MoleculeGame compared
+answers by exact string match, so equivalent inputs (`H2O` vs
+`H_2O`) were marked wrong even though the parser accepts them.
 
-## Plan
+## Change
 
-1. Replace the mini-parser's parse/validate calls with
-   `import { parse } from "asciichem"` (already a dependency since
-   TODO 53).
-2. Keep game-specific scoring/sound logic; only the syntax layer
-   changes.
-3. Delete the hand-rolled grammar portions — after the maintainer
-   confirms nothing else imports them (global rule: never delete
-   source files without explicit confirmation).
+Answer checking canonicalises both sides through the
+corpus-conformant `asciichem` package (already the live renderer's
+dependency): any input whose canonical text equals the challenge's
+canonical text is correct. Unparseable input simply fails (wrong
+answer), preserving game behaviour on garbage.
 
 ## Acceptance
 
-- Games behave identically on their challenge sets.
-- `asciichem-cli.ts` contains no grammar logic, only game utilities.
+- `H2O` is accepted for water; malformed input is still wrong.
+- No behavioural change to scoring/flow; the easter-egg console is
+  untouched.
