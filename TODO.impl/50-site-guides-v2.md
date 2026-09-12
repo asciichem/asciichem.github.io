@@ -1,7 +1,7 @@
 # 50 — Spec-site v2 content
 
 - **Priority:** P3 (guide for 07 is P2 timing-wise; batched here)
-- **Status:** pending
+- **Status:** done — structures-and-resolution guide landed; further guides append as tracks ship
 - **Depends on:** 35 (validate), 38–41 (resolve), 44–45 (cite)
 - **Implements:** TODO.v2 07 §Layer 3 + 08 §4
 

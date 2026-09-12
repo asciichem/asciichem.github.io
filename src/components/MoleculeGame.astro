@@ -368,10 +368,24 @@ const challenges = [
     return s.replace(/\s+/g, "").replace(/\^1\+/g, "^+").replace(/\^1-/g, "^-");
   }
 
+  // Answer equivalence goes through the real parser (the same
+  // corpus-conformant asciichem package the live renderer uses):
+  // any input that canonicalises to the challenge's canonical form
+  // is correct — `H2O`, `H_2 O`, and `H_2O` all match water.
+  import { parse } from "asciichem";
+  function equivalentAnswer(answer: string, userAnswer: string): boolean {
+    if (normalize(answer) === userAnswer) return true;
+    try {
+      return parse(answer).toText().replace(/\s+/g, "") === parse(userAnswer).toText().replace(/\s+/g, "");
+    } catch {
+      return false;
+    }
+  }
+
   function check() {
     const ch = challenges[state.index];
     const userAnswer = normalize(els.input.value.trim());
-    const correct = ch.answers.some((a) => normalize(a) === userAnswer);
+    const correct = ch.answers.some((a) => equivalentAnswer(a, userAnswer));
 
     if (correct) {
       const points = ch.difficulty * 10 + state.streak * 5;
