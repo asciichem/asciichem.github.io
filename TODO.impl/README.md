@@ -102,6 +102,10 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **done** — fixed in asciichem-ruby#52 |
 | 53 | [Site live renderer + /models page](53-site-live-renderer-models.md) | site, ts | **done** — asciichem-ts v0.1.0 + this PR |
 | 54 | [Migrate games' inline parser to asciichem-ts](54-site-games-parser-migration.md) | site | **pending** |
+| 55 | [Model fields for external structures](55-model-structure-fields.md) | model | **done** — v0.4.0 |
+| 56 | [SMILES/molfile corpus fixtures](56-structure-corpus.md) | tests | **done** — v0.3.0 |
+| 57 | [Ruby SMILES + molfile implementation](57-ruby-structure-interchange.md) | gem | **done** — #55 |
+| 58 | [TypeScript SMILES + molfile implementation](58-ts-structure-interchange.md) | ts | **done** — ts#2 |
 
 ## Status snapshot (2026-09-09)
 
