@@ -1,7 +1,7 @@
 # 38 — Resolver framework + cache
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** done — gem#59
 - **Depends on:** 35 (identifier layer it builds on)
 - **Implements:** TODO.v2 07 Layer 2
 

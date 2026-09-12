@@ -1,7 +1,7 @@
 # 41 — CLI resolve/validate
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** done — gem#59 (validate + resolve; 40 blocked on CC sign-off)
 - **Depends on:** 35 (validate), 38–40 (resolve)
 - **Implements:** TODO.v2 07 Layer 3
 
