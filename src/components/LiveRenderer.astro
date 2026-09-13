@@ -34,6 +34,10 @@ const compact = Astro.props.compact ?? false;
       </div>
     </div>
     <div class="lr-result">
+      <div class="lr-syntax" role="group" aria-label="Input syntax">
+        <button type="button" class="lr-lang is-active" data-lang="asciichem">AsciiChem</button>
+        <button type="button" class="lr-lang" data-lang="smiles">SMILES</button>
+      </div>
       <div class="lr-modes" role="tablist" aria-label="Output mode">
         <button type="button" class="lr-mode is-active" data-mode="structural" role="tab">Diagram</button>
         <button type="button" class="lr-mode" data-mode="typographic" role="tab">Typography</button>
@@ -111,6 +115,25 @@ const compact = Astro.props.compact ?? false;
   .lr-modes button:hover {
     border-color: var(--sl-color-accent);
   }
+  .lr-syntax {
+    display: flex;
+    gap: 0.375rem;
+    margin-bottom: 0.375rem;
+  }
+  .lr-syntax button {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-4);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .lr-lang.is-active {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-black);
+  }
   .lr-modes {
     display: flex;
     gap: 0.375rem;
@@ -160,18 +183,19 @@ const compact = Astro.props.compact ?? false;
 </style>
 
 <script>
-  import { parse } from "asciichem";
+  import { parse, parseSmiles } from "asciichem";
 
   const input = document.getElementById("lr-src") as HTMLTextAreaElement;
   const output = document.getElementById("lr-output")!;
   const errorBox = document.getElementById("lr-error") as HTMLParagraphElement;
   let mode = "structural";
+  let lang = "asciichem";
 
   function render(): void {
     errorBox.hidden = true;
     output.replaceChildren();
     try {
-      const formula = parse(input.value);
+      const formula = lang === "smiles" ? parseSmiles(input.value) : parse(input.value);
       if (mode === "wire") {
         const pre = document.createElement("pre");
         pre.textContent = JSON.stringify(formula.toModelJSON(), null, 2);
@@ -195,6 +219,15 @@ const compact = Astro.props.compact ?? false;
   }
 
   input.addEventListener("input", render);
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-lang")) {
+    button.addEventListener("click", () => {
+      document.querySelector(".lr-lang.is-active")?.classList.remove("is-active");
+      button.classList.add("is-active");
+      lang = button.dataset.lang ?? "asciichem";
+      render();
+    });
+  }
 
   for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
     button.addEventListener("click", () => {

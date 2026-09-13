@@ -144,6 +144,7 @@ export default defineConfig({
             label: "Guides",
             items: [
               { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
+            { label: "Citing substances", slug: "guides/citing-substances" },
             ],
           },
         {

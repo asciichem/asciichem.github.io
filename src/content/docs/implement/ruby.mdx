@@ -26,6 +26,15 @@ substance.identifier_value("inchikey")   # => "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
 AsciiChem.parse("H_2O").to_model_json
 ```
 
+## Citations
+
+```ruby
+AsciiChem::Citation.to_xml(substance)   # dataset-type Relaton bibitem
+# CLI: asciichem cite --cas 50-78-2
+```
+
+See [Citing substances](/guides/citing-substances/).
+
 ## Formatters
 
 MathML, Text (the canonicaliser), HTML, LaTeX, SVG (typographic),
