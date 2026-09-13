@@ -34,6 +34,18 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
     with bonds, produces skeletal formulae. For crystals, projects
     fractional coordinates to 2D with unit cell outline (v0.16+).
   </Card>
+  <Card title="Model JSON" icon="seti:json">
+    The canonical wire form (asciichem-model v1) — the interchange
+    format every implementation emits and ingests.
+  </Card>
+  <Card title="SMILES" icon="seti:default">
+    Deterministic re-emission of ingested structures; aspirin and
+    naphthalene round-trip exactly.
+  </Card>
+  <Card title="Molfile (V2000)" icon="seti:default">
+    Connection-table output with authored coordinates (a deterministic
+    2D layout is computed when the model has none).
+  </Card>
   <Card title="CML" icon="seti:xml">
     Chemical Markup Language via the chemicalml gem. Native wire
     for all constructs (v0.9-v0.11); aci: extension namespace as

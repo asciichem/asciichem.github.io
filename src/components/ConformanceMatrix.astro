@@ -1,0 +1,164 @@
+---
+/**
+ * The conformance matrix — the ecosystem's signature artifact: every
+ * implementation passes the same shared corpus, so parity is a grid,
+ * not a claim. Filled cells mean "claimed at 100% of corpus fixtures
+ * in that implementation's CI".
+ */
+interface Level {
+  id: string;
+  label: string;
+  hint: string;
+}
+
+interface Implementation {
+  name: string;
+  href: string;
+  package: string;
+  levels: Record<string, boolean>;
+}
+
+const levels: Level[] = [
+  { id: "parse", label: "parse / reject", hint: "every corpus case parses or rejects exactly as marked" },
+  { id: "l0", label: "L0", hint: "emission validates against the v1 JSON Schemas" },
+  { id: "l1", label: "L1", hint: "canonical Text round-trip" },
+  { id: "smiles", label: "SMILES", hint: "ingestion + deterministic emission of every structure fixture" },
+  { id: "molfile", label: "molfile", hint: "V2000 ingestion + emission with coordinates" },
+  { id: "cml", label: "CML", hint: "three-way CML round-trip" },
+  { id: "linter", label: "linter", hint: "diagnostics match corpus expectations" },
+];
+
+const implementations: Implementation[] = [
+  {
+    name: "Ruby",
+    href: "/implement/ruby/",
+    package: "asciichem gem · reference",
+    levels: { parse: true, l0: true, l1: true, smiles: true, molfile: true, cml: true, linter: true },
+  },
+  {
+    name: "TypeScript",
+    href: "/implement/typescript/",
+    package: "asciichem · npm",
+    levels: { parse: true, l0: true, l1: true, smiles: true, molfile: true },
+  },
+  {
+    name: "Python",
+    href: "/implement/python/",
+    package: "asciichem-py",
+    levels: { parse: true, l0: true, l1: true, smiles: true, molfile: true },
+  },
+];
+---
+
+<section class="cx-matrix" aria-label="Conformance levels by implementation">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col"><span class="visually-hidden">Implementation</span></th>
+        {levels.map((level) => <th scope="col" title={level.hint}><span>{level.label}</span></th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {implementations.map((impl) => (
+        <tr>
+          <th scope="row">
+            <a href={impl.href}>{impl.name}</a>
+            <span class="cx-package">{impl.package}</span>
+          </th>
+          {levels.map((level) => (
+            <td
+              class={impl.levels[level.id] ? "is-claimed" : "is-open"}
+              title={`${impl.name} — ${level.label}: ${impl.levels[level.id] ? level.hint : "not yet claimed"}`}
+            >
+              <span class="visually-hidden">
+                {impl.levels[level.id] ? "claimed" : "not yet claimed"}
+              </span>
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="cx-caption">
+    Filled cells are claimed at 100% of the asciichem-tests corpus, verified in each
+    implementation's CI. The Ruby gem is the reference; a claim is only as good as
+    the shared corpus behind it.
+  </p>
+</section>
+
+<style>
+  .cx-matrix table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--sl-text-sm);
+  }
+  .cx-matrix th[scope="col"] {
+    font-family: var(--sl-font-mono);
+    font-weight: 500;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-2);
+    padding: 0.4rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    white-space: nowrap;
+  }
+  .cx-matrix tbody th[scope="row"] {
+    text-align: left;
+    font-weight: 600;
+    padding: 0.6rem 0.75rem 0.6rem 0;
+    white-space: nowrap;
+  }
+  .cx-matrix tbody tr {
+    border-bottom: 1px solid var(--sl-color-gray-6);
+  }
+  .cx-matrix a {
+    color: var(--sl-color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--sl-color-accent);
+  }
+  .cx-matrix a:hover {
+    color: var(--sl-color-accent);
+  }
+  .cx-package {
+    display: block;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+    font-weight: 400;
+    color: var(--sl-color-gray-2);
+    margin-top: 0.15rem;
+  }
+  .cx-matrix td {
+    text-align: center;
+    padding: 0.6rem 0.5rem;
+  }
+  .cx-matrix td::before {
+    content: "";
+    display: inline-block;
+    width: 1.4em;
+    height: 1.4em;
+    border-radius: 3px;
+    border: 1px solid var(--sl-color-gray-4);
+    vertical-align: middle;
+  }
+  .cx-matrix td.is-claimed::before {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+  }
+  .cx-matrix td.is-open::before {
+    background: transparent;
+  }
+  .cx-caption {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-2);
+    margin-top: 0.75rem;
+    max-width: 60ch;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>
