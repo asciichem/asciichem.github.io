@@ -10,11 +10,16 @@ hero:
       variant: primary
     - text: Why AsciiChem?
       link: /guides/why-asciichem/
+    - text: Implementations
+      link: /implement/
     - text: GitHub
-      link: https://github.com/asciichem/asciichem-ruby
+      link: https://github.com/asciichem
 ---
 
 import { Card, CardGrid, Steps } from "@astrojs/starlight/components";
+import LiveRenderer from "../../components/LiveRenderer.astro";
+
+<LiveRenderer initial="2H_2 + O_2 ->[heat] 2H_2O" compact />
 
 AsciiChem is an ASCII syntax for representing **chemistry** — atoms, molecules,
 bonds, reactions, electron configurations, and the embedded mathematics that
@@ -22,10 +27,14 @@ chemistry publications rely on.
 
 It is to chemistry what **AsciiMath** is to mathematics.
 
-## See it in action
+## One syntax, three doors
 
-Type chemistry on any keyboard. AsciiChem parses it into a semantic model
-and renders it as MathML — no LaTeX, no Unicode, no special software.
+Type chemistry on any keyboard. AsciiChem parses it into a semantic
+model — not typography — and the model has three front doors: the
+ASCII syntax itself, [SMILES and molfile](/guides/structures-and-resolution/)
+from chemistry databases, and [identifier resolution](/guides/structures-and-resolution/#resolution)
+with provenance. Out the other side: MathML, SVG diagrams, CML, the
+canonical [wire JSON](/models/) — and [citations](/about/) on the roadmap.
 
 ```asciichem
 H_2O

@@ -1,0 +1,35 @@
+---
+title: Python
+description: asciichem-py - zero-dependency parsing into plain dataclasses.
+---
+
+```sh
+pip install asciichem-py
+```
+
+## Quick start
+
+```python
+from asciichem import parse_text
+from asciichem.text import render
+from asciichem.wire import to_model_json, from_model_json
+from asciichem.smiles import parse_smiles, write_smiles
+
+formula = parse_text("2H_2 + O_2 ->[heat] 2H_2O")
+render(formula)            # canonical AsciiChem text
+
+aspirin = parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O")
+write_smiles(aspirin)      # deterministic — round-trips exactly
+
+wire = to_model_json(formula)          # asciichem-model v1
+back = from_model_json(wire)           # ...and back
+```
+
+The model is plain dataclasses — introspectable with standard tools,
+no framework. Zero runtime dependencies; jsonschema/pytest are
+dev-only for the conformance suite.
+
+## Claimed levels
+
+Parse/reject, L0, L1, SMILES, molfile — 100% of the corpus. See
+[Implementations](/implement/) for the full matrix.

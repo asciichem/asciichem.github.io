@@ -11,12 +11,15 @@
  */
 interface Props {
   initial?: string;
+  /** Hero embedding: hides the explanatory note, tightens spacing. */
+  compact?: boolean;
 }
 
 const initial = Astro.props.initial ?? "CH_3-CH_2-OH";
+const compact = Astro.props.compact ?? false;
 ---
 
-<section class="live-renderer">
+<section class:list={["live-renderer", { compact }]}>
   <div class="lr-row">
     <div class="lr-editor">
       <label for="lr-src">AsciiChem source</label>
@@ -41,6 +44,7 @@ const initial = Astro.props.initial ?? "CH_3-CH_2-OH";
     </div>
   </div>
   <p class="lr-error" id="lr-error" hidden></p>
+{!compact && (
   <p class="lr-note">
     Parsed in your browser by
     <a href="https://github.com/asciichem/asciichem-ts" rel="noopener noreferrer">asciichem-ts</a>
@@ -49,6 +53,7 @@ const initial = Astro.props.initial ?? "CH_3-CH_2-OH";
     typographically because a formula alone does not determine a
     structure.
   </p>
+)}
 </section>
 
 <style>
@@ -143,6 +148,9 @@ const initial = Astro.props.initial ?? "CH_3-CH_2-OH";
     font-family: var(--sl-font-mono);
     font-size: 0.8rem;
     margin-top: 0.75rem;
+  }
+  .live-renderer.compact {
+    border-style: solid;
   }
   .lr-note {
     font-size: 0.78rem;

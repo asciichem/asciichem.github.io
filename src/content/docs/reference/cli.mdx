@@ -28,6 +28,42 @@ echo "H_2O" | asciichem convert -i - -t latex
 | `-f, --file` | Read source from a file |
 | `-t, --format` | Output format: `mathml` (default), `text`, `html`, `latex`, `svg`, `cml` |
 
+## convert with input grammars
+
+Since 0.22.0, `convert` selects the input grammar with `--from asciichem|smiles|molfile`,
+and the output targets include `model-json`, `smiles`, `molfile`, and `structural-svg`:
+
+```sh
+asciichem convert -i "CCO" --from smiles -t structural-svg
+asciichem convert -f ethanol.mol --from molfile -t model-json
+asciichem convert -i "CC(=O)OC1=CC=CC=C1C(=O)O" --from smiles -t smiles   # canonical re-emission
+```
+
+Every grammar funnels into the one semantic model, so every output
+format works regardless of input language. Molfile input may be a
+file path (multiline text via `-f`).
+
+## resolve
+
+Resolves an identifier into a substance record (networked; cached in
+your user cache directory). The default source is PubChem; results
+carry provenance because the citation track emits one bibitem per
+(substance, source).
+
+```sh
+asciichem resolve --name aspirin --source pubchem -t model-json
+asciichem resolve --cas 50-78-2 --refresh
+```
+
+## validate
+
+Offline validation of identifier annotations in a formula:
+
+```sh
+asciichem validate -i 'H_2O @cas("7732-18-5")'
+# cas          7732-18-5                                ok
+```
+
 ## lint
 
 Run chemistry validation checks. Exits 1 if any errors found.

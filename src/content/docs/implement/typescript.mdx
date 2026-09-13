@@ -1,0 +1,43 @@
+---
+title: TypeScript
+description: npm package asciichem - parse and render chemistry in the browser or Node.
+---
+
+```sh
+npm install asciichem
+```
+
+(The site pins the GitHub ref until npm trusted publishing is
+registered — the package contents are identical.)
+
+## Quick start
+
+```ts
+import { parse, parseSmiles, parseMolfile } from "asciichem";
+
+parse("2H_2 + O_2 ->[heat] 2H_2O").toText();
+
+// Same model as the Ruby reference — render it
+parse("C1-C-C-C-C-C1").toStructuralSvg();  // cyclohexane hexagon
+
+// Structures from databases, straight into the model
+const aspirin = parseSmiles("CC(=O)OC1=CC=CC=C1C(=O)O");
+aspirin.toStructuralSvg();
+aspirin.toSmiles();  // deterministic writer — round-trips exactly
+
+parseMolfile(v2000Text);  // coordinates preserved for rendering
+```
+
+## What it powers
+
+This site's [live renderer](/playground/) runs entirely client-side
+on this package: type AsciiChem (or paste SMILES output), see the
+diagram, the canonical text, and the wire JSON.
+
+Zero runtime dependencies; the parser is a faithful peggy port of the
+reference grammar and the corpus proves the parity.
+
+## Claimed levels
+
+Parse/reject, L0, L1, SMILES, molfile — 100% of the corpus. See
+[Implementations](/implement/) for the full matrix.

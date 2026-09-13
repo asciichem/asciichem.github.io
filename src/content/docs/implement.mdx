@@ -1,0 +1,65 @@
+---
+title: Implementations
+description: One contract, three implementations - Ruby, TypeScript, and Python all pass the same shared corpus.
+---
+
+import ConformanceMatrix from "../../components/ConformanceMatrix.astro";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+AsciiChem is a **contract**, not a codebase. The contract has two
+halves: the [wire form](/models/) (asciichem-model — versioned JSON
+Schemas plus generated types) and the [conformance corpus](/models/#conformance)
+(asciichem-tests — the fixtures every implementation must pass in its
+own CI). Anything that passes both *is* AsciiChem.
+
+This is the single-contract rule: there is no "the parser". There is
+the reference implementation and its equals.
+
+<ConformanceMatrix />
+
+## The ecosystem
+
+<CardGrid stagger>
+  <Card title="asciichem-ruby" icon="seti:rust">
+    The reference implementation: full formatter set (MathML, Text,
+    HTML, LaTeX, SVG, CML), linter, structure interchange, resolver.
+    Ships on RubyGems; releases via trusted publishing.
+  </Card>
+  <Card title="asciichem-ts" icon="seti:ts">
+    TypeScript implementation (npm `asciichem`) powering this site's
+    [live renderer](/playground/). Text, typographic SVG, and 2D
+    structural diagrams in the browser.
+  </Card>
+  <Card title="asciichem-py" icon="seti:python">
+    Python implementation, zero runtime dependencies. Semantic model,
+    canonical Text, wire JSON, structure interchange.
+  </Card>
+  <Card title="asciichem-model" icon="seti:json">
+    The contract repository: LUTAML definitions, v1 schemas, examples,
+    generated TypeScript types. Not a package - implementations vendor
+    from tags.
+  </Card>
+  <Card title="asciichem-tests" icon="seti:default">
+    The shared corpus: parser acceptance, identifiers, CML round-trip,
+    fuzz, linter expectations, structure fixtures. Never edited to make
+    an implementation pass.
+  </Card>
+  <Card title="asciichem.github.io" icon="seti:url">
+    This site - the specification, rendered examples, and the live
+    playground.
+  </Card>
+</CardGrid>
+
+## Picking an implementation
+
+- **Documents and standards pipelines (Ruby)** — the gem integrates
+  with Metanorma-style publishing; CML round-trip for interchange;
+  the CLI covers parsing, rendering, linting, resolving, validation.
+- **Web and interactive tools (TypeScript)** — parse and draw
+  chemistry client-side; the corpus guarantees the same acceptance as
+  the reference, so your web previews match your build-time renders.
+- **Data and science workflows (Python)** — zero-dependency parsing
+  into plain dataclasses; wire JSON in and out for pipelines.
+
+All three speak the same wire form, so structures move freely between
+ecosystems.

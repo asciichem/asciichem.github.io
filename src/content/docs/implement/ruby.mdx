@@ -1,0 +1,43 @@
+---
+title: Ruby
+description: The reference implementation - gem install asciichem.
+---
+
+```sh
+gem install asciichem
+```
+
+## Quick start
+
+```ruby
+require "asciichem"
+
+AsciiChem.parse("2H_2 + O_2 ->[heat] 2H_2O").to_mathml
+
+# Structure interchange (SMILES and molfile ingest into the same model)
+AsciiChem.parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O").to_structural_svg
+mol = AsciiChem.parse_molfile(File.read("ethanol.mol"))  # coordinates preserved
+
+# Resolution: identifiers -> substance records with provenance
+substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
+substance.identifier_value("inchikey")   # => "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
+
+# Canonical wire form (asciichem-model v1)
+AsciiChem.parse("H_2O").to_model_json
+```
+
+## Formatters
+
+MathML, Text (the canonicaliser), HTML, LaTeX, SVG (typographic),
+StructuralSvg (2D layout), CML (via the chemicalml gem), SMILES and
+molfile writers, and the canonical model JSON.
+
+## Beyond formulas
+
+Crystals, spectra, computational results, Z-matrices, reaction
+mechanisms — all parse into the semantic model and round-trip.
+
+## Claimed levels
+
+Parse/reject, L0, L1, SMILES, molfile, CML, linter — 100% of the
+corpus. See [Implementations](/implement/) for the full matrix.

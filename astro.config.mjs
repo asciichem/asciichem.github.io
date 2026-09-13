@@ -80,15 +80,14 @@ export default defineConfig({
         SiteTitle: "./src/components/SiteTitle.astro",
       },
       sidebar: [
-        {
-          label: "Guides",
-          items: [
-            { label: "Getting started", slug: "guides/getting-started" },
-            { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
-            { label: "What's new in v0.2", slug: "guides/whats-new" },
-            { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
-          ],
-        },
+          {
+            label: "Start",
+            items: [
+              { label: "Getting started", slug: "guides/getting-started" },
+              { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
+              { label: "What's new", slug: "guides/whats-new" },
+            ],
+          },
         {
           label: "Syntax",
           items: [
@@ -110,10 +109,19 @@ export default defineConfig({
             { label: "Reaction mechanisms", slug: "syntax/mechanism" },
           ],
         },
+          {
+            label: "Implementations",
+            items: [
+              { label: "One contract, three implementations", slug: "implement" },
+              { label: "Ruby (reference)", slug: "implement/ruby" },
+              { label: "TypeScript", slug: "implement/typescript" },
+              { label: "Python", slug: "implement/python" },
+            ],
+          },
         {
-          label: "Model",
+          label: "Model & data",
           items: [
-            { label: "Overview", slug: "model" },
+            { label: "Semantic model", slug: "model" },
             { label: "Formula", slug: "model/formula" },
             { label: "Atom", slug: "model/atom" },
             { label: "Molecule", slug: "model/molecule" },
@@ -129,8 +137,15 @@ export default defineConfig({
             { label: "Calculation", slug: "model/calculation" },
             { label: "ZMatrix", slug: "model/zmatrix" },
             { label: "Mechanism", slug: "model/mechanism" },
+            { label: "Wire form & schemas", slug: "models" },
           ],
         },
+          {
+            label: "Guides",
+            items: [
+              { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
+            ],
+          },
         {
           label: "Reference",
           items: [
@@ -156,10 +171,6 @@ export default defineConfig({
             { label: "News", slug: "news" },
           ],
         },
-          {
-            label: "Ecosystem",
-            items: [{ label: "asciichem-model", slug: "models" }],
-          },
       ],
       customCss: ["./src/styles/app.css"],
     }),
