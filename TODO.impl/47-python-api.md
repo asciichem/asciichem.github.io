@@ -1,7 +1,7 @@
 # 47 — Python API (`asciichem-py`)
 
 - **Priority:** P2
-- **Status:** pending (blocked on 36 ADR)
+- **Status:** done (core, 2026-09-13 — asciichem-py repo: parser + model + Text + wire; parse/reject, L0, L1 at 100% of the corpus; zero runtime deps. Follow-ups tracked below) (blocked on 36 ADR)
 - **Implements:** TODO.v2 06
 
 ## Motivation
@@ -29,3 +29,10 @@ citation pipeline end-to-end in notebooks.
 
 - L0–L2 at 100% of corpus; `to_rdkit()` round-trips corpus molecules
   with SMILES annotations; conformance.json in CI.
+
+## Follow-ups (this implementation)
+
+- MathML formatter (L2), SMILES/molfile ingestion, resolver — mirror
+  the Ruby/TS tracks when needed.
+- PyPI publish (distribution name decision + trusted publishing
+  registration) — maintainer gates, like npm for asciichem-ts.
