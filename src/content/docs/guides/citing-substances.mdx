@@ -1,0 +1,49 @@
+---
+title: Citing substances
+description: One bibitem per (substance, source) - resolution provenance becomes machine-checkable citations.
+---
+
+A molecule in a standards document is a *substance with identity*, not
+glyphs. AsciiChem closes that loop: resolve an identifier, then emit a
+**dataset-type Relaton bibitem** for the source you choose to cite.
+
+## Resolve, then cite
+
+```ruby
+substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
+xml = AsciiChem::Citation.to_xml(substance)   # Relaton <bibitem type="dataset">
+```
+
+From the CLI:
+
+```sh
+asciichem cite --cas 50-78-2
+```
+
+The bibitem carries the publisher, an accessed date from the
+resolution's provenance, a source-specific docidentifier (`PubChem
+CID 2244`, `CAS RN 50-78-2`), and **every identifier as a keyword** —
+so a citation is machine-checkable against its InChIKey long after
+the page numbers change.
+
+## One bibitem per (substance, source)
+
+Two databases agreeing on a substance are still two different
+documents. Resolution is multi-source; citation is per-source — pick
+the sources you trust, cite each once.
+
+## Sources and licensing
+
+- **PubChem** is the default: keyless, permissive, and the bulk
+  mirror of validated CAS RNs.
+- **CAS Common Chemistry** is *opt-in*: its data is CC BY-NC 4.0, so
+  the adapter never registers itself and every result carries the
+  required attribution.
+
+```ruby
+AsciiChem::Resolver.register(:common_chemistry,
+                             AsciiChem::Resolver::CommonChemistry)
+```
+
+Results are cached in your user cache directory (TTL'd, attribution
+included); `--refresh` bypasses the cache.
