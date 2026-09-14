@@ -1,10 +1,12 @@
 # 51 — Interactive playground
 
 - **Priority:** P3
-- **Status:** in-progress — shipped: editor + render modes (Diagram /
-  Typography / MathML / Text / Wire JSON), SMILES input toggle,
-  preset chips, corpus-contract error display; remaining: URL-fragment
-  sharing (`#code=…`), showcase-tag-driven chips
+- **Status:** done — editor + render modes (Diagram / Typography /
+  MathML / Text / Wire JSON), SMILES input toggle, preset chips,
+  corpus-contract error display, URL-fragment sharing
+  (`#code=…&lang=…&mode=…`). Showcase-tag-driven chips deferred
+  (corpus `showcase` tag not yet populated; presets cover the
+  teaching cases).
 - **Implements:** TODO.v2 12
 
 ## Motivation

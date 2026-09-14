@@ -56,7 +56,9 @@ const compact = Astro.props.compact ?? false;
     — the same shared corpus the Ruby reference passes. Diagrams are
     drawn only from bonds you author; a bare formula renders
     typographically because a formula alone does not determine a
-    structure.
+    structure. The URL fragment mirrors the editor
+    (<code>#code=…&amp;lang=…&amp;mode=…</code>), so a playground link
+    is a self-contained demo.
   </p>
 )}
 </section>
@@ -191,6 +193,50 @@ const compact = Astro.props.compact ?? false;
   const errorBox = document.getElementById("lr-error") as HTMLParagraphElement;
   let mode = "structural";
   let lang = "asciichem";
+  let shareTimer = 0;
+
+  // URL-fragment sharing (TODO.impl 51): #code=…&lang=…&mode=…
+  // Round-trips the editor state so a playground link is a
+  // self-contained demo. replaceState — no history spam on every keystroke.
+  function readShare(): void {
+    const hash = location.hash.replace(/^#/, "");
+    if (!hash) return;
+    const params = new URLSearchParams(hash);
+    const code = params.get("code");
+    if (code !== null) input.value = code;
+    const sharedLang = params.get("lang");
+    if (sharedLang === "asciichem" || sharedLang === "smiles") lang = sharedLang;
+    const sharedMode = params.get("mode");
+    if (
+      sharedMode === "structural" ||
+      sharedMode === "typographic" ||
+      sharedMode === "mathml" ||
+      sharedMode === "text" ||
+      sharedMode === "wire"
+    ) {
+      mode = sharedMode;
+    }
+  }
+
+  function writeShare(): void {
+    const params = new URLSearchParams();
+    params.set("code", input.value);
+    if (lang !== "asciichem") params.set("lang", lang);
+    if (mode !== "structural") params.set("mode", mode);
+    const next = `#${params.toString()}`;
+    if (location.hash !== next) history.replaceState(null, "", next);
+  }
+
+  function scheduleShare(): void {
+    window.clearTimeout(shareTimer);
+    shareTimer = window.setTimeout(writeShare, 150);
+  }
+
+  function activateToggle(selector: string, value: string, attr: string): void {
+    for (const button of document.querySelectorAll<HTMLButtonElement>(selector)) {
+      button.classList.toggle("is-active", button.dataset[attr] === value);
+    }
+  }
 
   function render(): void {
     errorBox.hidden = true;
@@ -223,26 +269,23 @@ const compact = Astro.props.compact ?? false;
       errorBox.textContent = error instanceof Error ? error.message : String(error);
       errorBox.hidden = false;
     }
+    scheduleShare();
   }
 
   input.addEventListener("input", render);
 
   for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-lang")) {
     button.addEventListener("click", () => {
-      document.querySelector(".lr-lang.is-active")?.classList.remove("is-active");
-      button.classList.add("is-active");
       lang = button.dataset.lang ?? "asciichem";
+      activateToggle(".lr-lang", lang, "lang");
       render();
     });
   }
 
   for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
     button.addEventListener("click", () => {
-      document
-        .querySelector(".lr-mode.is-active")
-        ?.classList.remove("is-active");
-      button.classList.add("is-active");
       mode = button.dataset.mode ?? "structural";
+      activateToggle(".lr-mode", mode, "mode");
       render();
     });
   }
@@ -254,5 +297,8 @@ const compact = Astro.props.compact ?? false;
     });
   }
 
+  readShare();
+  activateToggle(".lr-lang", lang, "lang");
+  activateToggle(".lr-mode", mode, "mode");
   render();
 </script>

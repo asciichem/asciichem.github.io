@@ -98,7 +98,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 48 | [InChI engine + cross-check](48-inchi-engine.md) | gem + engines | **done** — binary adapter + IdentityCrossCheck + CLI; vendoring/licence follow-up is maintainer-gated (TODO.v2 10) |
 | 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | pending (TODO.v2 08) — awaiting maintainer go |
 | 50 | [Site v2 guides](50-site-guides-v2.md) | site | **done** — structures-and-resolution + citing-substances (`@cite` syntax) landed |
-| 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | in-progress — live modes incl. MathML; URL sharing remains |
+| 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | **done** — live modes incl. MathML + URL-fragment sharing |
 | 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **done** — fixed in asciichem-ruby#52 |
 | 53 | [Site live renderer + /models page](53-site-live-renderer-models.md) | site, ts | **done** — asciichem-ts v0.1.0 + this PR |
 | 54 | [MoleculeGame answer equivalence via real parser](54-site-games-parser-migration.md) | site | **done** |
@@ -110,6 +110,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 60 | [CLI --from smiles/molfile](60-cli-from-structure.md) | gem | **done** — 0.22.0 |
 | 61 | [MathML parity (L2 corpus)](61-mathml-parity.md) | tests, gem, ts, py, model | **done** — 21 goldens, all three implementations byte-identical; stereo now survives wire v1 |
 | 62 | [MathML relies on mml contract model](62-mml-reliance.md) | gem | **done** — embedded math via typed Mml graph; emission validated under Mml.parse |
+| 63 | [Parsanol 1.3.13 re-check](63-parsanol-recheck.md) | gem | **done** — 221/221 corpus-green under compat; native blocked upstream (not adopted) |
 
 ## Status snapshot (2026-09-09)
 
