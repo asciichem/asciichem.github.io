@@ -80,14 +80,23 @@ export default defineConfig({
         SiteTitle: "./src/components/SiteTitle.astro",
       },
       sidebar: [
-          {
-            label: "Start",
-            items: [
-              { label: "Getting started", slug: "guides/getting-started" },
-              { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
-              { label: "What's new", slug: "guides/whats-new" },
-            ],
-          },
+        {
+          label: "Start",
+          items: [
+            { label: "Getting started", slug: "guides/getting-started" },
+            { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
+            { label: "What's new", slug: "guides/whats-new" },
+          ],
+        },
+        {
+          label: "Implementations",
+          items: [
+            { label: "Overview", slug: "implement" },
+            { label: "Ruby", slug: "implement/ruby" },
+            { label: "TypeScript", slug: "implement/typescript" },
+            { label: "Python", slug: "implement/python" },
+          ],
+        },
         {
           label: "Syntax",
           items: [
@@ -102,22 +111,13 @@ export default defineConfig({
             { label: "Annotations", slug: "syntax/annotations" },
             { label: "Electron configurations", slug: "syntax/electron-config" },
             { label: "Embedded math", slug: "syntax/embedded-math" },
-            { label: "Crystallography", slug: "syntax/crystallography" },
+            { label: "Crystal lattice", slug: "syntax/crystallography" },
             { label: "Spectroscopy", slug: "syntax/spectroscopy" },
             { label: "Computational chemistry", slug: "syntax/calculation" },
             { label: "Z-Matrix", slug: "syntax/zmatrix" },
             { label: "Reaction mechanisms", slug: "syntax/mechanism" },
           ],
         },
-          {
-            label: "Implementations",
-            items: [
-              { label: "One contract, three implementations", slug: "implement" },
-              { label: "Ruby (reference)", slug: "implement/ruby" },
-              { label: "TypeScript", slug: "implement/typescript" },
-              { label: "Python", slug: "implement/python" },
-            ],
-          },
         {
           label: "Model & data",
           items: [
@@ -140,13 +140,13 @@ export default defineConfig({
             { label: "Wire form & schemas", slug: "models" },
           ],
         },
-          {
-            label: "Guides",
-            items: [
-              { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
+        {
+          label: "Guides",
+          items: [
+            { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
             { label: "Citing substances", slug: "guides/citing-substances" },
-            ],
-          },
+          ],
+        },
         {
           label: "Reference",
           items: [
