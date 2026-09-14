@@ -109,6 +109,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 59 | [De-gem asciichem-model](59-degem-asciichem-model.md) | model, gem, site | **done** — model#12, gem#57 |
 | 60 | [CLI --from smiles/molfile](60-cli-from-structure.md) | gem | **done** — 0.22.0 |
 | 61 | [MathML parity (L2 corpus)](61-mathml-parity.md) | tests, gem, ts, py, model | **done** — 21 goldens, all three implementations byte-identical; stereo now survives wire v1 |
+| 62 | [MathML relies on mml contract model](62-mml-reliance.md) | gem | **done** — embedded math via typed Mml graph; emission validated under Mml.parse |
 
 ## Status snapshot (2026-09-09)
 
