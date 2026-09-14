@@ -1,7 +1,10 @@
 # 51 — Interactive playground
 
 - **Priority:** P3
-- **Status:** pending (blocked on 46 reaching L2)
+- **Status:** in-progress — shipped: editor + render modes (Diagram /
+  Typography / MathML / Text / Wire JSON), SMILES input toggle,
+  preset chips, corpus-contract error display; remaining: URL-fragment
+  sharing (`#code=…`), showcase-tag-driven chips
 - **Implements:** TODO.v2 12
 
 ## Motivation

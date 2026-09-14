@@ -60,6 +60,22 @@ asciichem resolve --name aspirin --source pubchem
 asciichem validate -i 'H_2O @cas("7732-18-5")'   # offline
 ```
 
+## Local identity
+
+Identity can also be *computed* from the structure you drew —
+offline, through the IUPAC reference software (never a
+reimplementation). The engine is opt-in and external:
+
+```ruby
+AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new
+AsciiChem::Inchi.identity_for(molecule).inchikey
+```
+
+With an engine configured, `asciichem lint` structurally cross-checks
+`@inchi` and `@inchikey` annotations against the drawn structure —
+catching transcription errors that format validation cannot. Python
+wraps the same library via RDKit (`pip install 'asciichem[inchi]'`).
+
 <CardGrid stagger>
   <Card title="Wire form" icon="seti:json">
     The canonical JSON every implementation emits — [/models](/models/).

@@ -26,6 +26,29 @@ CID 2244`, `CAS RN 50-78-2`), and **every identifier as a keyword** —
 so a citation is machine-checkable against its InChIKey long after
 the page numbers change.
 
+## Citing what you typed: `@cite`
+
+Attach the citation intent to the molecule itself. The `@cite`
+property annotation names the source you want to cite, and the
+molecule's other identifiers say who to resolve it as:
+
+```asciichem
+CC(=O)OC1=CC=CC=C1C(=O)O @cas("50-78-2") @cite("pubchem")
+```
+
+Then the bibitem is a function of the parse tree:
+
+```ruby
+molecule = AsciiChem.parse(source).nodes.first
+AsciiChem::Citation.for_molecule(molecule)
+# => [["pubchem", #<Relaton::Bibitem ...>]]
+```
+
+`for_molecule` resolves via the strongest identifier available
+(`@cas`, `@inchikey`, `@inchi`/`@smiles`, then names) and returns one
+`[source, bibitem]` pair per cited source. Annotate once, cite
+anywhere — the citation follows the molecule through every format.
+
 ## One bibitem per (substance, source)
 
 Two databases agreeing on a substance are still two different

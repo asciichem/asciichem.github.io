@@ -22,6 +22,7 @@ const levels: Level[] = [
   { id: "parse", label: "parse / reject", hint: "every corpus case parses or rejects exactly as marked" },
   { id: "l0", label: "L0", hint: "emission validates against the v1 JSON Schemas" },
   { id: "l1", label: "L1", hint: "canonical Text round-trip" },
+  { id: "l2", label: "L2", hint: "byte-identical MathML against the shared goldens" },
   { id: "smiles", label: "SMILES", hint: "ingestion + deterministic emission of every structure fixture" },
   { id: "molfile", label: "molfile", hint: "V2000 ingestion + emission with coordinates" },
   { id: "cml", label: "CML", hint: "three-way CML round-trip" },
@@ -33,19 +34,19 @@ const implementations: Implementation[] = [
     name: "Ruby",
     href: "/implement/ruby/",
     package: "asciichem gem · reference",
-    levels: { parse: true, l0: true, l1: true, smiles: true, molfile: true, cml: true, linter: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true, cml: true, linter: true },
   },
   {
     name: "TypeScript",
     href: "/implement/typescript/",
     package: "asciichem · npm",
-    levels: { parse: true, l0: true, l1: true, smiles: true, molfile: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true },
   },
   {
     name: "Python",
     href: "/implement/python/",
     package: "asciichem-py",
-    levels: { parse: true, l0: true, l1: true, smiles: true, molfile: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true },
   },
 ];
 ---

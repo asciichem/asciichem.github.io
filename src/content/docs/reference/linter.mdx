@@ -38,6 +38,9 @@ asciichem lint -i "..." -f json
 | `IsotopeSanityCheck` | warning | Isotope mass ≥ atomic number |
 | `UnclosedRingCheck` | error | Ring closure digits have matching pairs |
 | `ValenceCheck` | error | Bond order + charge ≤ max valence |
+| `IdentifierFormatCheck` | error | `@cas`/`@inchi`/`@inchikey`/`@smiles` values parse offline (check digits, layer structure) |
+| `IdentifierConsistencyCheck` | error/warning | Identifier values agree with the molecule they annotate (InChI formula layer, SMILES element set) |
+| `IdentityCrossCheck` | error/warning | Derives the structure's InChI via the configured engine and compares against `@inchi`/`@inchikey` annotations; mismatch = error, absent engine = one guidance warning |
 
 ## Diagnostic object
 

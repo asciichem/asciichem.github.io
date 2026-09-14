@@ -41,6 +41,7 @@ const compact = Astro.props.compact ?? false;
       <div class="lr-modes" role="tablist" aria-label="Output mode">
         <button type="button" class="lr-mode is-active" data-mode="structural" role="tab">Diagram</button>
         <button type="button" class="lr-mode" data-mode="typographic" role="tab">Typography</button>
+        <button type="button" class="lr-mode" data-mode="mathml" role="tab">MathML</button>
         <button type="button" class="lr-mode" data-mode="text" role="tab">Text</button>
         <button type="button" class="lr-mode" data-mode="wire" role="tab">Wire JSON</button>
       </div>
@@ -183,7 +184,7 @@ const compact = Astro.props.compact ?? false;
 </style>
 
 <script>
-  import { parse, parseSmiles } from "asciichem";
+  import { parse, parseSmiles, renderMathml } from "asciichem";
 
   const input = document.getElementById("lr-src") as HTMLTextAreaElement;
   const output = document.getElementById("lr-output")!;
@@ -199,6 +200,12 @@ const compact = Astro.props.compact ?? false;
       if (mode === "wire") {
         const pre = document.createElement("pre");
         pre.textContent = JSON.stringify(formula.toModelJSON(), null, 2);
+        output.append(pre);
+      } else if (mode === "mathml") {
+        // L2 parity artifact: byte-identical with the reference gem's
+        // MathML output, pinned by the shared corpus goldens.
+        const pre = document.createElement("pre");
+        pre.textContent = renderMathml(formula);
         output.append(pre);
       } else if (mode === "text") {
         const pre = document.createElement("pre");

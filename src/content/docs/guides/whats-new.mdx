@@ -29,6 +29,21 @@ independent implementations pass the same corpus.
     Ruby reference, all passing the same shared corpus — the
     single-contract rule. See [Implementations](/implement/).
   </Card>
+  <Card title="Local identity: the InChI engine" icon="seti:search">
+    Derive InChI/InChIKey from the drawn structure, offline — the
+    IUPAC `inchi-1` binary behind an opt-in engine, never a
+    reimplementation. `@inchi` annotations are cross-checked against
+    what you actually drew. CLI: `asciichem identity -i ... --from
+    smiles`. See [Structures and
+    resolution](/guides/structures-and-resolution/).
+  </Card>
+  <Card title="MathML parity, byte for byte" icon="seti:json">
+    The corpus grew an L2 level: MathML goldens from the reference
+    implementation, compared as exact strings. All three
+    implementations — Ruby, TypeScript, Python — now emit identical
+    MathML; the playground shows it live. Stereo markers survive the
+    wire form.
+  </Card>
   <Card title="The contract is not a package" icon="seti:folder">
     asciichem-model is now a pure contract repository: LUTAML
     definitions, v1 schemas, generated types. Implementations vendor
