@@ -3,6 +3,10 @@ title: Python
 description: asciichem-py - zero-dependency parsing into plain dataclasses.
 ---
 
+import LiveDiff from "../../../components/LiveDiff.astro";
+
+<LiveDiff compact highlight="Python" />
+
 ```sh
 pip install asciichem-py
 ```
@@ -10,26 +14,39 @@ pip install asciichem-py
 ## Quick start
 
 ```python
-from asciichem import parse_text
+from asciichem import parse_text, ParseError
 from asciichem.text import render
 from asciichem.wire import to_model_json, from_model_json
 from asciichem.smiles import parse_smiles, write_smiles
+from asciichem.mathml import render_mathml
 
 formula = parse_text("2H_2 + O_2 ->[heat] 2H_2O")
-render(formula)            # canonical AsciiChem text
+print(render(formula))        # canonical AsciiChem text (round-trip)
+print(render_mathml(formula))  # presentation MathML (L2 goldens)
 
 aspirin = parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O")
-write_smiles(aspirin)      # deterministic — round-trips exactly
+print(write_smiles(aspirin))  # deterministic — round-trips exactly
 
-wire = to_model_json(formula)          # asciichem-model v1
-back = from_model_json(wire)           # ...and back
+# Canonical wire form (asciichem-model v1) with lossless round-trip
+wire = to_model_json(formula)
+back = from_model_json(wire)
+assert render(back) == render(formula)
 ```
-
-The model is plain dataclasses — introspectable with standard tools,
-no framework. Zero runtime dependencies; jsonschema/pytest are
-dev-only for the conformance suite.
 
 ## Claimed levels
 
-Parse/reject, L0, L1, SMILES, molfile — 100% of the corpus. See
-[Implementations](/implement/) for the full matrix.
+Parse / reject · L0 emission · L1 text · **L2 MathML** · SMILES · molfile — 100% of the shared corpus. See the [Implementations matrix](/implement/) for the full table.
+
+## What you get here, not elsewhere
+
+The Python implementation is built for data and science workflows where dependencies are liabilities:
+
+- **Zero runtime dependencies** — `jsonschema` and `pytest` are dev-only for the conformance suite. The shipped package is plain stdlib + the model dataclasses.
+- **Plain dataclasses** — the model is `@dataclass`-shaped, introspectable with standard tools (`dataclasses.asdict`, `pydantic` if you must). No framework magic.
+- **Wire form as the canonical I/O** — round-trips via `to_model_json`/`from_model_json` for pipelines that already speak JSON.
+- **Optional `asciichem[inchi]` extra** — RDKit-backed InChI engine when you need to derive identity locally; off by default.
+- **Three-pane live diff** (above) — the parity is provable client-side.
+
+## Repository
+
+[github.com/asciichem/asciichem-py](https://github.com/asciichem/asciichem-py) — zero runtime deps.

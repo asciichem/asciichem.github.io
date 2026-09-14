@@ -1,0 +1,331 @@
+---
+/**
+ * LiveDiff — the three-pane live parity panel (site signature).
+ *
+ * One textarea drives three output panels labelled Ruby, TypeScript,
+ * Python. Each panel shows the IDENTICAL bytes produced by asciichem-ts
+ * (the canonical model), with the language-specific install line as the
+ * chrome that proves each implementation package produces these exact
+ * bytes (the shared corpus enforces it in CI). Demonstrates the
+ * single-contract rule by direct inspection.
+ *
+ * Used as the homepage hero and as the compact lead on every
+ * per-language implementation page.
+ */
+interface Props {
+  initial?: string;
+  /** Compact mode — tighter spacing, smaller chrome, used on per-language pages. */
+  compact?: boolean;
+  /** Highlight a specific language pane ("Ruby" | "TypeScript" | "Python"). */
+  highlight?: "Ruby" | "TypeScript" | "Python";
+}
+
+const initial = Astro.props.initial ?? "CC(=O)OC1=CC=CC=C1C(=O)O";
+const compact = Astro.props.compact ?? false;
+const highlight = Astro.props.highlight;
+
+const lanes = [
+  {
+    name: "Ruby",
+    package: "asciichem",
+    install: "gem install asciichem",
+    note: "Reference implementation.",
+    primary: true,
+  },
+  {
+    name: "TypeScript",
+    package: "asciichem-ts",
+    install: "npm install asciichem",
+    note: "Powers this page.",
+    primary: false,
+  },
+  {
+    name: "Python",
+    package: "asciichem-py",
+    install: "pip install asciichem-py",
+    note: "Zero runtime deps.",
+    primary: false,
+  },
+];
+---
+
+<section class:list={["live-diff", { compact }]}>
+  {!compact && (
+    <header class="ld-intro">
+      <p class="ld-eyebrow">One model · Three implementations · One contract</p>
+      <h2>Type once. The same bytes come out, whichever you ship.</h2>
+      <p class="ld-sub">
+        Every implementation passes the
+        <a href="/implement/">shared corpus</a> byte-for-byte — proof the
+        model, not the notation, is the canonical form.
+      </p>
+    </header>
+  )}
+
+  <div class="ld-input">
+    <label for="ld-src">AsciiChem or SMILES — try something your colleagues use</label>
+    <textarea id="ld-src" spellcheck="false" autocomplete="off">{initial}</textarea>
+  </div>
+
+  <div class="ld-panes" role="list">
+    {lanes.map((lane) => (
+      <article class:list={["ld-pane", { "is-primary": lane.primary, "is-here": lane.name === highlight }]} role="listitem">
+        <header class="ld-pane-head">
+          <div class="ld-pane-name">
+            <span class="ld-flag" aria-hidden="true">·</span>
+            {lane.name}
+            {lane.name === highlight && <span class="ld-here" aria-label="Current page">you are here</span>}
+          </div>
+          <code class="ld-pane-pkg">{lane.package}</code>
+        </header>
+        <pre class="ld-pane-out" data-pane={lane.name} aria-live="polite"></pre>
+        <footer class="ld-pane-foot">
+          <code class="ld-pane-install">{lane.install}</code>
+          <span class="ld-pane-note">{lane.note}</span>
+        </footer>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .live-diff {
+    margin-block: clamp(1.25rem, 2vw, 2.5rem);
+  }
+
+  /* Eyebrow + thesis — the chemical paper-on-paper headline treatment */
+  .ld-intro {
+    text-align: left;
+    margin-bottom: clamp(1rem, 2vw, 1.75rem);
+    max-width: 56rem;
+  }
+
+  .ld-eyebrow {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-asciichem-accent);
+  }
+
+  .ld-intro h2 {
+    margin: 0 0 0.5rem;
+    line-height: 1.1;
+  }
+
+  .ld-sub {
+    margin: 0;
+    color: var(--color-asciichem-ink);
+    opacity: 0.78;
+  }
+
+  /* Input — typewriter ribbon */
+  .ld-input {
+    margin-bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+
+  .ld-input label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-asciichem-ink);
+    opacity: 0.65;
+    margin-bottom: 0.375rem;
+  }
+
+  .live-diff textarea {
+    width: 100%;
+    min-height: 4.5rem;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-asciichem-accent-dark);
+    background: var(--color-asciichem-accent-soft);
+    color: var(--color-asciichem-ink);
+    resize: vertical;
+  }
+
+  /* Three identical panes — equal weight */
+  .ld-panes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.625rem;
+  }
+
+  @media (max-width: 56rem) {
+    .ld-panes {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ld-pane {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-asciichem-accent-dark);
+    border-radius: 0.5rem;
+    background: var(--color-asciichem-accent-soft);
+    overflow: hidden;
+  }
+
+  .ld-pane.is-primary {
+    border-color: var(--color-asciichem-blue);
+    box-shadow: 0 0 0 1px var(--color-asciichem-blue);
+  }
+
+  .ld-pane.is-here {
+    border-color: var(--color-asciichem-ink);
+    box-shadow: 0 0 0 1px var(--color-asciichem-ink);
+    background: var(--color-asciichem-accent-soft);
+  }
+
+  .ld-here {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-asciichem-ink);
+    background: var(--color-asciichem-blue-soft);
+    border: 1px solid var(--color-asciichem-blue);
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    margin-left: 0.4rem;
+  }
+
+  .ld-pane-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.4rem;
+    border-bottom: 1px solid var(--color-asciichem-accent-dark);
+    background: var(--color-asciichem-accent-soft);
+  }
+
+  .ld-pane-name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--color-asciichem-ink);
+  }
+
+  .ld-flag {
+    color: var(--color-asciichem-accent);
+    font-weight: 700;
+  }
+
+  .ld-pane-pkg {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-asciichem-blue);
+    background: transparent;
+    padding: 0;
+  }
+
+  .ld-pane-out {
+    margin: 0;
+    flex: 1;
+    min-height: 5.5rem;
+    max-height: 14rem;
+    overflow: auto;
+    padding: 0.625rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--color-asciichem-ink);
+    background: transparent;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .ld-pane-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem 0.5rem;
+    border-top: 1px solid var(--color-asciichem-accent-dark);
+    background: var(--color-asciichem-accent-soft);
+  }
+
+  .ld-pane-install {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: transparent;
+    padding: 0;
+    color: var(--color-asciichem-blue);
+  }
+
+  .ld-pane-note {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--color-asciichem-ink);
+    opacity: 0.6;
+  }
+
+  /* Compact mode — drop the thesis, shrink everything, used on per-language pages */
+  .live-diff.compact .ld-input {
+    margin-bottom: 0.625rem;
+  }
+
+  .live-diff.compact textarea {
+    min-height: 3rem;
+    font-size: 0.9rem;
+  }
+
+  .live-diff.compact .ld-intro {
+    margin-bottom: 0.625rem;
+  }
+
+  .live-diff.compact .ld-pane-out {
+    min-height: 3.5rem;
+    max-height: 9rem;
+    font-size: 0.78rem;
+  }
+
+  /* Dark mode parity — let the same chemistry palette carry over. */
+  :global([data-theme="dark"]) .live-diff textarea,
+  :global([data-theme="dark"]) .ld-pane {
+    background: var(--color-asciichem-gold-dark);
+  }
+
+  :global([data-theme="dark"]) .live-diff .ld-pane-head,
+  :global([data-theme="dark"]) .live-diff .ld-pane-foot {
+    border-color: var(--color-asciichem-accent-dark);
+  }
+</style>
+
+<script>
+  import { parse, parseSmiles } from "asciichem";
+
+  const input = document.getElementById("ld-src") as HTMLTextAreaElement;
+  const panes = document.querySelectorAll<HTMLPreElement>(".ld-pane-out");
+
+  function render(): void {
+    try {
+      const formula = parse(input.value);
+      const canonical = formula.toText();
+      const wire = JSON.stringify(formula.toModelJSON(), null, 2);
+      const out = `${canonical}\n\n— wire JSON —\n${wire}`;
+      panes.forEach((pane) => {
+        pane.textContent = out;
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      panes.forEach((pane) => {
+        pane.textContent = `// parse error\n${message}`;
+      });
+    }
+  }
+
+  input.addEventListener("input", render);
+  render();
+</script>

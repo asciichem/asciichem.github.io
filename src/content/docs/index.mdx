@@ -1,110 +1,54 @@
 ---
 title: AsciiChem
-description: An ASCII syntax for chemistry, model-driven and round-trippable.
+description: An ASCII syntax for chemistry, model-driven and round-trippable, in Ruby, TypeScript, and Python.
 template: splash
 hero:
-  tagline: ASCII in, chemistry out.
-  actions:
-    - text: Get started
-      link: /guides/getting-started/
-      variant: primary
-    - text: Why AsciiChem?
-      link: /guides/why-asciichem/
-    - text: Implementations
-      link: /implement/
-    - text: GitHub
-      link: https://github.com/asciichem
+  tagline: ASCII in, chemistry out — in your language.
 ---
 
-import { Card, CardGrid, Steps } from "@astrojs/starlight/components";
-import LiveRenderer from "../../components/LiveRenderer.astro";
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import LiveDiff from "../../components/LiveDiff.astro";
+import ConformanceMatrix from "../../components/ConformanceMatrix.astro";
 
-<LiveRenderer initial="2H_2 + O_2 ->[heat] 2H_2O" compact />
+<LiveDiff />
 
 AsciiChem is an ASCII syntax for representing **chemistry** — atoms, molecules,
-bonds, reactions, electron configurations, and the embedded mathematics that
-chemistry publications rely on.
+bonds, reactions, electron configurations, and the embedded mathematics
+that chemistry publications rely on. It is to chemistry what **AsciiMath** is
+to mathematics, but with a semantic model underneath: every parse produces
+the same tree, regardless of which front door you came in by.
 
-It is to chemistry what **AsciiMath** is to mathematics.
+## One model, three implementations
 
-## One syntax, three doors
+Three independent packages — `asciichem` (Ruby), `asciichem-ts` (TypeScript),
+and `asciichem-py` (Python) — implement the same model and pass the same
+[shared corpus](https://github.com/asciichem/asciichem-tests) byte-for-byte.
+Pick whichever ships in your stack:
 
-Type chemistry on any keyboard. AsciiChem parses it into a semantic
-model — not typography — and the model has three front doors: the
-ASCII syntax itself, [SMILES and molfile](/guides/structures-and-resolution/)
-from chemistry databases, and [identifier resolution](/guides/structures-and-resolution/#resolution)
-with provenance. Out the other side: MathML, SVG diagrams, CML, the
-canonical [wire JSON](/models/) — and [citations](/about/) on the roadmap.
+<ConformanceMatrix />
 
-```asciichem
-H_2O
-2H_2 + O_2 -> 2H_2O
-N_2 + 3H_2 <=>[Fe][400C] 2NH_3
-^14C
-Ca^2+
-```
+## Why three
 
-## Why another syntax?
+A molecule has one structure regardless of the notation you write it in:
+InChI, SMILES, molfile, or AsciiChem. Likewise, the *AsciiChem model* has
+one shape regardless of the language you run it in. Three implementations
+keep the contract honest — no single implementation's shortcuts become the
+specification.
 
-AsciiMath's data model assumes math typography, not chemistry semantics.
-Chemistry routinely needs things AsciiMath cannot express cleanly:
-
-- **Prefix isotopes** like `^14C`. AsciiMath forces a phantom `{}` carrier
-  (`{}^14C`) — the isotope ends up bound to an empty element, semantically
-  wrong. AsciiChem binds it to the atom directly.
-- **Reactions** with stoichiometric coefficients, equilibrium arrows, and
-  catalyst conditions above and below the arrow.
-- **Electron configurations**, **term symbols**, and **bonds** (single,
-  double, triple, wedge, hash, dative).
-- **Embedded mathematics** via Plurimath, so equilibrium constants and rate
-  laws sit naturally inside chemistry.
-
-## What you get
+## Pick one and start
 
 <CardGrid stagger>
-  <Card title="Model-driven" icon="seti:json">
-    Every parse produces a semantic tree. Render to MathML, HTML, LaTeX, or
-    SVG without round-tripping through text.
+  <Card title="Ruby (reference)" icon="seti:ruby">
+    `gem install asciichem` — the reference implementation. MathML,
+    structural SVG, citations, InChI identity. See
+    [Ruby](/implement/ruby/).
   </Card>
-  <Card title="Round-trippable" icon="arrow-undo">
-    `parse(s).to_text == s` for any canonical input. The formatter is the
-    canonicaliser.
+  <Card title="TypeScript" icon="seti:ts">
+    `npm install asciichem` — runs in the browser or Node. Powers this
+    page's live renderer. See [TypeScript](/implement/typescript/).
   </Card>
-  <Card title="IUPAC-aligned" icon="open-book">
-    Constructs map to the IUPAC Green Book conventions; numbers-then-sign
-    charges, Roman numeral oxidation states, and equilibrium arrows.
-  </Card>
-  <Card title="OCP / MECE" icon="setting">
-    Add new constructs as model classes; add new outputs as formatters. No
-    edits to existing code.
+  <Card title="Python" icon="seti:python">
+    `pip install asciichem-py` — plain dataclasses, zero runtime
+    dependencies. See [Python](/implement/python/).
   </Card>
 </CardGrid>
-
-## The semantic fix in one line
-
-:::note[The headline change]
-`^14C` parses as `Atom(element: "C", isotope: "14")` — Carbon-14 with 14
-bound to the atom. AsciiMath would emit `<msup><mi></mi><mn>14</mn></msup>`
-— an empty base followed by the atom. The binding is lost.
-:::
-
-## Get started in three steps
-
-<Steps>
-  1. **Install the gem**
-     ```bash
-     gem install asciichem
-     ```
-  2. **Parse and render**
-     ```ruby
-     require "asciichem"
-
-     formula = AsciiChem.parse("2H_2 + O_2 -> 2H_2O")
-     formula.to_mathml  # => "<math>...</math>"
-     formula.to_text    # => "2H_2 + O_2 -> 2H_2O"
-     ```
-  3. **Explore the [syntax guide](/syntax/)** — atoms, bonds, reactions,
-     electron configurations, and more.
-</Steps>
-
-Continue to the **[Getting started](/guides/getting-started/)** guide.

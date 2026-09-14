@@ -3,6 +3,10 @@ title: Ruby
 description: The reference implementation - gem install asciichem.
 ---
 
+import LiveDiff from "../../../components/LiveDiff.astro";
+
+<LiveDiff compact highlight="Ruby" />
+
 ```sh
 gem install asciichem
 ```
@@ -12,41 +16,37 @@ gem install asciichem
 ```ruby
 require "asciichem"
 
-AsciiChem.parse("2H_2 + O_2 ->[heat] 2H_2O").to_mathml
+formula = AsciiChem.parse("2H_2 + O_2 ->[heat] 2H_2O")
+formula.to_mathml        # presentation MathML (L2 goldens)
+formula.to_text          # canonical AsciiChem text (round-trip)
+formula.to_structural_svg # 2D structural diagram
 
-# Structure interchange (SMILES and molfile ingest into the same model)
+# Structures from databases, straight into the same model
 AsciiChem.parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O").to_structural_svg
 mol = AsciiChem.parse_molfile(File.read("ethanol.mol"))  # coordinates preserved
 
-# Resolution: identifiers -> substance records with provenance
+# Resolution: identifiers → substance records with provenance
 substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
-substance.identifier_value("inchikey")   # => "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
+substance.identifier_value("inchikey")  # => "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
 
 # Canonical wire form (asciichem-model v1)
 AsciiChem.parse("H_2O").to_model_json
 ```
 
-## Citations
-
-```ruby
-AsciiChem::Citation.to_xml(substance)   # dataset-type Relaton bibitem
-# CLI: asciichem cite --cas 50-78-2
-```
-
-See [Citing substances](/guides/citing-substances/).
-
-## Formatters
-
-MathML, Text (the canonicaliser), HTML, LaTeX, SVG (typographic),
-StructuralSvg (2D layout), CML (via the chemicalml gem), SMILES and
-molfile writers, and the canonical model JSON.
-
-## Beyond formulas
-
-Crystals, spectra, computational results, Z-matrices, reaction
-mechanisms — all parse into the semantic model and round-trip.
-
 ## Claimed levels
 
-Parse/reject, L0, L1, SMILES, molfile, CML, linter — 100% of the
-corpus. See [Implementations](/implement/) for the full matrix.
+Parse / reject · L0 emission · L1 text · **L2 MathML** · SMILES · molfile · CML · linter — 100% of the shared corpus. See the [Implementations matrix](/implement/) for the full table.
+
+## What you get here, not elsewhere
+
+The reference implementation carries the long tail of features that make the contract concrete:
+
+- **All formatters** — MathML, Text (the canonicaliser), HTML, LaTeX, SVG (typographic), StructuralSvg (2D layout), CML via the chemicalml gem, SMILES and molfile writers, and the canonical wire JSON.
+- **Citations** — `AsciiChem::Citation.to_xml(substance)` emits a dataset-type Relaton bibitem per resolved source. CLI: `asciichem cite --cas 50-78-2`. See [Citing substances](/guides/citing-substances/).
+- **InChI identity** — opt-in engine over the IUPAC `inchi-1` binary with `IdentityCrossCheck` linter. CLI: `asciichem identity -i ...`. See [Structures and resolution](/guides/structures-and-resolution/).
+- **Beyond formulas** — crystals, spectra, computational results, Z-matrices, reaction mechanisms all parse into the semantic model and round-trip.
+- **The CLI** — `convert`, `lint`, `validate`, `resolve`, `cite`, `identity`, `version`. See [CLI reference](/reference/cli/).
+
+## Repository
+
+[github.com/asciichem/asciichem-ruby](https://github.com/asciichem/asciichem-ruby) — releases flow through trusted publishing (RubyGems OIDC, no stored credentials).
