@@ -1,56 +1,125 @@
 ---
 title: Getting started
-description: Install an AsciiChem implementation and parse your first formula.
+description: Pick an implementation, install it, and parse your first formula.
 ---
 
-import { Steps, Aside } from "@astrojs/starlight/components";
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+import LiveDiff from "../../../components/LiveDiff.astro";
 
+AsciiChem is a language for chemistry. It has **three implementations**
+— Ruby, TypeScript, and Python — that pass the same shared corpus
+byte-for-byte. Pick the one that ships in your stack; the syntax and
+the model are identical everywhere.
 
-AsciiChem is a language for chemistry. This page walks through using
-the Ruby reference implementation (`asciichem-ruby`). Other
-implementations (TypeScript, Python) may follow; the syntax and
-model are the same across all of them.
+<Tabs>
+  <TabItem label="Ruby">
+    <Steps>
 
-## Install
+    1. **Install the gem**
 
-<Steps>
+       ```bash
+       gem install asciichem
+       ```
 
-1. **Install the gem**
+    2. **Parse and render**
 
-   ```bash
-   gem install asciichem
-   ```
+       ```ruby
+       require "asciichem"
 
-   Or add to your Gemfile:
+       formula = AsciiChem.parse("H_2O")
+       formula.to_mathml        # => "<math>...</math>"
+       formula.to_text          # => "H_2O"  (round trip)
+       formula.to_structural_svg # 2D diagram
+       ```
 
-   ```ruby
-   gem "asciichem"
-   ```
+    3. **Use the CLI**
 
-2. **Require and parse**
+       ```bash
+       asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t mathml
+       asciichem lint -i "H_2 + O_2 -> H_2O"
+       asciichem resolve --cas 50-78-2
+       ```
 
-   ```ruby
-   require "asciichem"
+    </Steps>
 
-   formula = AsciiChem.parse("H_2O")
-   formula.to_mathml  # => "<math>...</math>"
-   formula.to_text    # => "H_2O"  (round trip)
-   ```
+    Full reference: [Ruby API](/reference/api/).
+  </TabItem>
+  <TabItem label="TypeScript">
+    <Steps>
 
-3. **Use the CLI**
+    1. **Install the package**
 
-   ```bash
-   $ asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t mathml
-   $ asciichem version
-   0.2.0
-   ```
+       ```bash
+       npm install asciichem
+       ```
 
-</Steps>
+    2. **Parse and render**
+
+       ```ts
+       import { parse, renderMathml } from "asciichem";
+
+       const formula = parse("H_2O");
+       formula.toText();          // "H_2O"  (round trip)
+       formula.toStructuralSvg(); // 2D diagram
+       renderMathml(formula);     // "<math>...</math>"
+       ```
+
+    3. **Ingest database chemistry**
+
+       ```ts
+       import { parseSmiles } from "asciichem";
+
+       parseSmiles("CC(=O)OC1=CC=CC=C1C(=O)O") // aspirin, same model
+         .toStructuralSvg();
+       ```
+
+    </Steps>
+
+    Full reference: [TypeScript API](/reference/api-typescript/).
+  </TabItem>
+  <TabItem label="Python">
+    <Steps>
+
+    1. **Install the package**
+
+       ```bash
+       pip install asciichem-py
+       ```
+
+    2. **Parse and render**
+
+       ```python
+       from asciichem import parse_text
+       from asciichem.text import render
+       from asciichem.mathml import render_mathml
+
+       formula = parse_text("H_2O")
+       render(formula)          # "H_2O"  (round trip)
+       render_mathml(formula)   # "<math>...</math>"
+       ```
+
+    3. **Wire form for pipelines**
+
+       ```python
+       from asciichem.wire import to_model_json, from_model_json
+
+       wire = to_model_json(formula)   # asciichem-model v1 JSON
+       back = from_model_json(wire)    # ...and back, losslessly
+       ```
+
+    </Steps>
+
+    Full reference: [Python API](/reference/api-python/).
+  </TabItem>
+</Tabs>
+
+<LiveDiff compact />
 
 ## What's in a parse?
 
 AsciiChem parses text into a **model tree**. Each node has typed fields —
-chemistry semantics, not just typography.
+chemistry semantics, not just typography. The tree is the same whether
+you parsed in Ruby, TypeScript, or Python.
 
 | Source       | Model                                                  |
 | ------------ | ----------------------------------------------------- |
@@ -68,8 +137,7 @@ chemistry semantics, not just typography.
 
 ## Where to next?
 
-- **[Why AsciiChem?](/guides/why-asciichem/)** — the gaps in AsciiMath it
-  closes.
+- **[Implementations](/implement/)** — the three packages, side by side.
 - **[Atoms](/syntax/atoms/)** — elements, isotopes, charges, oxidation
   states.
 - **[Molecules](/syntax/molecules/)** — stoichiometry, groups, brackets.

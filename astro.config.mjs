@@ -152,6 +152,8 @@ export default defineConfig({
           items: [
             { label: "Cheat sheet", slug: "reference/cheatsheet" },
             { label: "Ruby API", slug: "reference/api" },
+            { label: "TypeScript API", slug: "reference/api-typescript" },
+            { label: "Python API", slug: "reference/api-python" },
             { label: "CLI", slug: "reference/cli" },
             { label: "Output formats", slug: "reference/formats" },
             { label: "Linter", slug: "reference/linter" },
