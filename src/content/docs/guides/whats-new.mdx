@@ -42,7 +42,14 @@ independent implementations pass the same corpus.
     implementation, compared as exact strings. All three
     implementations — Ruby, TypeScript, Python — now emit identical
     MathML; the playground shows it live. Stereo markers survive the
-    wire form.
+    wire form. Embedded math crosses through the
+    [mml](https://github.com/plurimath/mml) contract model — typed
+    parse and framework re-serialize, not xpath surgery.
+  </Card>
+  <Card title="Shareable playground links" icon="external">
+    The live renderer writes its state into the URL fragment
+    (`#code=…&lang=…&mode=…`). Open a playground link and land on the
+    same expression, language, and output mode.
   </Card>
   <Card title="The contract is not a package" icon="seti:folder">
     asciichem-model is now a pure contract repository: LUTAML
