@@ -1,0 +1,105 @@
+---
+title: Python API
+description: asciichem-py - parse chemistry into plain dataclasses, zero runtime deps.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+```sh
+pip install asciichem-py
+```
+
+Zero runtime dependencies — `jsonschema` and `pytest` are dev-only
+for the conformance suite.
+
+## Parsing
+
+```python
+from asciichem import parse_text, ParseError
+
+formula = parse_text("2H_2 + O_2 -> 2H_2O")  # => Formula
+
+# All input grammars land in the same model
+from asciichem.smiles import parse_smiles
+from asciichem.molfile import parse_molfile, write_molfile
+
+aspirin = parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O")
+mol = parse_molfile(v2000_text)              # coordinates preserved
+```
+
+Invalid input raises `ParseError` (extends `AsciiChemError`) —
+nothing is ever parsed "partially".
+
+## Rendering
+
+```python
+from asciichem.text import render            # canonical text (round trip)
+from asciichem.mathml import render_mathml   # presentation MathML, L2 goldens
+from asciichem.smiles import write_smiles    # deterministic SMILES writer
+
+render(formula)
+render_mathml(formula)
+write_smiles(aspirin)                        # round-trips exactly
+write_molfile(mol)
+```
+
+The MathML output is **byte-identical with the Ruby reference** —
+pinned by the shared corpus goldens (`format/mathml/*`), enforced in
+CI.
+
+## The model is plain dataclasses
+
+```python
+formula.nodes[0]          # Molecule(...)
+mol.nodes[0]              # Atom(element="H", subscript="2", ...)
+```
+
+Introspectable with standard tools (`dataclasses.asdict`,
+`inspect`); no framework magic. The class set mirrors the reference
+model: `Formula`, `Molecule`, `Atom`, `Group`, `Bond`, `Reaction`,
+`ReactionCascade`, `ElectronConfiguration`, `EmbeddedMath`, `Text`,
+`Crystal`, `Spectrum`, `Calculation`, `ZMatrix`, `Mechanism`.
+
+## Wire form
+
+The canonical JSON interchange (asciichem-model v1):
+
+```python
+from asciichem.wire import to_model_json, from_model_json, to_wire
+
+wire_json = to_model_json(formula)   # JSON string
+wire = to_wire(formula)              # plain dict
+back = from_model_json(wire_json)    # => Formula, losslessly
+render(back) == render(formula)      # True
+```
+
+## Structure graph
+
+```python
+from asciichem.structure import build_graph
+
+atoms, edges = build_graph(aspirin)
+len(atoms), len(edges)   # atom list + bond list for downstream tools
+```
+
+## InChI engine (optional extra)
+
+```sh
+pip install 'asciichem-py[inchi]'   # pulls in RDKit's InChI support
+```
+
+```python
+from asciichem.inchi import RdkitEngine, set_engine, identity_for
+
+set_engine(RdkitEngine())
+identity = identity_for(molecule)   # Identity(inchi=..., inchikey=...)
+```
+
+Without an engine, `identity_for` raises `EngineMissingError` with
+install guidance — the InChI algorithm is never reimplemented.
+
+## Claimed levels
+
+Parse/reject · L0 emission · L1 text · L2 MathML · SMILES · molfile —
+100% of the shared corpus. See
+[Implementations](/implement/) for the full matrix.

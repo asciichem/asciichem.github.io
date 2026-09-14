@@ -1,0 +1,115 @@
+---
+title: TypeScript API
+description: The asciichem npm package - parse, render, and interchange chemistry in TS.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+```sh
+npm install asciichem
+```
+
+Zero runtime dependencies. Runs in the browser, Node, and workers.
+
+## Parsing
+
+```ts
+import { parse, parseText, parseSmiles, parseMolfile } from "asciichem";
+
+const formula = parse("2H_2 + O_2 -> 2H_2O");   // => Formula
+parse === parseText;                             // alias
+
+// All input grammars land in the same model
+parseSmiles("CC(=O)OC1=CC=CC=C1C(=O)O");        // aspirin
+parseMolfile(v2000Text);                         // coordinates preserved
+```
+
+Invalid input throws `ParseError` (extends `AsciiChemError`) — nothing
+is ever parsed "partially".
+
+## Model shortcuts
+
+Every model node carries output methods:
+
+```ts
+formula.toText();          // canonical AsciiChem text (round trip)
+formula.toModelJSON();     // asciichem-model v1 wire JSON
+formula.toSvg();           // typographic SVG
+formula.toStructuralSvg(); // 2D structural SVG (bonds you author)
+formula.toSmiles();        // deterministic SMILES writer
+mol.toMolfile();           // V2000 molfile (molecules only)
+```
+
+## Renderers
+
+Formatters are registered, not switch-cased — import the ones you need:
+
+```ts
+import {
+  TextFormatter, SvgFormatter, StructuralSvgFormatter,
+  MathmlFormatter, renderMathml,
+} from "asciichem";
+
+renderMathml(formula);      // presentation MathML, L2 goldens
+new TextFormatter().render(formula);
+```
+
+The MathML output is **byte-identical with the Ruby reference** —
+pinned by the shared corpus goldens (`format/mathml/*`), enforced in
+CI.
+
+## Wire form
+
+The canonical JSON interchange (asciichem-model v1):
+
+```ts
+import { fromModelJSON } from "asciichem";
+
+const wire = formula.toModelJSON();        // plain JSON object
+const back = fromModelJSON(wire);          // => Formula
+fromModelJSON(JSON.stringify(wire));       // strings work too
+back.toText();                             // round-trips
+```
+
+## Error handling
+
+```ts
+import { ParseError, AsciiChemError } from "asciichem";
+
+try {
+  parse("H_2O @cas(\"not-a-cas\")");
+} catch (e) {
+  if (e instanceof AsciiChemError) {
+    // all library errors extend AsciiChemError
+  }
+}
+```
+
+## InChI engine seam (optional)
+
+```ts
+import { setInchiEngine, inchiIdentityFor, InchiEngineMissingError } from "asciichem";
+
+setInchiEngine(myEngine);          // register once
+inchiIdentityFor(molecule)         // { inchi, inchikey? }
+// no engine registered => throws InchiEngineMissingError with guidance
+```
+
+The InChI algorithm is never reimplemented — engines wrap an InChI
+implementation (a WASM build of the IUPAC library in this
+environment).
+
+## What runs where
+
+- **Browser** — everything above. This site's [playground](/playground/)
+  uses exactly this package, client-side.
+- **Node** — same API; the peggy grammar ships prebuilt.
+- **Build tools** — parse at build time, emit SVG/MathML into static
+  output; the corpus guarantees your web previews match the Ruby
+  gem's build-time renders.
+
+## Claimed levels
+
+Parse/reject · L0 emission · L1 text · L2 MathML · SMILES · molfile —
+100% of the shared corpus. See
+[Implementations](/implement/) for the full matrix.
