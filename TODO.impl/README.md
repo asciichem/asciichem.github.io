@@ -95,10 +95,10 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 45 | [Cite syntax + CML mapping](45-cite-syntax.md) | gem + site | pending (TODO.v2 08) |
 | 46 | [TypeScript API](46-typescript-api.md) | new `asciichem-ts` | pending on 36 (TODO.v2 05) |
 | 47 | [Python API](47-python-api.md) | new `asciichem-py` | pending on 36 (TODO.v2 06) |
-| 48 | [InChI engine + cross-check](48-inchi-engine.md) | gem + engines | pending (TODO.v2 10) |
-| 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | pending (TODO.v2 08) |
-| 50 | [Site v2 guides](50-site-guides-v2.md) | site | pending (TODO.v2 07/08) |
-| 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | pending on 46 (TODO.v2 12) |
+| 48 | [InChI engine + cross-check](48-inchi-engine.md) | gem + engines | **done** — binary adapter + IdentityCrossCheck + CLI; vendoring/licence follow-up is maintainer-gated (TODO.v2 10) |
+| 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | pending (TODO.v2 08) — awaiting maintainer go |
+| 50 | [Site v2 guides](50-site-guides-v2.md) | site | **done** — structures-and-resolution + citing-substances (`@cite` syntax) landed |
+| 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | in-progress — live modes incl. MathML; URL sharing remains |
 | 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **done** — fixed in asciichem-ruby#52 |
 | 53 | [Site live renderer + /models page](53-site-live-renderer-models.md) | site, ts | **done** — asciichem-ts v0.1.0 + this PR |
 | 54 | [MoleculeGame answer equivalence via real parser](54-site-games-parser-migration.md) | site | **done** |
@@ -108,6 +108,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 58 | [TypeScript SMILES + molfile implementation](58-ts-structure-interchange.md) | ts | **done** — ts#2 |
 | 59 | [De-gem asciichem-model](59-degem-asciichem-model.md) | model, gem, site | **done** — model#12, gem#57 |
 | 60 | [CLI --from smiles/molfile](60-cli-from-structure.md) | gem | **done** — 0.22.0 |
+| 61 | [MathML parity (L2 corpus)](61-mathml-parity.md) | tests, gem, ts, py, model | **done** — 21 goldens, all three implementations byte-identical; stereo now survives wire v1 |
 
 ## Status snapshot (2026-09-09)
 
