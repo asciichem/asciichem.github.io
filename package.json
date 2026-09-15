@@ -1,7 +1,7 @@
 {
   "name": "asciichem.github.io",
   "version": "0.1.0",
-  "description": "AsciiChem — ASCII syntax for chemistry formulae, reactions, and structures",
+  "description": "AsciiChem \u2014 ASCII syntax for chemistry formulae, reactions, and structures",
   "type": "module",
   "private": true,
   "scripts": {
@@ -12,7 +12,9 @@
     "check:links": "node scripts/validate-links.mjs",
     "check:a11y": "node scripts/accessibility-audit.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.2",
