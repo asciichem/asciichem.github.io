@@ -13,8 +13,12 @@ model, and the rendered MathML.
 
 ```asciichem
 H_2O
-CuSO_4 · 5H_2O
+CuSO_4
 ```
+
+(Hydrate notation — the middle-dot separator — is not yet in the
+grammar; carry the water of crystallisation as a separate term or an
+annotation.)
 
 ## Isotopes
 
@@ -30,9 +34,12 @@ for the decay series.
 ## Coordination complexes
 
 ```asciichem
-[Fe(CN)_6]^4-
-[Co(NH_3)_6]^3+
+[Fe(CN)_6]
+[Fe(CN)_6]_3
 ```
+
+(Charges outside a bracket group don't parse in v1 — see
+[Molecules](/syntax/molecules/).)
 
 ## Acid–base equilibria
 
@@ -46,8 +53,12 @@ For the `K_a` expression, see [embedded math](/syntax/embedded-math/).
 
 ```asciichem
 2Na + Cl_2 -> 2NaCl
-MnO_4^- + 8H^+ + 5e^- -> Mn^2+ + 4H_2O
+MnO_4^- + 8H^+ -> Mn^2+ + 4H_2O
 ```
+
+(Electrons as `e^-` are not yet in the grammar — no pseudo-element
+for the electron; balance the half-reaction without it or carry the
+electron count in prose.)
 
 ## Organic
 

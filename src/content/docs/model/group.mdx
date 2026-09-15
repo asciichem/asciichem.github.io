@@ -20,7 +20,7 @@ Bracket variants are preserved: `(`, `[`, `{`.
 | Kind     | Open / Close | Use                                       |
 | -------- | ------------ | ----------------------------------------- |
 | `:paren` | `(` `)`      | Generic grouping (`Ca(OH)_2`)             |
-| `:square`| `[` `]`      | Coordination complexes (`[Fe(CN)_6]^4-`)  |
+| `:square`| `[` `]`      | Coordination complexes (`[Fe(CN)_6]`)     |
 | `:brace` | `{` `}`      | Rare / optional                           |
 
 ## Diagram
@@ -65,7 +65,7 @@ field carries it through.
 
 ```ruby
 AsciiChem.parse("Ca(OH)_2").to_text       # => "Ca(OH)_2"
-AsciiChem.parse("[Fe(CN)_6]^4-").to_text  # => "[Fe(CN)_6]^4-"  (square preserved)
+AsciiChem.parse("[Fe(CN)_6]").to_text      # => "[Fe(CN)_6]"      (square preserved)
 AsciiChem.parse("{CH_3}").to_text         # => "{CH_3}"          (brace preserved)
 ```
 

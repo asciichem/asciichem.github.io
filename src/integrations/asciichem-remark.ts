@@ -26,6 +26,8 @@ import type { Plugin } from "unified";
 import type { Root, Code, Html } from "mdast";
 import { visit } from "unist-util-visit";
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { escapeHtml } from "../lib/escape.ts";
 
 interface RenderCache {
@@ -42,30 +44,54 @@ if (!globalForCache.__asciichemCache) {
   globalForCache.__asciichemCache = cache;
 }
 
-function gemAvailable(): boolean {
+interface Cli {
+  cmd: string;
+  args: string[];
+  cwd?: string;
+}
+
+// Prefer the sibling reference implementation (../asciichem-ruby) so
+// local builds render with the sibling's current code — unreleased
+// syntax shows up immediately. CI installs the gem from the same repo
+// and resolves it on PATH.
+function resolveCli(): Cli | null {
+  const sibling = resolve(process.cwd(), "..", "asciichem-ruby");
+  const siblingExe = join(sibling, "exe", "asciichem");
+  if (existsSync(siblingExe)) {
+    try {
+      execFileSync("bundle", ["exec", "./exe/asciichem", "version"], {
+        cwd: sibling,
+        stdio: "ignore",
+        timeout: 10_000,
+      });
+      return { cmd: "bundle", args: ["exec", "./exe/asciichem"], cwd: sibling };
+    } catch {
+      // sibling exists but is not bundled — fall through to PATH
+    }
+  }
   try {
     execFileSync("asciichem", ["version"], { stdio: "ignore", timeout: 5000 });
-    return true;
+    return { cmd: "asciichem", args: [] };
   } catch {
-    return false;
+    return null;
   }
 }
 
-const HAS_GEM = gemAvailable();
+const CLI = resolveCli();
 
 function renderMathml(source: string): string | null {
   if (cache.bySource.has(source)) {
     return cache.bySource.get(source)!;
   }
-  if (!HAS_GEM) {
+  if (!CLI) {
     cache.bySource.set(source, "");
     return null;
   }
   try {
     const out = execFileSync(
-      "asciichem",
-      ["convert", "-i", source, "-t", "mathml"],
-      { encoding: "utf-8", timeout: 10_000 },
+      CLI.cmd,
+      [...CLI.args, "convert", "-i", source, "-t", "mathml"],
+      { encoding: "utf-8", timeout: 15_000, cwd: CLI.cwd },
     ).trim();
     cache.bySource.set(source, out);
     return out;
@@ -77,6 +103,21 @@ function renderMathml(source: string): string | null {
 }
 
 function buildFigure(source: string): string {
+  // Whole-block first: multi-line constructs (spectrum{...},
+  // mechanism{...}, calc{...}, z-matrices) are one expression; their
+  // body lines are not standalone formulas and must not be parsed as
+  // such. Falls back to per-line rendering (the common case: one
+  // example per line).
+  const whole = renderMathml(source.trim());
+  if (whole !== null) {
+    return `<figure class="asciichem-example">
+  <div class="asciichem-example-header">
+    <span class="asciichem-label">Source</span>
+    <span class="asciichem-label">Rendered</span>
+  </div>
+  ${buildItem(source.trim())}
+</figure>`;
+  }
   const lines = source.split(/\r?\n/).filter((l) => l.length > 0);
   const items = lines.map((line) => buildItem(line)).join("\n  ");
   return `<figure class="asciichem-example">

@@ -1,11 +1,11 @@
 ---
 import config from "virtual:starlight/user-config";
 
-import LanguageSelect from "virtual:starlight/components/LanguageSelect";
-import Search from "virtual:starlight/components/Search";
-import SiteTitle from "virtual:starlight/components/SiteTitle";
-import SocialIcons from "virtual:starlight/components/SocialIcons";
-import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+import LanguageSelect from "@astrojs/starlight/components/LanguageSelect.astro";
+import Search from "@astrojs/starlight/components/Search.astro";
+import SiteTitle from "@astrojs/starlight/components/SiteTitle.astro";
+import SocialIcons from "@astrojs/starlight/components/SocialIcons.astro";
+import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
 import EasterEggs from "./EasterEggs.astro";
 
 const sections = [
@@ -329,7 +329,7 @@ const isActive = (href: string) => {
 </style>
 
 <script>
-  const toggle = document.querySelector(".nav-toggle");
+  const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
   const menu = document.getElementById("mobile-nav");
   const mobileLinks = menu ? menu.querySelectorAll("a") : [];
 
@@ -341,10 +341,9 @@ const isActive = (href: string) => {
   function openMenu() {
     toggle?.setAttribute("aria-expanded", "true");
     menu?.removeAttribute("hidden");
-    const firstLink = menu?.querySelector("a");
+    const firstLink = menu?.querySelector<HTMLAnchorElement>("a");
     firstLink?.focus();
   }
-
   toggle?.addEventListener("click", () => {
     const expanded = toggle.getAttribute("aria-expanded") === "true";
     if (expanded) {

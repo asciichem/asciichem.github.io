@@ -12,7 +12,7 @@ Print it, bookmark it, or scan it before writing chemistry.
 
 | Construct | Syntax | Example | Notes |
 |-----------|--------|---------|-------|
-| Element symbol | Capital + optional lowercase | `H`, `He`, `Uue` | One or two letters |
+| Element symbol | Capital + optional lowercase | `H`, `He`, `Fe` | One or two letters |
 | Subscript (multiplicity) | `_N` after atom | `H_2`, `H_2O` | Binds to preceding atom |
 | Multi-char subscript | `_{...}` | `H_{2a}` | Braces for non-numeric |
 | Stoichiometric coefficient | Leading digits | `2H_2O`, `3H_2` | Distinct from subscript |
@@ -56,7 +56,7 @@ losing the binding entirely.
 | Bracket | Syntax | Example |
 |---------|--------|---------|
 | Parentheses | `(...)` | `Ca(OH)_2` |
-| Square brackets | `[...]` | `[Fe(CN)_6]^4-` |
+| Square brackets | `[...]` | `[Fe(CN)_6]` |
 | Braces | `{...}` | `{NH_4}_2SO_4` |
 
 Bracket kind is **preserved through round-trip** — `()` stays `()`,
@@ -65,8 +65,8 @@ Bracket kind is **preserved through round-trip** — `()` stays `()`,
 ```asciichem
 Ca(OH)_2
 (NH_4)_2SO_4
-[Fe(CN)_6]^4-
-[Co(NH_3)_6]^3+
+[Fe(CN)_6]
+[Fe(CN)_6]_3
 ```
 
 ## Bonds (8 kinds)

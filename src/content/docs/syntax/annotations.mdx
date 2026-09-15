@@ -54,12 +54,13 @@ Maps to CML `<label value="solvent"/>`.
 ## Properties
 
 Any annotation key that isn't a known type (name, title, formula,
-label, or identifier convention) becomes a CML property:
+label, or identifier convention) becomes a CML property. Property
+titles are **lowercase** (`logp`, not `logP`):
 
 ```asciichem
 H_2O @mw("18.015")
 H_2O @density("0.997")
-H_2O @logP("-0.5")
+H_2O @logp("-0.5")
 ```
 
 Maps to CML `<property title="mw"><scalar>18.015</scalar></property>`.
