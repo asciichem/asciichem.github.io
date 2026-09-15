@@ -41,13 +41,18 @@ A capital letter optionally followed by a lowercase letter.
     ```asciichem
     H
     He
-    Uue
+    Fe
+    Au
     ```
   </TabItem>
   <TabItem label="Notes">
-    Two-letter symbols (`He`, `Uue`) are captured as a single element,
-    not as `H` followed by `e`. The grammar requires capital-then-lowercase
-    for the two-letter form.
+    Two-letter symbols (`He`, `Fe`, `Au`) are captured as a single
+    element, not as `H` followed by `e`. The grammar requires
+    capital-then-lowercase for the two-letter form. A well-formed but
+    non-existent symbol like `Uue` (ununennium, 119) parses as a
+    two-letter capture only if it is in the periodic table — otherwise
+    it is rejected; the [linter](/reference/linter/) separately warns
+    on unknown symbols.
   </TabItem>
 </Tabs>
 

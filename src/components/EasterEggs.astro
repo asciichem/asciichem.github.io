@@ -16,6 +16,15 @@
   import "../scripts/sound-engine.ts";
   import "../scripts/asciichem-cli.ts";
 
+  // The console CLI attaches itself to window at runtime; its type is
+  // derived from the module so this never drifts. (asciichemSound is
+  // declared by the sound engine itself.)
+  declare global {
+    interface Window {
+      asciichem?: typeof import("../scripts/asciichem-cli.ts").default;
+    }
+  }
+
   // --- Console art -------------------------------------------------------
   const consoleStyle1 = "color: #baa300; font-size: 14px; font-weight: bold;";
   const consoleStyle2 = "color: #e7d67a; font-size: 12px;";

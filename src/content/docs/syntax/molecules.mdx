@@ -77,7 +77,7 @@ AsciiChem supports three bracket kinds:
 | Bracket | Open / Close | Use |
 | ------- | ------------ | --- |
 | Paren   | `(` `)`      | Generic grouping (`Ca(OH)_2`) |
-| Square  | `[` `]`      | Coordination complexes (`[Fe(CN)_6]^4-`) |
+| Square  | `[` `]`      | Coordination complexes (`[Fe(CN)_6]`) |
 | Brace   | `{` `}`      | Optional / rare |
 
 The bracket kind is preserved through round-trip — `(OH)_2` stays as
@@ -85,14 +85,21 @@ The bracket kind is preserved through round-trip — `(OH)_2` stays as
 
 ## Coordination complexes
 
-Square brackets wrap coordination complexes. The complex's charge sits
-outside the brackets.
+Square brackets wrap coordination complexes, and a subscript can
+apply to the bracketed group:
 
 ```asciichem
-[Fe(CN)_6]^4-
-[Co(NH_3)_6]^3+
+[Fe(CN)_6]
+[OH]_2
+[Fe(CN)_6]_3
 ```
 
-These are parsed as `Group(bracket: :square, nodes: [...])` followed
-by an `Atom` with the charge. (In v1, the charge attaches to the last
-atom; v2 may promote it to a complex-level attribute.)
+These are parsed as `Group(bracket: :square, nodes: [...])` with the
+subscript as the group multiplicity.
+
+:::note[Known limitation]
+A charge **outside** a bracket group (`[Fe(CN)_6]^4-`) does not parse
+in v1 — charges bind to atoms, and there is no complex-level charge
+yet. Spell the charge on the central atom or carry it as an
+annotation until group-level charges land.
+:::
