@@ -111,6 +111,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 61 | [MathML parity (L2 corpus)](61-mathml-parity.md) | tests, gem, ts, py, model | **done** — 21 goldens, all three implementations byte-identical; stereo now survives wire v1 |
 | 62 | [MathML relies on mml contract model](62-mml-reliance.md) | gem | **done** — embedded math via typed Mml graph; emission validated under Mml.parse |
 | 63 | [Parsanol 1.3.13 re-check](63-parsanol-recheck.md) | gem | **done** — 221/221 corpus-green under compat; native blocked upstream (not adopted) |
+| 64 | [Opt-in Parsanol engine](64-parsanol-engine.md) | gem | **done** — same rules over the Rust core, 1981/0 under both engines, 2.4x; 0.29.0 |
 
 ## Status snapshot (2026-09-09)
 

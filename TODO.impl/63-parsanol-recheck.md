@@ -1,7 +1,7 @@
 # 63 — Parsanol 1.3.13 re-check
 
 - **Priority:** P3
-- **Status:** done (2026-09-14) — not adopted; correctness gate green, native blocked upstream
+- **Status:** done (2026-09-14; re-checks through 2026-09-15) — trigger met in re-check 4 (1.3.16: 221/221 native); adoption shipped as TODO 64 / asciichem 0.29.0
 - **Depends on:** parsanol-ruby ≥ 1.3.13 (native-by-default + RepetitionTag)
 
 ## Motivation
