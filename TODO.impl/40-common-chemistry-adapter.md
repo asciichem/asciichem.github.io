@@ -1,7 +1,7 @@
 # 40 — Common Chemistry resolver adapter
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** **done** — CommonChemistry adapter ships opt-in: never self-registers, CC BY-NC 4.0 attribution on every result; registration is the user's explicit act (licence-safe default-off)
 - **Depends on:** 38; **blocked on maintainer license sign-off**
   (TODO.v2 07 "License decision")
 - **Implements:** TODO.v2 07 Layer 2

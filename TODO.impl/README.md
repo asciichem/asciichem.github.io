@@ -42,12 +42,12 @@ prioritised on its own merits.
 
 | # | Title | Repo | Status |
 |---|---|---|---|
-| 18 | [2D structural formulae via elk-rb](18-2d-structural-via-elk-rb.md) | gem | pending — **elkrb now available** at `claricle/elkrb` (12 layout algorithms) |
+| 18 | [2D structural formulae via elk-rb](18-2d-structural-via-elk-rb.md) | gem | **done** — StructuralSvg + Layout (elkrb, deterministic layered) |
 | 19 | [Stereochemistry markers (R/S, E/Z)](19-stereochemistry.md) | gem | **done** (model + grammar + formatters) — 2D layout needs TODO 18 |
 | 20 | [Reaction cascades (multi-step)](20-reaction-cascades.md) | gem | **done** (PR asciichem-ruby#3) |
 | 21 | [Linter pass (balancing, valence)](21-linter.md) | gem | **done** — BalanceCheck + ValenceCheck + BracketBalanceCheck + IsotopeSanityCheck |
 | 22 | [Lewis structures and lone pairs](22-lewis-structures.md) | gem | **done** (model + grammar + formatters) — 2D layout needs TODO 18 |
-| 23 | [Visual regression baselines](23-visual-regression.md) | site | pending (infra in place) |
+| 23 | [Visual regression baselines](23-visual-regression.md) | site | pending — deps installed; config + baselines remain |
 | 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | **done** (PR asciichem-ruby#3) — 15 corpus files |
 | 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | **done** (PR asciichem-ruby#4) |
 | 26 | [CML round-trip](26-cml-round-trip.md) | gem | **done** — chemml gem + AsciiChem::Cml::Translator |
@@ -76,25 +76,25 @@ implementations). Each file names the TODO.v2 plan it implements.
 
 | # | Title | Repo | Status |
 |---|---|---|---|
-| 29 | [asciichem-model scaffold](29-asciichem-model-scaffold.md) | new `asciichem-model` | in-progress (TODO.v2 01) |
-| 30 | [Model node schemas + canonical wire](30-model-node-schemas.md) | `asciichem-model` | pending (TODO.v2 01) |
-| 31 | [Identity model schemas](31-identity-model-schemas.md) | `asciichem-model` | pending (TODO.v2 01) |
-| 32 | [Model type generator + validators](32-model-type-generator.md) | `asciichem-model` | pending (TODO.v2 01) |
+| 29 | [asciichem-model scaffold](29-asciichem-model-scaffold.md) | new `asciichem-model` | **done** — contract-repo pattern (de-gemged via 59) |
+| 30 | [Model node schemas + canonical wire](30-model-node-schemas.md) | `asciichem-model` | **done** — v1 node schemas (v0.2.0) |
+| 31 | [Identity model schemas](31-identity-model-schemas.md) | `asciichem-model` | **done** — identifier + substance-record schemas |
+| 32 | [Model type generator + validators](32-model-type-generator.md) | `asciichem-model` | **done** — validators + TS type generator (v0.2.0) |
 | 33 | [asciichem-tests scaffold](33-asciichem-tests-scaffold.md) | new `asciichem-tests` | **done** (TODO.v2 02) |
-| 34 | [Corpus migration + identifier fixtures](34-corpus-migration.md) | `asciichem-tests` | pending (TODO.v2 02) |
+| 34 | [Corpus migration + identifier fixtures](34-corpus-migration.md) | `asciichem-tests` | **done** — corpus migration complete (v0.2.0) |
 | 35 | [Identifier validators + linter checks](35-identifier-validators.md) | gem | **done** (TODO.v2 07 L1) |
 | 36 | [ADR-0001 language bindings](36-adr-language-bindings.md) | `asciichem-model` | **done** (TODO.v2 04) |
-| 37 | [Gem intake of model + corpus](37-gem-model-intake.md) | gem | pending (TODO.v2 03) |
-| 38 | [Resolver framework + cache](38-resolver-framework.md) | gem | pending (TODO.v2 07 L2) |
-| 39 | [PubChem adapter](39-pubchem-adapter.md) | gem | pending (TODO.v2 07 L2) |
-| 40 | [Common Chemistry adapter](40-common-chemistry-adapter.md) | gem | blocked: maintainer licence sign-off (TODO.v2 07 L2) |
-| 41 | [CLI resolve/validate](41-cli-resolve-validate.md) | gem | pending (TODO.v2 07 L3) |
-| 42 | [SMILES reader/writer](42-smiles-interop.md) | gem | pending (TODO.v2 09) |
-| 43 | [Molfile reader/writer](43-molfile-interop.md) | gem | pending (TODO.v2 09) |
-| 44 | [Citation builder + profiles + CLI](44-citation-builder.md) | gem | pending (TODO.v2 08) |
-| 45 | [Cite syntax + CML mapping](45-cite-syntax.md) | gem + site | pending (TODO.v2 08) |
-| 46 | [TypeScript API](46-typescript-api.md) | new `asciichem-ts` | pending on 36 (TODO.v2 05) |
-| 47 | [Python API](47-python-api.md) | new `asciichem-py` | pending on 36 (TODO.v2 06) |
+| 37 | [Gem intake of model + corpus](37-gem-model-intake.md) | gem | **done** — vendored schemas + corpus in CI |
+| 38 | [Resolver framework + cache](38-resolver-framework.md) | gem | **done** — resolver + TTL cache (gem#59) |
+| 39 | [PubChem adapter](39-pubchem-adapter.md) | gem | **done** — PubChem adapter (gem#59) |
+| 40 | [Common Chemistry adapter](40-common-chemistry-adapter.md) | gem | **done** — opt-in, licence-safe default-off |
+| 41 | [CLI resolve/validate](41-cli-resolve-validate.md) | gem | **done** — `resolve` + `validate` (gem#59) |
+| 42 | [SMILES reader/writer](42-smiles-interop.md) | gem | **done** — SMILES (0.21) |
+| 43 | [Molfile reader/writer](43-molfile-interop.md) | gem | **done** — molfile (0.21); `--from` (0.22) |
+| 44 | [Citation builder + profiles + CLI](44-citation-builder.md) | gem | **done** — Citation + `cite` CLI (0.25) |
+| 45 | [Cite syntax + CML mapping](45-cite-syntax.md) | gem + site | **done** — `@cite` syntax (0.26) |
+| 46 | [TypeScript API](46-typescript-api.md) | new `asciichem-ts` | **done** — npm 0.1.1, OIDC + provenance |
+| 47 | [Python API](47-python-api.md) | new `asciichem-py` | **done** — PyPI 0.1.0, OIDC |
 | 48 | [InChI engine + cross-check](48-inchi-engine.md) | gem + engines | **done** — binary adapter + IdentityCrossCheck + CLI; vendoring/licence follow-up is maintainer-gated (TODO.v2 10) |
 | 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | pending (TODO.v2 08) — awaiting maintainer go |
 | 50 | [Site v2 guides](50-site-guides-v2.md) | site | **done** — structures-and-resolution + citing-substances (`@cite` syntax) landed |

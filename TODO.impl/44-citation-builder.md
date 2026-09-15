@@ -1,7 +1,7 @@
 # 44 — Citation builder + source profiles + cite CLI
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** **done** — Citation.for_molecule + PROFILES + `asciichem cite` (0.25)
 - **Depends on:** 38–40 (resolver adapters carry the profiles)
 - **Implements:** TODO.v2 08 §1
 

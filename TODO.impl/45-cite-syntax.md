@@ -1,7 +1,7 @@
 # 45 — Cite-by-substance syntax + CML mapping
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** **done** — `@cite("source")` property-annotation syntax + docs (0.26)
 - **Depends on:** 44
 - **Implements:** TODO.v2 08 §2
 
