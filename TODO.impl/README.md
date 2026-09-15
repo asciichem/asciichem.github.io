@@ -47,7 +47,7 @@ prioritised on its own merits.
 | 20 | [Reaction cascades (multi-step)](20-reaction-cascades.md) | gem | **done** (PR asciichem-ruby#3) |
 | 21 | [Linter pass (balancing, valence)](21-linter.md) | gem | **done** — BalanceCheck + ValenceCheck + BracketBalanceCheck + IsotopeSanityCheck |
 | 22 | [Lewis structures and lone pairs](22-lewis-structures.md) | gem | **done** (model + grammar + formatters) — 2D layout needs TODO 18 |
-| 23 | [Visual regression baselines](23-visual-regression.md) | site | pending — deps installed; config + baselines remain |
+| 23 | [Visual regression baselines](23-visual-regression.md) | site | **done** — component suite enforced in CI (21 ubuntu baselines); full-page quarantined with evidence |
 | 24 | [Parser fuzzing corpus](24-parser-fuzzing.md) | gem | **done** (PR asciichem-ruby#3) — 15 corpus files |
 | 25 | [Performance benchmarks](25-performance-benchmarks.md) | gem | **done** (PR asciichem-ruby#4) |
 | 26 | [CML round-trip](26-cml-round-trip.md) | gem | **done** — chemml gem + AsciiChem::Cml::Translator |
