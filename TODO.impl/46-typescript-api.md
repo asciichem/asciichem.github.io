@@ -1,7 +1,7 @@
 # 46 — TypeScript API (`asciichem-ts`)
 
 - **Priority:** P2
-- **Status:** pending (blocked on 36 ADR)
+- **Status:** **done** — asciichem-ts on npm (0.1.1, OIDC + provenance); parse/reject, L0, L1, L2, SMILES, molfile at 100%
 - **Implements:** TODO.v2 05
 
 ## Motivation

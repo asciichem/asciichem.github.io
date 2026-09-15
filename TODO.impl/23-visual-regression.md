@@ -1,7 +1,7 @@
 # 23 — Visual regression baselines
 
 - **Priority:** P3
-- **Status:** pending (infrastructure present; baselines not captured)
+- **Status:** pending — Playwright/axe deps installed; config, specs, and baselines not yet written (next: playwright.config + golden screenshots for LiveDiff/playground)
 - **Depends on:** 09, 10
 
 ## Motivation

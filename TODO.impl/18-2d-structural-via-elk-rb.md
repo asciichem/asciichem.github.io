@@ -1,7 +1,7 @@
 # 18 — 2D structural formulae via elk-rb
 
 - **Priority:** P2 (next big feature after v0.1 ships)
-- **Status:** pending
+- **Status:** **done** — StructuralSvg + Layout via elkrb shipped pre-0.20 (layered, deterministic; MoleculeWalker/GraphBuilder/ResultExtractor)
 - **Depends on:** 03, 04, 13 (linear bonds)
 - **Blocks:** 19 (stereo), 22 (Lewis)
 - **Supersedes:** the "structural diagrams" deferral in TODO 13

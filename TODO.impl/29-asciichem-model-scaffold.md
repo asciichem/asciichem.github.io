@@ -1,7 +1,7 @@
 # 29 — `asciichem-model` repo scaffold
 
 - **Priority:** P1
-- **Status:** in-progress — scaffold **done** 2026-09-09 at
+- **Status:** **done** — contract-repo pattern (de-gemmed, TODO 59); schemas vendored by every implementation
   `~/src/asciichem/asciichem-model` (README, gemspec, seed schemas
   atom/molecule/identifier + lutaml defs + examples, schema self-check
   specs green, ADR-0001); remaining: git init + branch/PR workflow.

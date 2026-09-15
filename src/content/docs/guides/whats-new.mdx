@@ -51,6 +51,14 @@ independent implementations pass the same corpus.
     (`#code=…&lang=…&mode=…`). Open a playground link and land on the
     same expression, language, and output mode.
   </Card>
+  <Card title="Opt-in Rust-core parsing engine (0.29.0)" icon="seti:rust">
+    The same grammar and transform now run over
+    [Parsanol](https://github.com/parsanol/parsanol-ruby)'s Rust-backed
+    parslet-compat layer: `AsciiChem::Engine.use(:parsanol)` — the
+    full spec suite passes identically under either engine, at ~2.4×
+    parse speed. Parslet stays the default; parsanol is an opt-in soft
+    dependency.
+  </Card>
   <Card title="The contract is not a package" icon="seti:folder">
     asciichem-model is now a pure contract repository: LUTAML
     definitions, v1 schemas, generated types. Implementations vendor

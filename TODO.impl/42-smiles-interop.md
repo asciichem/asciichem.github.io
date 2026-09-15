@@ -1,7 +1,7 @@
 # 42 — SMILES reader/writer
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** **done** — Smiles.parse + deterministic writer (0.21); corpus smiles suite green
 - **Depends on:** nothing hard (pairs with 07 workflow)
 - **Implements:** TODO.v2 09
 

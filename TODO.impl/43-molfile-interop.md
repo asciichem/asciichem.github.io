@@ -1,7 +1,7 @@
 # 43 — Molfile reader/writer
 
 - **Priority:** P2
-- **Status:** pending
+- **Status:** **done** — Molfile.parse/write V2000 with coordinates (0.21); --from molfile CLI (0.22)
 - **Depends on:** 42 (shared interchange registry patterns)
 - **Implements:** TODO.v2 09
 

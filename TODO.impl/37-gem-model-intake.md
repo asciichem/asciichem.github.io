@@ -1,7 +1,7 @@
 # 37 — Gem intake of model + corpus
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** **done** — gem vendors spec/schemas from tags and runs the shared corpus in CI (conformance.json report); corpus version recorded per run since 0.28.2
 - **Depends on:** 30, 31, 33, 34
 - **Implements:** TODO.v2 03
 
