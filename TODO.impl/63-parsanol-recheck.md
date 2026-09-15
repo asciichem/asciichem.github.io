@@ -35,10 +35,25 @@ in 1.3.13; this TODO is the re-check.
 
 ## Verdict
 
-**Not adopted.** One small upstream fix away from a meaningful
-native re-measure. Revisit trigger updated: native serialization
-survives a multi-rule grammar, then beat parslet end-to-end, then
-adopt.
+**Not adopted — one upstream one-liner away.** Revisit trigger
+(native serialization survives a multi-rule grammar) is now MET for
+everything except embedded math; the speed condition is met at 3.2x.
+
+## Re-check 3 (2026-09-15, parsanol 1.3.15)
+
+- Native routing engages for the full grammar: **219/221 corpus cases
+  green** (only the two embedded-math inputs fail — the still-unfixed
+  `@next_id` dynamic collision, parsanol-ruby#25 third comment)
+- **3.2x faster than parslet** (4.28 vs 13.64 ms per 10-input pass,
+  same session)
+- Separate upstream note: `H2` / `_2O` accepted under native but
+  rejected under parslet (optimizer run-merging semantics; not
+  corpus-covered today)
+- `benchmarks/parsanol_recheck.rb` gained `PARSANOL_MODE` and a
+  fork-per-case gate (Rust aborts reported, not fatal)
+
+Next: when upstream lands `@next_id += 1`, run the gate to 221/221
+and decide the engine-switchable design (opt-in, soft dependency).
 
 ## Acceptance
 
