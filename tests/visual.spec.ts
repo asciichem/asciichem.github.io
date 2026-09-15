@@ -29,6 +29,9 @@ const PAGES = [
 for (const page of PAGES) {
   test(`${page} - visual baseline`, async ({ page: browserPage }) => {
     await browserPage.goto(page, { waitUntil: "load" });
+    // Webfonts change page metrics; racing them makes full-page
+    // heights flip between runs (fallback vs loaded font).
+    await browserPage.evaluate(() => document.fonts.ready);
     // Hide the theme toggle so dark/light variants don't flap.
     await browserPage.addStyleTag({
       content: `starlight-theme-select { visibility: hidden; }`,
