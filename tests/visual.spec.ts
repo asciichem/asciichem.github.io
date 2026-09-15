@@ -40,6 +40,13 @@ for (const page of PAGES) {
     await browserPage.addStyleTag({
       content: `[data-pagefind-body] .header-link { visibility: hidden; }`,
     });
+    // Chromium's MathML paint varies run-to-run on the runner (page
+    // heights flip by hundreds of pixels on MathML-heavy pages).
+    // Hide the rendered figures: their correctness is enforced by
+    // the shared corpus goldens, not by pixel diffing.
+    await browserPage.addStyleTag({
+      content: `.asciichem-render { visibility: hidden; }`,
+    });
     expect(await browserPage.screenshot({ fullPage: true })).toMatchSnapshot(
       `${page.replace(/\//g, "-").replace(/^-|-$/g, "") || "home"}.png`,
       { maxDiffPixelRatio: 0.01 },
