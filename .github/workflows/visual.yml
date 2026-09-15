@@ -1,9 +1,10 @@
 name: Visual regression
 
-# TODO.impl 23. Baselines are UBUNTU-CANONICAL: a run with no
-# committed baselines writes them and passes (both toHaveScreenshot
-# and toMatchSnapshot); the artifact is then committed by a
-# maintainer. Local macOS runs may differ in font rendering.
+# TODO.impl 23. Baselines are UBUNTU-CANONICAL and committed at
+# tests/visual/baselines/. A checkout with no committed baselines
+# (fresh bootstrap) generates them with --update-snapshots instead
+# of failing. Local macOS runs may differ in font rendering; treat
+# CI as the source of truth.
 on:
   pull_request:
   push:
@@ -24,11 +25,12 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Run visual tests (bootstrap when baselines are absent)
         run: |
-          COUNT=      57
+          COUNT=$(find tests/visual/baselines -name '*.png' 2>/dev/null | wc -l)
           if [ "$COUNT" -eq 0 ]; then
-            echo 'No baselines committed — generating (write-and-pass).'
+            echo 'No baselines committed - generating.'
             npx playwright test --update-snapshots
           else
+            echo "Comparing against $COUNT committed baselines."
             npx playwright test
           fi
       - name: Upload baselines (commit these after generation runs)
