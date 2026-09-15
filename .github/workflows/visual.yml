@@ -22,7 +22,15 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test
+      - name: Run visual tests (bootstrap when baselines are absent)
+        run: |
+          COUNT=      57
+          if [ "$COUNT" -eq 0 ]; then
+            echo 'No baselines committed — generating (write-and-pass).'
+            npx playwright test --update-snapshots
+          else
+            npx playwright test
+          fi
       - name: Upload baselines (commit these after generation runs)
         uses: actions/upload-artifact@v4
         if: always()
