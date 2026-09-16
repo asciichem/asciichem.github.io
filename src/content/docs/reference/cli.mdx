@@ -28,6 +28,18 @@ echo "H_2O" | asciichem convert -i - -t latex
 | `-f, --file` | Read source from a file |
 | `-t, --format` | Output format: `mathml` (default), `text`, `html`, `latex`, `svg`, `cml` |
 
+### Parsing engine
+
+`convert --engine parsanol` selects the opt-in Rust-core engine for
+that invocation (parslet stays the default; the parsanol gem is an
+opt-in dependency). Without the gem installed, the command exits 6
+with install guidance.
+
+
+
+The `ASCIICHEM_ENGINE` environment variable selects the engine for
+programmatic use and test runs.
+
 ## convert with input grammars
 
 Since 0.22.0, `convert` selects the input grammar with `--from asciichem|smiles|molfile`,
