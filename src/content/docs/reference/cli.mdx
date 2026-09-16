@@ -35,7 +35,9 @@ that invocation (parslet stays the default; the parsanol gem is an
 opt-in dependency). Without the gem installed, the command exits 6
 with install guidance.
 
-
+```sh
+asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t text --engine parsanol
+```
 
 The `ASCIICHEM_ENGINE` environment variable selects the engine for
 programmatic use and test runs.
