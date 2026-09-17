@@ -51,13 +51,24 @@ independent implementations pass the same corpus.
     (`#code=…&lang=…&mode=…`). Open a playground link and land on the
     same expression, language, and output mode.
   </Card>
+  <Card title="Chemistry in Metanorma documents" icon="seti:default">
+    The [`metanorma-asciichem`](https://github.com/asciichem/metanorma-asciichem)
+    gem closes the document loop: `[chem]` blocks render as MathML
+    formulas in any Metanorma flavour, and `@cite`-annotated molecules
+    resolve into dataset-type bibliography entries — one per
+    (source, substance), anchored by InChIKey — collected
+    automatically into the References section. See [Chemistry in
+    Metanorma](/guides/metanorma/).
+  </Card>
   <Card title="Opt-in Rust-core parsing engine (0.29.0)" icon="seti:rust">
     The same grammar and transform now run over
     [Parsanol](https://github.com/parsanol/parsanol-ruby)'s Rust-backed
-    parslet-compat layer: `AsciiChem::Engine.use(:parsanol)` — the
-    full spec suite passes identically under either engine, at ~2.4×
-    parse speed. Parslet stays the default; parsanol is an opt-in soft
-    dependency.
+    parslet-compat layer: `AsciiChem::Engine.use(:parsanol)` or
+    `asciichem convert --engine parsanol` — the full corpus passes
+    identically under either engine (221/221 re-verified against
+    parsanol 1.3.27, all four reported upstream issues fixed), at
+    ~2.6× parse speed. Parslet stays the default; parsanol is an
+    opt-in soft dependency.
   </Card>
   <Card title="The contract is not a package" icon="seti:folder">
     asciichem-model is now a pure contract repository: LUTAML
