@@ -6,7 +6,7 @@ description: AsciiChem [chem] blocks render in Metanorma documents — and every
 import { Card, CardGrid } from "@astrojs/starlight/components";
 
 The citation loop closes inside [Metanorma](https://www.metanorma.org)
-documents: with the `metanorma-asciichem` gem, chemistry written in
+documents: with the `metanorma-plugin-asciichem` gem, chemistry written in
 AsciiChem renders as formulas, and `@cite`-annotated molecules resolve
 into dataset-type bibliography entries — one per (source, substance),
 anchored by InChIKey — collected into the document's References
@@ -15,13 +15,13 @@ section without any manual bibliography work.
 ## Installation
 
 ```sh
-gem install metanorma-asciichem
+gem install metanorma-plugin-asciichem
 ```
 
-`metanorma-cli` auto-requires gems named `metanorma-*`, so installing
-the gem activates `[chem]` support for every Metanorma compile. The
-extension runs at the Asciidoctor level; no flavour-specific setup is
-needed.
+Like the other plugins in the family (lutaml, glossarist), the gem
+is wired through [metanorma-standoc](https://github.com/metanorma/metanorma-standoc):
+once installed, `[chem]` and `chem:[]` are active in every Metanorma
+compile, in any flavour — no per-document setup.
 
 ## Chemistry blocks
 
@@ -98,4 +98,4 @@ default, CAS Common Chemistry opt-in under CC BY-NC) — is the same as
 on the [citing substances](/guides/citing-substances/) page.
 
 A complete worked example ships with the gem:
-[`docs/example.adoc`](https://github.com/asciichem/metanorma-asciichem/blob/main/docs/example.adoc).
+[`docs/example.adoc`](https://github.com/metanorma/metanorma-plugin-asciichem/blob/main/docs/example.adoc).
