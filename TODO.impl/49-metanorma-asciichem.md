@@ -1,7 +1,7 @@
 # 49 — `metanorma-asciichem` integration
 
 - **Priority:** P3
-- **Status:** done (2026-09-16) — [metanorma-asciichem PR 1](https://github.com/asciichem/metanorma-asciichem/pull/1)
+- **Status:** done (2026-09-16; renamed 2026-09-17 to [metanorma-plugin-asciichem](https://github.com/metanorma/metanorma-plugin-asciichem), PR 1)
 - **Depends on:** 44, 45
 - **Implements:** TODO.v2 08 §3
 

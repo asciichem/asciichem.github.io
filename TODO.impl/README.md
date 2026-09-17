@@ -96,7 +96,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 46 | [TypeScript API](46-typescript-api.md) | new `asciichem-ts` | **done** — npm 0.1.1, OIDC + provenance |
 | 47 | [Python API](47-python-api.md) | new `asciichem-py` | **done** — PyPI 0.1.0, OIDC |
 | 48 | [InChI engine + cross-check](48-inchi-engine.md) | gem + engines | **done** — binary adapter + IdentityCrossCheck + CLI; vendoring/licence follow-up is maintainer-gated (TODO.v2 10) |
-| 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | **done** — [gem 0.1.0](https://github.com/asciichem/metanorma-asciichem/pull/1): [chem] blocks to MathML stems, @cite to InChIKey-anchored dataset bibitems; release pending maintainer TP + tag |
+| 49 | [metanorma-asciichem](49-metanorma-asciichem.md) | new MN gem | **done** — [metanorma-plugin-asciichem 0.1.0](https://github.com/metanorma/metanorma-plugin-asciichem) (metanorma org, plugin family): [chem] blocks to MathML stems, @cite to InChIKey-anchored dataset bibitems; standoc wiring PR metanorma/metanorma-standoc#1255; release pending maintainer TP + tag |
 | 50 | [Site v2 guides](50-site-guides-v2.md) | site | **done** — structures-and-resolution + citing-substances (`@cite` syntax) landed |
 | 51 | [Interactive playground](51-playground.md) | site + `asciichem-ts` | **done** — live modes incl. MathML + URL-fragment sharing |
 | 52 | [Spec-suite truncation (pre-existing)](52-rspec-suite-truncation.md) | gem | **done** — fixed in asciichem-ruby#52 |
