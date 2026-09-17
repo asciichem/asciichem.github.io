@@ -145,6 +145,7 @@ export default defineConfig({
           items: [
             { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
             { label: "Citing substances", slug: "guides/citing-substances" },
+            { label: "Chemistry in Metanorma", slug: "guides/metanorma" },
           ],
         },
         {

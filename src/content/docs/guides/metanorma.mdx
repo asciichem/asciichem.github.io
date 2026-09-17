@@ -1,0 +1,101 @@
+---
+title: Chemistry in Metanorma
+description: AsciiChem [chem] blocks render in Metanorma documents — and every cited substance becomes a dataset bibliography entry automatically.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+The citation loop closes inside [Metanorma](https://www.metanorma.org)
+documents: with the `metanorma-asciichem` gem, chemistry written in
+AsciiChem renders as formulas, and `@cite`-annotated molecules resolve
+into dataset-type bibliography entries — one per (source, substance),
+anchored by InChIKey — collected into the document's References
+section without any manual bibliography work.
+
+## Installation
+
+```sh
+gem install metanorma-asciichem
+```
+
+`metanorma-cli` auto-requires gems named `metanorma-*`, so installing
+the gem activates `[chem]` support for every Metanorma compile. The
+extension runs at the Asciidoctor level; no flavour-specific setup is
+needed.
+
+## Chemistry blocks
+
+```adoc
+[chem]
+----
+2H_2 + O_2 -> 2H_2O
+----
+```
+
+The block parses into AsciiChem's semantic model and renders as
+MathML — in the semantic XML, `<formula><stem type="MathML">`, the
+same shape Metanorma uses for mathematics, so every flavour renders
+it. Block ids and titles carry over
+(`[chem#reaction,title="Hydrolysis"]`).
+
+Inline chemistry works too:
+
+```adoc
+Water is chem:H_2O[] in prose — or chem:[2H_2 + O_2 -> 2H_2O]
+when the source contains spaces.
+```
+
+Inline macros render; they do not collect citations (inline
+substitution runs after the document pass that gathers them).
+
+Invalid AsciiChem logs an error and keeps the original block as
+sourcecode — the build stays reproducible and the problem stays
+visible.
+
+## Substances cite themselves
+
+The [cite syntax](/guides/citing-substances/) rides along: annotate
+the molecule in a `[chem]` block and the build resolves it and
+appends the bibliography.
+
+```adoc
+[chem]
+----
+CC(=O)OC1=CC=CC=C1C(=O)O @cas("50-78-2") @cite("pubchem")
+----
+
+The substance record is <<BSYNRYMUTXBXSQ-UHFFFAOYSA-N>>.
+```
+
+A `[bibliography]` section appears at the end of the document with
+one `<bibitem type="dataset">` per (source, substance):
+
+- the same substance cited twice yields **one deduplicated entry**
+  per source;
+- two sources yield **two entries** — PubChem and CAS Common
+  Chemistry are different documents — both anchored by the same
+  InChIKey, the cross-document join key;
+- every identifier the source returned rides along as a keyword, so
+  citations stay machine-checkable.
+
+Resolution uses the same code path as `asciichem cite`, so a
+document and the command line can never disagree.
+
+## Offline, reproducible builds
+
+Resolution reads the AsciiChem resolver cache. Point the document at
+a seeded cache to build with no network:
+
+```adoc
+:asciichem-cache-dir: ./.asciichem-cache
+```
+
+Seed it with `asciichem resolve --name aspirin`. Failures warn and
+emit no bibitem; they never break the build.
+
+Which sources can be cited — and the licence story (PubChem by
+default, CAS Common Chemistry opt-in under CC BY-NC) — is the same as
+on the [citing substances](/guides/citing-substances/) page.
+
+A complete worked example ships with the gem:
+[`docs/example.adoc`](https://github.com/asciichem/metanorma-asciichem/blob/main/docs/example.adoc).
