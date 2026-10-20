@@ -20,3 +20,24 @@ Mechanism::Step = Struct.new(:label, :reaction,
 ```
 
 See [Reaction mechanisms syntax](/syntax/mechanism/) for input format.
+
+## Step graph
+
+The entries stay verbatim in the model; `MechanismGraph` derives the
+pathway the text implies:
+
+```ruby
+graph = AsciiChem::MechanismGraph.for(AsciiChem.parse(source).nodes.first)
+graph.links.map { |link| [link.from, link.to, link.species] }
+# => [["s1", "s2", ["B"]]]
+```
+
+- Each step value is parsed as a reaction (cascades included); a
+  prose step keeps a `nil` reaction and takes part in no links.
+- A species on both sides of one step is a **catalyst**.
+- Steps **link** when a product species of an earlier step is a
+  reactant of a later one — matched coefficient-free via
+  `Reaction#stoichiometry`.
+
+Because everything is computed, the canonical text, wire form, and
+CML round-trip are unchanged.
