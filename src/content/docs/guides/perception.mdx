@@ -1,0 +1,81 @@
+---
+title: Perception
+description: Chemistry the syntax leaves implicit — implicit hydrogens, aromatic rings by Hückel counting — derived once and shared by every implementation.
+---
+
+The perception pass derives the chemistry a structure *implies* but
+does not spell out. It is not a parser stage: it runs over the
+semantic model (atom + bond graph) as pure functions, and the shared
+corpus gates it so every implementation derives the same values.
+
+```ruby
+atoms, edges = AsciiChem::Structure::Graph.build(molecule)
+
+AsciiChem::Perception.implicit_hydrogens(
+  atoms[i], AsciiChem::Perception.hydrogen_valence_sum(i, edges)
+)
+
+AsciiChem::Perception.aromatic_rings(atoms, edges) # => [[0, 1, 2, 3, 4, 5]]
+```
+
+## Implicit hydrogens
+
+For each atom: take the hydrogen-valence sum (aromatic bonds count
+**1.5**, Hückel-style), find the smallest default valence that fits,
+and subtract. The result must be a **whole, non-negative number**;
+otherwise perception declines (`nil`) rather than invent a count.
+
+Declines are deliberate and part of the contract:
+
+- **Stated hydrogens win** (`[NH4+]`, `[CH4]`) — perception returns 0,
+  never adding to what the source said.
+- **Charged atoms decline** — charge algebra on valence is
+  element-specific and not modelled yet.
+- **Unknown elements, over-valent or fractional sums decline** — for
+  example aromatic-schematic fused atoms, where 1.5 counting has no
+  whole-number fit.
+- **Aromatic bonds count 1.5** for H-counting, so `c1ccccc1` and
+  `C1=CC=CC=C1` perceive one hydrogen per carbon; the linter's
+  valence-feasibility sum is a separate function (aromatic as 1).
+
+## Aromatic rings
+
+Aromaticity is **counted**, not pattern-matched. For each 5- or
+6-membered cycle, atoms contribute π electrons:
+
+| Atom situation | π electrons |
+|---|---|
+| has a double bond to an atom in a ring system | 1 |
+| lone-pair donor (N, O, S, P, Se, As) with no double of its own | 2 |
+| carbon with only single bonds, or only an exocyclic double | 0 |
+
+A ring is aromatic when the total is **6 or 10** (4n+2, n ≥ 1).
+Charged atoms make the count undecidable, so the ring is declined;
+an aromatic-flagged ring (lowercase SMILES) is taken as stated.
+
+This handles the cases the older six-membered rule could not:
+
+- **Five-membered heteroaromatics** — furan, pyrrole, and thiophene
+  are perceived from Kekulé bond orders (the lone pair supplies 2).
+- **Fused systems** — naphthalene's shared bond is single, but each
+  atom's double bond lies in the ring system.
+- **Quinones stay Kekulé** — their ring carbons' only double bonds
+  point at exocyclic oxygens, so the ring totals 5, not 4n+2.
+- **Four-π and three-membered rings stay Kekulé** — cyclopentadiene
+  and cyclopropene are not aromatic.
+
+## Who consumes it
+
+- **The linter** — `ValenceCheck` uses the valence-feasibility sum.
+- **The canonicalizer** — the SMILES writer turns perceived rings
+  into the lowercase aromatic form (see [Canonical
+  form](/guides/canonical-form/)), and states `[nH]` for a perceived
+  pyrrole nitrogen.
+
+## Limits
+
+Perception is conservative on purpose: rings larger than six,
+charged-ring π counting, and full electron-counting for
+aromatic-schematic fused systems are not modelled. The corpus pins the
+declines, so all implementations decline identically rather than
+guessing differently.

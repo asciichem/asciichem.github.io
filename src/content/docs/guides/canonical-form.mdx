@@ -1,0 +1,84 @@
+---
+title: Canonical form
+description: The canonical text contract and the canonical SMILES writer — fixed points, aromatic canonicalization, and what the corpus guarantees.
+---
+
+A canonical form is the one spelling a model maps back to. AsciiChem
+has two, with different jobs.
+
+## Canonical text
+
+The Text formatter is the canonicaliser for the AsciiChem syntax:
+`parse(s).to_text == s` for every canonical `s`. Round-trip is the
+contract, so the text form never guesses: a structure is re-emitted
+exactly as modelled, including condition brackets (whose text stays
+verbatim even when typed role entries are derived from it) and
+mechanism entries (whose step bodies and electron-flow clauses stay
+verbatim).
+
+## Canonical SMILES
+
+The SMILES writer is a deterministic serialiser (not a canonical-rank
+algorithm): DFS from the first atom, ring digits in encounter order,
+branches sorted by bond kind, subtree size, and atom token; a
+closure-bearing child continues the chain so ring-closure digits land
+at the end of the traversal.
+
+The canonical form is a **fixed point**:
+
+```ruby
+once  = AsciiChem.parse_smiles(s).to_smiles
+twice = AsciiChem.parse_smiles(once).to_smiles
+once == twice   # always
+```
+
+Because the writer consumes the [perception pass](/guides/perception/),
+equivalent spellings converge: Kekulé input canonicalizes to the
+aromatic form.
+
+| Input | Canonical SMILES |
+|---|---|
+| `C1=CC=CC=C1` | `c1ccccc1` |
+| `CC(=O)OC1=CC=CC=C1C(=O)O` | `CC(=O)Oc1ccccc1C(=O)O` |
+| `C1=CC=C2C=CC=CC2=C1` | `c1ccc2ccccc2c1` |
+| `C1=COC=C1` (furan) | `c1cocc1` |
+| `C1=CNC=C1` (pyrrole) | `c1c[nH]cc1` |
+| `C1=CSC=C1` (thiophene) | `c1cscc1` |
+| `O=C1C=CC(=O)C=C1` (quinone) | unchanged — not aromatic |
+
+Notes on the writer's rules:
+
+- **Aromatic rings** are written lowercase with the ring bonds implied
+  (no `=`/`-` between two perceived-aromatic atoms).
+- **Pyrrole-type nitrogens** are written `[nH]`: bare aromatic `n`
+  states a pyridine-type nitrogen with no hydrogen. Inferred
+  heteroatom hydrogens apply only to rings perceived from Kekulé
+  orders; source-aromatic input already states them.
+- **Stated zero hydrogens** are written `H0`, not a bare `H` (which
+  means one).
+- **Directional bonds** (`/`, `\`) survive and are parity-corrected
+  around stereogenic double bonds; tetrahedral `@`/`@@` tokens are
+  recomputed for the writer's traversal order.
+- **Composition and connectivity are preserved** through a
+  write/parse cycle; model equality is deliberately *not* the
+  invariant, because canonicalization maps many models to one
+  spelling.
+
+## The corpus contract
+
+Fixtures state canonical expectations explicitly. A fixture whose
+input is already canonical sets `smilesRoundTrip`; an input that
+canonicalizes to a different spelling sets `canonicalSmiles`:
+
+```json
+{
+  "id": "perception/pyrrole-kekule",
+  "smiles": "C1=CNC=C1",
+  "smilesRoundTrip": false,
+  "canonicalSmiles": "c1c[nH]cc1"
+}
+```
+
+Contract changes are versioned (corpus 0.8.0 added Hückel five-membered
+rings), with the new expectations stated — fixtures are never weakened
+to make an implementation pass.

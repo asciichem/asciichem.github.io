@@ -1,6 +1,6 @@
 ---
 title: Implementations
-description: One contract, three implementations - Ruby, TypeScript, and Python all pass the same shared corpus.
+description: One contract, four implementations — Ruby, TypeScript, Python, and Rust pass the same shared corpus.
 ---
 
 import ConformanceMatrix from "../../components/ConformanceMatrix.astro";
@@ -20,7 +20,7 @@ the reference implementation and its equals.
 
 <ConformanceMatrix />
 
-## The three packages
+## The implementations
 
 <CardGrid stagger>
   <Card title="Ruby — asciichem" icon="seti:ruby">
@@ -35,6 +35,10 @@ the reference implementation and its equals.
     `pip install asciichem-py` — zero runtime deps, plain
     dataclasses. [Python →](/implement/python/)
   </Card>
+  <Card title="Rust — asciichem-rs" icon="seti:rust">
+    A native consumer of the compiled PARG grammar artifact — the
+    parse contract at 100%. [Rust →](/implement/rust/)
+  </Card>
 </CardGrid>
 
 ## Picking an implementation
@@ -48,8 +52,9 @@ the reference implementation and its equals.
 - **Data and science workflows (Python)** — zero-dependency parsing
   into plain dataclasses; wire JSON in and out for pipelines.
 
-All three speak the same wire form, so structures move freely between
-ecosystems.
+All implementations speak the same wire form, so structures move
+freely between ecosystems. Conformance is claimed per
+[level](/guides/conformance-levels/), not per vibe.
 
 ## Behind the implementations
 

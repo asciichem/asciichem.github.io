@@ -1,0 +1,74 @@
+---
+title: Rust — asciichem-rs
+description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse contract.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+[asciichem-rs](https://github.com/asciichem/asciichem-rs) is the Rust
+implementation. It follows the same single-contract rule as the other
+three, but takes the grammar a different way: **it does not
+reimplement the syntax.** It consumes the compiled PARG artifact of
+the AsciiChem grammar and runs it on
+[parsanol](https://github.com/parsanol/parsanol-rs)'s portable engine.
+
+```sh
+cargo add asciichem     # not yet published — build from source
+cargo test              # corpus-backed, see below
+```
+
+## What PARG means here
+
+PARG is the compiled, checksummed form of the grammar language —
+one compiler (Ruby-side), N consumers. The crate vendors the artifact
+(`artifacts/asciichem.json`, the same one the Ruby `:parg` engine
+runs) and `parsanol` verifies the envelope checksum at load. A stale
+or tampered artifact fails loudly instead of parsing a different
+language.
+
+```rust
+asciichem::parse("2H_2 + O_2 -> 2H_2O")?; // Ok when fully captured
+asciichem::parse("C1CCC");                // Err — unclosed ring
+```
+
+Two behaviours worth knowing:
+
+- **Short captures are errors.** Parsing must consume the whole
+  trimmed input; a grammar edit that leaves a trailing literal
+  uncaptured is rejected, not silently ignored.
+- **Deep nesting runs on a dedicated large-stack thread.** The
+  recursive PEG engine overflows a default thread stack on the fuzz
+  corpus's deeply nested inputs; `parse` reserves a stack that is
+  committed only as used.
+
+## Conformance claim
+
+The Rust implementation claims the **parse contract only** — the
+acceptance/rejection verdict for every fixture case in the shared
+corpus, gated in CI:
+
+| Level | Claim |
+|---|---|
+| parse/reject | 100% — every corpus case parses or rejects exactly as marked |
+| L0-L4 | not yet claimed — the semantic model and renderers are the next slices |
+
+The site's [conformance matrix](/guides/conformance-levels/) reports
+this honestly per implementation.
+
+## Roadmap
+
+The remaining slices follow the corpus contract: the semantic model
+(wire round-trip), canonical text, then the renderers. Because the
+grammar artifact is shared, the port is the tree-to-model transform,
+not the parser.
+
+<CardGrid stagger>
+  <Card title="Artifact provenance" icon="seti:json">
+    `artifacts/README.md` records where the vendored grammar comes
+    from and why a checksum mismatch is fatal.
+  </Card>
+  <Card title="CI" icon="seti:github">
+    Every PR runs `cargo fmt --check`, `cargo clippy -D warnings`, and
+    the corpus-backed tests against a cloned asciichem-tests.
+  </Card>
+</CardGrid>

@@ -1,0 +1,58 @@
+---
+title: Depiction backends
+description: Structural SVG delegates atom placement to a swappable backend — depictions are views over the model.
+---
+
+Structural SVG has two independent halves: **where atoms sit** and
+**how they are drawn**. AsciiChem owns the drawing (bonds, labels,
+stereo marks) and delegates placement to a *depiction backend*, so a
+stronger layout engine can be plugged in behind the model without
+touching the renderer.
+
+```ruby
+AsciiChem::Layout.backend = MyBackend.new
+formula.to_structural_svg   # drawn from MyBackend's positions
+```
+
+## The backend contract
+
+A backend responds to `layout(molecule, algorithm:)` and returns a
+`Layout::Result`:
+
+```ruby
+class MyBackend
+  def layout(molecule, algorithm: 'layered')
+    AsciiChem::Layout::Result.new(
+      atoms: [AsciiChem::Layout::PositionedAtom.new(
+        id: 1, element: 'C', x: 10.0, y: 20.0
+      )],
+      bonds: [],
+      width: 100.0, height: 100.0
+    )
+  end
+end
+```
+
+Positions are plain numbers in the drawing's coordinate space; the
+renderer scales to the SVG viewport. Atom `id`s must match the ids the
+walker assigns, exactly as the built-in pipeline does.
+
+## The built-in backend
+
+`AsciiChem::Layout::BuiltinBackend` is the default: authored
+coordinates when the model has them (CML `x2`/`y2`), otherwise an
+elkrb layered layout that is deterministic across runs — the property
+visual regression goldens depend on.
+
+## When to plug in another
+
+- A heavier depiction engine (RDKit, CDK, or a Rust layout core)
+  produces better coordinates for crowded structures.
+- A domain-specific arrangement (crystal packing, polymer repeat
+  units) needs placement rules elkrb does not know.
+
+Assigning `Layout.backend` is process-global; tests and servers that
+swap it should restore the default (`Layout.backend = nil`).
+
+The model, the formatters, and the wire form are unchanged by a
+backend swap — which is the point: depictions are views.
