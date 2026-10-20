@@ -41,6 +41,26 @@ mechanism{
 }
 ```
 
+## Electron-flow markers
+
+A step value may carry the electron-flow arrows drawn for it:
+`| flow: SOURCE > TARGET` clauses, semicolon-separated. The marker
+names what the arrow starts at (a bond or species) and where it
+points — verbatim names, because atom-level binding needs references
+the mechanism text does not yet carry.
+
+```asciichem
+mechanism{
+  step1: OH^- + CH_3-Br -> CH_3-OH + Br^- | flow: OH^- > C; C-Br > Br^-
+  spectator: Na^+
+}
+```
+
+Flows are model data (`Mechanism::Flow`), carried by the step graph
+and the wire form, and re-emitted in canonical text. An unknown
+clause kind or a malformed arrow raises `ParseError` — never a
+silent drop.
+
 ## Validation (v0.18+)
 
 Each entry must have a `:` separator. Malformed entries raise
