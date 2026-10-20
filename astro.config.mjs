@@ -96,6 +96,7 @@ export default defineConfig({
             { label: "Ruby", slug: "implement/ruby" },
             { label: "TypeScript", slug: "implement/typescript" },
             { label: "Python", slug: "implement/python" },
+            { label: "Rust", slug: "implement/rust" },
           ],
         },
         {
@@ -145,6 +146,9 @@ export default defineConfig({
           label: "Guides",
           items: [
             { label: "Structures and resolution", slug: "guides/structures-and-resolution" },
+            { label: "Perception", slug: "guides/perception" },
+            { label: "Canonical form", slug: "guides/canonical-form" },
+            { label: "Depiction backends", slug: "guides/depiction-backends" },
             { label: "Citing substances", slug: "guides/citing-substances" },
             { label: "Chemistry in Metanorma", slug: "guides/metanorma" },
           ],
