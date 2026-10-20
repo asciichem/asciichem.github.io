@@ -67,6 +67,22 @@ A <=>[Δ] B
 (Use the second form when the condition is energy/heat, by convention
 placed below the arrow.)
 
+## Structured role entries
+
+A condition can name its role explicitly when the above/below
+convention is not the whole story:
+
+```asciichem
+A + B ->[cat: Pd; base: Na_2CO_3][solv: THF] C
+```
+
+`cat`/`catalyst`, `solv`/`solvent`, and `reag`/`reagent` prefixes
+produce typed entries (`Conditions#entries`); `;` separates entries
+inside one bracket; anything else stays free text. The bracket text
+is preserved verbatim, so the round-trip stays exact. See
+[the Reaction model](/model/reaction/#structured-role-entries) for
+the entry shape.
+
 ## Spectators and ionic equations
 
 ```asciichem

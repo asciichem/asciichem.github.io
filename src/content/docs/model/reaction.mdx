@@ -55,6 +55,35 @@ N_2 + 3H_2 <=>[Fe][400°C] 2NH_3
 
 produces `Conditions(above: "Fe", below: "400°C")`.
 
+### Structured role entries
+
+A condition entry may name its role explicitly — the bracket text
+stays verbatim, and the model derives typed entries from it:
+
+```asciichem
+C_6H_5Br + C_6H_5B(OH)_2 ->[cat: Pd; base: Na_2CO_3][solv: THF] C_12H_10
+```
+
+- Recognised prefixes: `cat`/`catalyst`, `solv`/`solvent`,
+  `reag`/`reagent`.
+- `;` separates entries inside one bracket; an entry without a
+  recognised prefix stays free text (`base: Na_2CO_3` above keeps
+  its full text as a free entry).
+- `Conditions#entries` returns `Entry(role:, value:, side:)`; the
+  bracket text itself remains the canonical round-trip source, so
+  the wire form is unchanged.
+- `ReactionRoles.roles_for` prefers explicit roles and falls back to
+  the above/below convention only for free text.
+
+### Stoichiometry
+
+Coefficients are model data: `Reaction#stoichiometry` returns the
+normalized per-side mapping of coefficient-free species text to
+integer coefficient (`2H_2 + O_2 -> 2H_2O` →
+`{ reactants: { "H_2" => 2, "O_2" => 1 }, products: { "H_2O" => 2 } }`).
+`Molecule#stoichiometric_coefficient` is the single coefficient rule
+shared by the reaction, the balance check, and composition counting.
+
 ## Grammar production
 
 ```

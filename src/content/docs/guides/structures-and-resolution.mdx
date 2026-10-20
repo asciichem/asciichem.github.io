@@ -76,6 +76,21 @@ With an engine configured, `asciichem lint` structurally cross-checks
 catching transcription errors that format validation cannot. Python
 wraps the same library via RDKit (`pip install 'asciichem[inchi]'`).
 
+Stereochemistry crosses into the engine: tetrahedral chirality is
+written as MDL atom parity and stated hydrogens as the H-count
+field, so enantiomers derive different InChIs. Directional bonds
+(`/`, `\`) need stereo-aware 2D geometry, which V2000 does not carry
+here — the loss is documented and asserted, not silent.
+
+Reactions get the same treatment through RInChI: the reaction is
+written as an MDL RXN file and passed to the opt-in `rinchi-1`
+binary, yielding the RInChI and its short/long InChIKeys:
+
+```ruby
+AsciiChem::Rinchi.engine = AsciiChem::Rinchi::BinaryEngine.new
+AsciiChem::Rinchi.identity_for(reaction).long_rinchikey
+```
+
 <CardGrid stagger>
   <Card title="Wire form" icon="seti:json">
     The canonical JSON every implementation emits — [/models](/models/).
