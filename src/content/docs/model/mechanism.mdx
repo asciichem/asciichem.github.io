@@ -15,9 +15,16 @@ A reaction mechanism: ordered steps with optional spectator ions.
 ## Step struct
 
 ```ruby
-Mechanism::Step = Struct.new(:label, :reaction,
+Mechanism::Step = Struct.new(:label, :reaction, :flows,
+                             keyword_init: true)
+Mechanism::Flow = Struct.new(:source, :target,
                              keyword_init: true)
 ```
+
+`reaction` is the step's reaction text (the round-trip source);
+`flows` are the electron-flow markers written on the step
+(`| flow: SOURCE > TARGET`, semicolon-separated) — verbatim source
+and target names, and part of the wire form (`steps[].flows`).
 
 See [Reaction mechanisms syntax](/syntax/mechanism/) for input format.
 
