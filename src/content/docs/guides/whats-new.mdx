@@ -75,6 +75,21 @@ independent implementations pass the same corpus.
     definitions, v1 schemas, generated types. Implementations vendor
     from tags; nothing depends on a gem. See [The wire form](/models/).
   </Card>
+  <Card title="Stereo end to end (L3)" icon="seti:default">
+    Tetrahedral chirality (`@`/`@@`) and directional E/Z bonds are
+    model data through text, SMILES, and wire; canonical SMILES emits
+    parity-correct tokens including ring closures, and chirality
+    crosses into InChI as MDL atom parity. See [the levels
+    spec](/guides/conformance-levels/).
+  </Card>
+  <Card title="Reactions as semantics (0.31.x)" icon="seti:default">
+    Typed condition roles (`[cat: Pd; solv: THF]`),
+    `Reaction#stoichiometry` as model data feeding the balance check,
+    a derived mechanism step graph (catalysts and inter-step links),
+    and RInChI keys through the opt-in engine. See [Reaction
+    conditions](/syntax/reactions/#structured-role-entries) and
+    [Mechanism](/model/mechanism/).
+  </Card>
   <Card title="v0.2 foundations" icon="seti:rust">
     Reaction cascades, the linter framework, stereochemistry prefixes,
     all bond kinds, Greek letters, fuzzing and benchmarks — see the
