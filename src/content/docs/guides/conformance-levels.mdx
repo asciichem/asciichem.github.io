@@ -23,6 +23,16 @@ isotopes bind atoms, charges and oxidations are typed, bond kinds and
 directions are model data, reactions carry conditions. The wire form
 (asciichem-model v1) round-trips: model → wire → model is equal.
 
+The **perception pass** is part of L1: chemistry the syntax leaves
+implicit is derived once, as model services, and every implementation
+must derive the same values. Today that covers implicit hydrogens
+(aromatic bonds order 1.5 for H-counting, so `c1ccccc1` and
+`C1=CC=CC=C1` perceive one hydrogen per carbon; a non-integral or
+over-valent sum yields *no answer* rather than an invented one) and
+aromatic rings (six-membered, fused-system sp2 rule; five-membered
+rings are a documented limitation). The shared corpus pins both —
+including the declines.
+
 **L2 — Render.** Every model node renders to MathML (byte-golden
 against the corpus), canonical text, and the wire form. Rendering is
 deterministic across runs — visual and textual regression goldens
@@ -47,8 +57,8 @@ author chose).
 | L0 notation | **yes** | **yes** | **yes** |
 | L1 semantics | **yes** | **yes** | **yes** |
 | L2 render | **yes** (MathML goldens, canonical text, wire) | partial (text + structural SVG; MathML via client render) | partial (text + wire) |
-| L3 stereo | **partial** — SMILES + text + wire shipped; canonical-stereo for ring closures and TS/PY parity in flight | no | no |
-| L4 identity | **partial** — resolver + InChI engine + cross-check shipped; OPSIN adapter pending | no | no |
+| L3 stereo | **partial** — text, SMILES, wire + parity-correct tokens; ring-closure stereo emission pending (#103) | **yes** — chirality, directional bonds, parity-correct canonical SMILES | **yes** — chirality, directional bonds |
+| L4 identity | **partial** — resolver + InChI engine + OPSIN adapter + identifier cross-check shipped; CAS source decision pending | partial (InChI via engine) | no |
 
 The matrix is regenerated from the conformance suite; a level claim
 without the green corpus run behind it does not ship.
