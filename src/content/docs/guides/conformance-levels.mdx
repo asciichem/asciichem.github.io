@@ -1,0 +1,54 @@
+---
+title: Conformance levels
+description: The formal levels spec — L0 notation, L1 semantics, L2 render, L3 stereo, L4 identity — and what each implementation claims today.
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+An implementation's conformance claim is a **level**, not a vibe. The
+levels are cumulative: claiming L(n) means L(0..n−1) hold too, and the
+[shared corpus](/models/#conformance) gates every level — fixtures are
+never edited to make an implementation pass.
+
+## The levels
+
+**L0 — Notation.** The text syntax parses and canonicalizes: every
+documented construct round-trips (`parse(to_text(m)) == m` for every
+model the implementation can represent), rejection is clean
+(`ParseError`, never a crash), and the parser accepts exactly the
+grammar the [PARG contract](/syntax/) describes.
+
+**L1 — Semantics.** The parse is a semantic model, not typography:
+isotopes bind atoms, charges and oxidations are typed, bond kinds and
+directions are model data, reactions carry conditions. The wire form
+(asciichem-model v1) round-trips: model → wire → model is equal.
+
+**L2 — Render.** Every model node renders to MathML (byte-golden
+against the corpus), canonical text, and the wire form. Rendering is
+deterministic across runs — visual and textual regression goldens
+exist for every construct.
+
+**L3 — Stereo.** Tetrahedral parity (`@`/`@@` → TH1/TH2), directional
+bonds (`/`, `\` → up/down), wedge/hash depiction semantics. Stereo
+survives every round-trip (text, SMILES, wire, CML), enantiomers and
+diastereomers stay distinct through the canonical form, and canonical
+SMILES emits parity-correct tokens.
+
+**L4 — Identity.** The model resolves to authoritative identity:
+InChI/InChIKey via the opt-in engine, identifier cross-validation
+(`@inchi`/`@smiles`/`@cas` checked against the structure), and
+citation-grade resolution (one bibitem per (substance, source) the
+author chose).
+
+## Current claims
+
+| Level | Ruby (reference) | TypeScript | Python |
+|---|---|---|---|
+| L0 notation | **yes** | **yes** | **yes** |
+| L1 semantics | **yes** | **yes** | **yes** |
+| L2 render | **yes** (MathML goldens, canonical text, wire) | partial (text + structural SVG; MathML via client render) | partial (text + wire) |
+| L3 stereo | **partial** — SMILES + text + wire shipped; canonical-stereo for ring closures and TS/PY parity in flight | no | no |
+| L4 identity | **partial** — resolver + InChI engine + cross-check shipped; OPSIN adapter pending | no | no |
+
+The matrix is regenerated from the conformance suite; a level claim
+without the green corpus run behind it does not ship.

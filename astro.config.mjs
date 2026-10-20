@@ -92,6 +92,7 @@ export default defineConfig({
           label: "Implementations",
           items: [
             { label: "Overview", slug: "implement" },
+            { label: "Conformance levels", slug: "guides/conformance-levels" },
             { label: "Ruby", slug: "implement/ruby" },
             { label: "TypeScript", slug: "implement/typescript" },
             { label: "Python", slug: "implement/python" },
