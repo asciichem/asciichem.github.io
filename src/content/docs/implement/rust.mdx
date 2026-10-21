@@ -1,6 +1,6 @@
 ---
 title: Rust — asciichem-rs
-description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse and canonical-text round-trip contracts.
+description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse, canonical-text round-trip, and MathML golden contracts.
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -30,6 +30,7 @@ language.
 asciichem::parse("2H_2 + O_2 -> 2H_2O")?;        // Ok when fully captured
 asciichem::parse("C1CCC")?;                       // Err — unclosed ring
 asciichem::parse_to_text("2H_2 + O_2 -> 2H_2O")?; // canonical text, == input
+asciichem::mathml::render("^14C")?;               // byte-exact presentation MathML
 ```
 
 Two behaviours worth knowing:
@@ -53,7 +54,14 @@ the canonical text form byte-identically, gated in CI:
 |---|---|
 | parse/reject | 100% — every corpus case parses or rejects exactly as marked |
 | L1 (text round-trip) | 100% — every round-trip fixture satisfies `parse_to_text(s) == s` |
-| L0, L2-L4 | not yet claimed — the wire form and renderers are the next slices |
+| L2 (MathML goldens) | 100% — every corpus MathML golden renders byte-exactly |
+| L0 (wire form), L2 (SVG) | not yet claimed — the next slices |
+
+The MathML renderer mirrors the reference formatter rule for rule —
+isotopes as `mmultiscripts` left superscripts (the atom-binding fix,
+never a phantom base), `msubsup` for subscript + charge/oxidation,
+conditions as `mover`/`munder`/`munderover` — byte-exact with the L2
+goldens.
 
 The semantic model subset mirrors the reference implementation's
 `TransformRules`: atoms with isotopes, charges, oxidation states, Lewis
@@ -69,9 +77,9 @@ this honestly per implementation.
 
 ## Roadmap
 
-The remaining slices follow the corpus contract: the renderers
-(MathML, SVG), then the wire form. Because the grammar artifact is
-shared, the port is the tree-to-model transform, not the parser.
+The remaining slices follow the corpus contract: the SVG renderers,
+then the wire form. Because the grammar artifact is shared, the port
+is the tree-to-model transform, not the parser.
 
 <CardGrid stagger>
   <Card title="Artifact provenance" icon="seti:json">
