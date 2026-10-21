@@ -1,6 +1,6 @@
 ---
 title: What's new
-description: Structure interchange, resolution, and three corpus-conformant implementations.
+description: Structure interchange, resolution, and four corpus-conformant implementations.
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -89,6 +89,34 @@ independent implementations pass the same corpus.
     electron-flow markers), and RInChI keys through the opt-in engine. See [Reaction
     conditions](/syntax/reactions/#structured-role-entries) and
     [Mechanism](/model/mechanism/).
+  </Card>
+  <Card title="The perception pass" icon="seti:default">
+    One shared chemistry-perception layer — implicit hydrogens that
+    decline rather than invent, and Hückel aromaticity counting
+    (furan, pyrrole, and thiophene perceived from Kekulé bond orders)
+    — conformance-tested through the corpus so every implementation
+    derives the same values. The linter consumes it; the canonicalizer
+    requires it. See [Perception](/guides/perception/).
+  </Card>
+  <Card title="Canonical aromatic SMILES" icon="seti:json">
+    The SMILES writer now consumes the perception pass: Kekulé input
+    canonicalizes to the lowercase aromatic form (`[nH]` for pyrrole
+    nitrogen), deterministically, with corpus fixtures pinning the
+    exact output. See [Canonical form](/guides/canonical-form/).
+  </Card>
+  <Card title="The identity loop, closed" icon="seti:search">
+    OPSIN resolves IUPAC names to structures, identifier cross-checks
+    compare sources, and citations resolve per (substance, source) —
+    with the sources settled: PubChem default, CAS Common Chemistry
+    opt-in under its CC BY-NC terms, attributed. See [Citing
+    substances](/guides/citing-substances/).
+  </Card>
+  <Card title="Four implementations, every gated level" icon="seti:rust">
+    The Rust core completes the set: wire, canonical text, MathML
+    goldens, and SVG byte-exact across renderers — and Python's SVG
+    matches TypeScript byte for byte. Every implementation holds L0
+    through L3, and CI consumes the corpus and model schemas pinned
+    to released tags. See [Implementations](/implement/).
   </Card>
   <Card title="v0.2 foundations" icon="seti:rust">
     Reaction cascades, the linter framework, stereochemistry prefixes,
