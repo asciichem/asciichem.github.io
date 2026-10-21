@@ -1,6 +1,6 @@
 ---
 title: Rust — asciichem-rs
-description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse contract.
+description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse and canonical-text round-trip contracts.
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -27,8 +27,9 @@ or tampered artifact fails loudly instead of parsing a different
 language.
 
 ```rust
-asciichem::parse("2H_2 + O_2 -> 2H_2O")?; // Ok when fully captured
-asciichem::parse("C1CCC");                // Err — unclosed ring
+asciichem::parse("2H_2 + O_2 -> 2H_2O")?;        // Ok when fully captured
+asciichem::parse("C1CCC")?;                       // Err — unclosed ring
+asciichem::parse_to_text("2H_2 + O_2 -> 2H_2O")?; // canonical text, == input
 ```
 
 Two behaviours worth knowing:
@@ -43,24 +44,34 @@ Two behaviours worth knowing:
 
 ## Conformance claim
 
-The Rust implementation claims the **parse contract only** — the
-acceptance/rejection verdict for every fixture case in the shared
-corpus, gated in CI:
+The Rust implementation claims the **parse contract** and the **L1
+text round-trip contract** — every corpus case parses or rejects
+exactly as marked, and every round-trip fixture renders back through
+the canonical text form byte-identically, gated in CI:
 
 | Level | Claim |
 |---|---|
 | parse/reject | 100% — every corpus case parses or rejects exactly as marked |
-| L0-L4 | not yet claimed — the semantic model and renderers are the next slices |
+| L1 (text round-trip) | 100% — every round-trip fixture satisfies `parse_to_text(s) == s` |
+| L0, L2-L4 | not yet claimed — the wire form and renderers are the next slices |
+
+The semantic model subset mirrors the reference implementation's
+`TransformRules`: atoms with isotopes, charges, oxidation states, Lewis
+markers, ring closures and chirality; all bond kinds; groups across
+bracket kinds; molecules with coefficients, stereo and `@`-annotations;
+reactions with all four arrows and bracket conditions; cascades;
+electron configurations; mechanisms with electron-flow flows and
+spectators; quoted text; embedded math. Constructs outside the subset
+report `not yet supported` rather than guessing.
 
 The site's [conformance matrix](/guides/conformance-levels/) reports
 this honestly per implementation.
 
 ## Roadmap
 
-The remaining slices follow the corpus contract: the semantic model
-(wire round-trip), canonical text, then the renderers. Because the
-grammar artifact is shared, the port is the tree-to-model transform,
-not the parser.
+The remaining slices follow the corpus contract: the renderers
+(MathML, SVG), then the wire form. Because the grammar artifact is
+shared, the port is the tree-to-model transform, not the parser.
 
 <CardGrid stagger>
   <Card title="Artifact provenance" icon="seti:json">

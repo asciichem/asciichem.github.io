@@ -54,8 +54,8 @@ author chose).
 
 | Level | Ruby (reference) | TypeScript | Python | Rust |
 |---|---|---|---|---|
-| L0 notation | **yes** | **yes** | **yes** | parse contract only — consumes the PARG artifact; canonicalization not yet claimed |
-| L1 semantics | **yes** | **yes** | **yes** | no |
+| L0 notation | **yes** | **yes** | **yes** | **yes** (canonical text) + parse contract — consumes the PARG artifact |
+| L1 semantics | **yes** | **yes** | **yes** | **yes** (round-trip subset — model subset mirrors the reference TransformRules; out-of-subset constructs report unsupported) |
 | L2 render | **yes** (MathML goldens, canonical text, wire) | partial (text + structural SVG; MathML via client render) | partial (text + wire) | no |
 | L3 stereo | **yes** — text, SMILES, wire, parity-correct tokens, ring closures | **yes** — chirality, directional bonds, parity-correct canonical SMILES | **yes** — chirality, directional bonds | no |
 | L4 identity | **partial** — resolver + InChI engine (stereo layers via molfile parity) + OPSIN adapter + identifier cross-check shipped; CAS source decision pending | partial (InChI via engine) | no | no |
