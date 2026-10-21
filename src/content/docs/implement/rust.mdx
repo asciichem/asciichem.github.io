@@ -1,6 +1,6 @@
 ---
 title: Rust — asciichem-rs
-description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse, wire, canonical-text round-trip, and MathML golden contracts.
+description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse, wire, canonical-text round-trip, MathML golden, and SVG contracts.
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -32,6 +32,7 @@ asciichem::parse("C1CCC")?;                       // Err — unclosed ring
 asciichem::parse_to_text("2H_2 + O_2 -> 2H_2O")?; // canonical text, == input
 asciichem::mathml::render("^14C")?;               // byte-exact presentation MathML
 asciichem::wire::to_model_json(&asciichem::parse_nodes("H_2O")?)?; // v1 wire JSON
+asciichem::svg::render("C1-C-C-C-C-C1")?;         // deterministic 2D skeletal SVG
 ```
 
 Two behaviours worth knowing:
@@ -57,7 +58,7 @@ the canonical text form byte-identically, gated in CI:
 | L0 (wire round-trip) | 100% — every round-trip fixture survives the v1 wire JSON field-for-field |
 | L1 (text round-trip) | 100% — every round-trip fixture satisfies `parse_to_text(s) == s` |
 | L2 (MathML goldens) | 100% — every corpus MathML golden renders byte-exactly |
-| L2 (SVG) | not yet claimed — the next slice |
+| L2 (SVG) | 100% — structural + linear SVG byte-exact with the TypeScript renderers |
 
 The wire form mirrors the reference `WireAdapter` field for field —
 camelCase keys, kebab-case type tags, empty collections omitted — so
@@ -85,9 +86,13 @@ this honestly per implementation.
 
 ## Roadmap
 
-The remaining slice follows the corpus contract: the SVG renderers.
-Because the grammar artifact is shared, the port is the
-tree-to-model transform, not the parser.
+The Rust implementation now covers every conformance level the
+corpus gates. The 2D layout is the same deterministic placer the
+TypeScript implementation uses (rings as regular polygons, fused
+rings anchored on shared atoms, chains as 120-degree zigzags), gated
+by a committed byte-parity reference snapshot. Because the grammar
+artifact is shared, the port is the tree-to-model transform, not the
+parser.
 
 <CardGrid stagger>
   <Card title="Artifact provenance" icon="seti:json">
