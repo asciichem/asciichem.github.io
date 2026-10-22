@@ -1,9 +1,10 @@
 # 66 — Native InChI engine (three-repo program)
 
 - **Priority:** P2
-- **Status:** in-progress — M0, M1 and M2 green (2026-10-22): the
-  native engine reproduces the oracle's formula, `/p` and `/c`
-  segments across the corpus at pin v0.1.1; M3 (mobile-H) next.
+- **Status:** in-progress — M0-M2 green; M3 slice 1 landed
+  (2026-10-22): the `/h` layer emits ±1-standardized attached
+  hydrogens over the tautomer-free slice at corpus pin v0.1.2.
+  Remaining M3: mobile-H groups.
 - **Repos:** `asciichem/inchi-engine` (exploration), `asciichem/inchi-tests`
   (contract), `asciichem/inchi-rs` (production)
 - **Supersedes:** the vendoring follow-up in TODO 48 — the maintainer
@@ -50,7 +51,7 @@ Invariants:
 | M0 | Repos, V2000 reader, gate, corpus `v0.1.0` | done |
 | M1 | Formula layer (Hill/InChI order, implicit H, ±1 `/p`) | done — 1529 fixtures gated |
 | M2 | Canonical ranking + `/c` connection layer | done (2026-10-22, inchi-rs#5) — native canonicalization, corpus green at v0.1.1 |
-| M3 | Mobile-H (`/h`) — m3-tagged fixtures, parenthesized-`/h` fixtures, and triaged ids | pending — next |
+| M3 | Mobile-H (`/h`) — m3-tagged fixtures, parenthesized-`/h` fixtures, and triaged ids | slice 1 done (fixed-H `/h` live); slice 2 = mobile-H groups — next |
 | M4 | Stereo (`/t`, `/b`, `/m`, `/s`) | pending |
 | M5 | InChIKey (SHA-256 base-26 encoding over the canonical string) | pending |
 | M6 | Bindings: PyO3, napi/wasm, Ruby native or C-ABI | pending |
@@ -75,22 +76,29 @@ corpus v0.1.1 with:
 - isotopic fixtures (an `/i` layer, e.g. d2o) counted as isotopic
   skips — isotopes are their own milestone.
 
-## M3 — the next unit of work
+## M3 — remaining work (slice 2)
 
-Mobile-H (`/h`): tautomer-group detection on the graph, t-group nodes
-in the same partition machinery (the reference's `num_at_tg` vertices),
-the `/h` emitter, and the m3/mobile-H fixture slice (currently counted
-gate skips). The 11 triaged formula fixtures revisit here too.
+Slice 1 (done, inchi-rs#6): the fixed-H `/h` layer — counts ascending,
+ranks ascending within a count, consecutive runs as ranges; counts are
+the ±1-standardized ones via `standardization::adjusted_hydrogens`
+(one home, shared with the formula total). Slice 1 also settled an
+open canonicalization question: where connectivity cannot choose
+between automorphic labelings, hydrogen counts do — the search now
+applies a corpus-derived minimum-hydrogen preference at table-equal
+terminals. Eight orbit representatives still choose differently
+(triaged in corpus v0.1.2; revisit with the reference's
+automorphism-orbit pruning, `CanonGraph` L10-L13).
 
-Work:
+Slice 2 — mobile-H groups:
 
 1. Decode the reference's tautomer detection and standard-H
    accounting (`ichitaut.c`) enough for the corpus's mobile-H shapes
    (carboxylic acids, amides, guanidines).
 2. Extend `canonical` with t-group vertices and the digraph mode the
    reference uses when layers participate.
-3. Implement the `/h` emitter; replace the gate's mobile-H skip with
-   real comparisons; absorb the m3 tags and the 11 triaged ids.
+3. Emit the mobile-H groups — `(H,x,y)` — inside `/h`; replace the
+   gate's mobile-H skip with real comparisons; absorb the m3 tags and
+   the triaged mobile-H ids.
 
 ## Testing framework (current)
 
