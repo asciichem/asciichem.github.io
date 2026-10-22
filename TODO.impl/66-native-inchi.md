@@ -64,21 +64,29 @@ Decoded and proven in `inchi-engine` (see `EXPERIMENTS.md`):
   number advances the walk; a seen number closes a ring; parentheses
   push/restore branch points; ranks are a permutation of `1..n`.
 - Replay census: 93/93 recorded `/c` segments are valid emissions of
-  the writer’s molfile graph; 79/93 are symmetric-ambiguous. The
-  remaining problem is therefore the **emission-choice rule**, not
-  connectivity.
+  the writer’s molfile graph; 79/93 are symmetric-ambiguous.
+- The numbering cannot be guessed: minimal emission (benzene disproves
+  it), BFS-layer order (3/188 fixtures), and global min/max connection
+  tables (24/139; chain and ring disagree on direction) all fail.
+  InChI numbers the hydrogen-complete graph with McKay-style
+  canonicalization and compares layered connection tables.
 
 Work:
 
-1. Port the ranking experiment to `inchi-rs` as a `canonical` module:
-   invariants (degree, element, charge, H count), iterative refinement,
-   tie-break by canonical rank order. Test against the oracle rank
-   order recorded per fixture.
-2. Test the minimal-emission hypothesis (lexicographically minimal
-   valid emission, canonical walk start = rank 1) against the full
-   93-fixture census before implementing.
-3. Implement the connection emitter, register
-   `(order::CONNECTION, segment_kind Some('c'))`, extend the gate.
+1. **Done (inchi-rs#4):** `canonical` invariants + 1-WL refinement.
+   Census: 799/1529 fixtures refine to a total order; 730 need
+   individualization (largest class: 12 atoms).
+2. Port the base ranking path from the MIT IUPAC source (read at
+   development time; no C compiled, vendored, or called):
+   `FillOutAtomInvariant2`, `SetInitialRanks2`, `GetCanonRanking2`,
+   `CtPartFill`, `CtPartCompare`, `CtFullCompare`, and the
+   `CanonGraph` search. Build the hydrogen-complete graph exactly as
+   the reference does. Acceptance: reproduced rank orders explain
+   every recorded `/c` in the un-triaged corpus.
+3. Decode the `/c` emission from the canonical table (the walk layout
+   is a function of the numbering), implement the connection emitter,
+   register `(order::CONNECTION, segment_kind Some('c'))`, extend the
+   gate to byte equality.
 
 ## Testing framework (current)
 
