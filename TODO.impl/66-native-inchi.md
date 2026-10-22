@@ -1,9 +1,9 @@
 # 66 — Native InChI engine (three-repo program)
 
 - **Priority:** P2
-- **Status:** in-progress — M0 and M1 green in both engines; M2 slice 1
-  (rules decoded) landed 2026-10-22. Architecture and hardening merged
-  in inchi-rs#3.
+- **Status:** in-progress — M0, M1 and M2 green (2026-10-22): the
+  native engine reproduces the oracle's formula, `/p` and `/c`
+  segments across the corpus at pin v0.1.1; M3 (mobile-H) next.
 - **Repos:** `asciichem/inchi-engine` (exploration), `asciichem/inchi-tests`
   (contract), `asciichem/inchi-rs` (production)
 - **Supersedes:** the vendoring follow-up in TODO 48 — the maintainer
@@ -49,44 +49,48 @@ Invariants:
 |---|---|---|
 | M0 | Repos, V2000 reader, gate, corpus `v0.1.0` | done |
 | M1 | Formula layer (Hill/InChI order, implicit H, ±1 `/p`) | done — 1529 fixtures gated |
-| M2 | Canonical ranking + `/c` connection layer | slice 1 done (grammar decoded); slice 2 next |
-| M3 | Mobile-H (`/h`) — 219 m3-tagged fixtures + 11 triaged | pending |
+| M2 | Canonical ranking + `/c` connection layer | done (2026-10-22, inchi-rs#5) — native canonicalization, corpus green at v0.1.1 |
+| M3 | Mobile-H (`/h`) — m3-tagged fixtures, parenthesized-`/h` fixtures, and triaged ids | pending — next |
 | M4 | Stereo (`/t`, `/b`, `/m`, `/s`) | pending |
 | M5 | InChIKey (SHA-256 base-26 encoding over the canonical string) | pending |
 | M6 | Bindings: PyO3, napi/wasm, Ruby native or C-ABI | pending |
 | M7 | AsciiChem/Metanorma integration; identity claims | pending |
 
-## M2 slice 2 — the next unit of work
+## M2 — outcome (2026-10-22)
 
-Decoded and proven in `inchi-engine` (see `EXPERIMENTS.md`):
+The base canonicalization path is ported natively (inchi-rs#5):
+invariants (element order, heavy-atom degree — deliberately
+hydrogen-free), position-based partitions with equitable refinement
+and individualization, a two-pass search keeping the greatest
+connection table, and the table's DFS emission (`GetDfsOrder4CT`
+shape) into the `/c` segment with `(x,y)z` branch delimiters.
+Hydrogen counts play no role in the `/c` numbering; the alkyne-vs-N
+fixtures proved that empirically. The corpus gate is green at
+corpus v0.1.1 with:
 
-- The `/c` grammar: numbers bond to the current walk atom; a fresh
-  number advances the walk; a seen number closes a ring; parentheses
-  push/restore branch points; ranks are a permutation of `1..n`.
-- Replay census: 93/93 recorded `/c` segments are valid emissions of
-  the writer’s molfile graph; 79/93 are symmetric-ambiguous.
-- The numbering cannot be guessed: minimal emission (benzene disproves
-  it), BFS-layer order (3/188 fixtures), and global min/max connection
-  tables (24/139; chain and ring disagree on direction) all fail.
-  InChI numbers the hydrogen-complete graph with McKay-style
-  canonicalization and compares layered connection tables.
+- every un-triaged, non-mobile-H fixture's `/c` matching byte-for-byte
+  except **breadth-448**, a two-bridge symmetric system triaged with
+  the decoded reason (reachable-set ordering differs; revisit with the
+  reference's automorphism-orbit pruning, `CanonGraph` L10-L13);
+- isotopic fixtures (an `/i` layer, e.g. d2o) counted as isotopic
+  skips — isotopes are their own milestone.
+
+## M3 — the next unit of work
+
+Mobile-H (`/h`): tautomer-group detection on the graph, t-group nodes
+in the same partition machinery (the reference's `num_at_tg` vertices),
+the `/h` emitter, and the m3/mobile-H fixture slice (currently counted
+gate skips). The 11 triaged formula fixtures revisit here too.
 
 Work:
 
-1. **Done (inchi-rs#4):** `canonical` invariants + 1-WL refinement.
-   Census: 799/1529 fixtures refine to a total order; 730 need
-   individualization (largest class: 12 atoms).
-2. Port the base ranking path from the MIT IUPAC source (read at
-   development time; no C compiled, vendored, or called):
-   `FillOutAtomInvariant2`, `SetInitialRanks2`, `GetCanonRanking2`,
-   `CtPartFill`, `CtPartCompare`, `CtFullCompare`, and the
-   `CanonGraph` search. Build the hydrogen-complete graph exactly as
-   the reference does. Acceptance: reproduced rank orders explain
-   every recorded `/c` in the un-triaged corpus.
-3. Decode the `/c` emission from the canonical table (the walk layout
-   is a function of the numbering), implement the connection emitter,
-   register `(order::CONNECTION, segment_kind Some('c'))`, extend the
-   gate to byte equality.
+1. Decode the reference's tautomer detection and standard-H
+   accounting (`ichitaut.c`) enough for the corpus's mobile-H shapes
+   (carboxylic acids, amides, guanidines).
+2. Extend `canonical` with t-group vertices and the digraph mode the
+   reference uses when layers participate.
+3. Implement the `/h` emitter; replace the gate's mobile-H skip with
+   real comparisons; absorb the m3 tags and the 11 triaged ids.
 
 ## Testing framework (current)
 

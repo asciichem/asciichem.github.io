@@ -113,7 +113,7 @@ implementations). Each file names the TODO.v2 plan it implements.
 | 63 | [Parsanol 1.3.13 re-check](63-parsanol-recheck.md) | gem | **done** — 221/221 corpus-green under compat; native blocked upstream (not adopted) |
 | 64 | [Opt-in Parsanol engine](64-parsanol-engine.md) | gem | **done** — same rules over the Rust core, 1981/0 under both engines, 2.4x; 0.29.0 |
 | 65 | [elkrb 2.0 migration](65-elkrb-2-migration.md) | gem | **done** — single layout seam, floor ~> 2.0, goldens byte-identical |
-| 66 | [Native InChI engine](66-native-inchi.md) | inchi-tests, inchi-rs, inchi-engine | **in progress** — M0/M1 green, M2 rules decoded; no oracle at runtime |
+| 66 | [Native InChI engine](66-native-inchi.md) | inchi-tests, inchi-rs, inchi-engine | **in progress** — M0–M2 green (formula, /p, /c native, corpus v0.1.1); M3 mobile-H next |
 
 ## Status snapshot (2026-09-09)
 
