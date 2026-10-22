@@ -48,10 +48,14 @@ never-resolved molecules. Never reimplement InChI.
 
 ## Follow-ups (gated)
 
-- Vendoring the IUPAC libinchi (Ruby FFI adapter): blocked on the
-  licence review — maintainer decision, never done unilaterally.
+- Native engine program moved to [TODO 66](66-native-inchi.md): the
+  maintainer directed a native implementation across runtimes
+  (2026-10-21), so "never reimplement InChI" in the Motivation above is
+  superseded. Vendoring the IUPAC libinchi remains closed — the IUPAC
+  binary is a development-time oracle only.
 - TS inchi-wasm adapter: blocked on a published WASM build pairing
-  with TODO.v2 11/12.
+  with TODO.v2 11/12; the native engine (TODO 66, M6) is the intended
+  producer.
 - Resolver Layer-2 structural comparison currently rides the
   linter's engine when configured; folding it into
   `Resolver.resolve!` directly is future polish, not contract.
