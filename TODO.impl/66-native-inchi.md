@@ -121,12 +121,14 @@ S/P valence model lands.
 The aromaticity slice (inchi-rs#11, corpus v0.1.8/v0.1.9): Kekulé
 ring perception marks ring bonds aromatic; the shift walk crosses an
 aromatic bond in either parity; the 1,5 walk terminates on a double
-bond (phenol OH's and quinones stay fixed). Measured with every
-fixture compared: **54 entries retired, net residue 180 → 175**
-(49 newly-exposed + 126 carried, all dated). A second measurement
-hazard surfaced and was contained: triage-skip makes partial
-retirement look bigger than it is — counts only count when every
-fixture is compared.
+bond (phenol OH's and quinones stay fixed). **The gate now compares
+every fixture and classifies the result — pass, expected-failure
+skip (triage), RETIREMENT (asserted empty: a triaged fixture that
+passes blocks CI until its entry is withdrawn), isotopic,
+beyond-±1** (inchi-rs#12): the triage-skip measurement hazard that
+produced two vacuous zero-failure readings is designed out. Residue:
+175 expected failures (49 quinone/azine phase bookkeeping + 126
+carried), all dated.
 
 Next slices:
 
