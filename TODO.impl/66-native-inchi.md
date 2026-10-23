@@ -126,13 +126,20 @@ every fixture and classifies the result — pass, expected-failure
 skip (triage), RETIREMENT (asserted empty: a triaged fixture that
 passes blocks CI until its entry is withdrawn), isotopic,
 beyond-±1** (inchi-rs#12): the triage-skip measurement hazard that
-produced two vacuous zero-failure readings is designed out. Residue:
-175 expected failures (49 quinone/azine phase bookkeeping + 126
-carried), all dated.
+produced two vacuous zero-failure readings is designed out — and it
+immediately proved itself by catching corpus v0.2.0, which triaged
+two fixtures from a skipped-comparison run (recorded as false;
+v0.2.1 restores the measured set). The S-endpoint experiment
+(thioamide groups) was reverted as net-negative — sulfurs over-merge
+through aromatic and phosphate systems. Residue: **175 expected
+failures** (quinone/azine phase bookkeeping + thioamide/aci cases),
+all dated; ground truth stable at pass 1337 / skips 175 / iso 2 /
+beyond-±1 15.
 
 Next slices:
 
-1. The exact template phase/capacity table (quinone/azine systems)
+1. The exact template phase/capacity table over quinone/azine AND
+   thioamide systems (S endpoints with acceptor-only participation)
    — retires the 175.
 2. Then M4 stereo.
 
