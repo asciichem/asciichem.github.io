@@ -90,7 +90,15 @@ terminals. Eight orbit representatives still choose differently
 (triaged in corpus v0.1.2; revisit with the reference's
 automorphism-orbit pruning, `CanonGraph` L10-L13).
 
-Slice 2 — outcome (2026-10-23, inchi-rs#7 + #8): mobile-H groups
+Slice 3 — outcome (2026-10-23, inchi-rs#9): the m3 slice gates.
+The implicit-hydrogen model is the allowed-valence rule (smallest
+allowed valence absorbing the bond-order sum; S {2,4,6}, P {3,5});
+hypervalent oxo chemistry stops inventing hydrogens. The gate drops
+its m3 and S/P skips: with corpus v0.1.5 the whole 1529-fixture
+suite gates green (pass 1332; skips = 180 triaged + 2 isotopic + 15
+beyond-±1).
+
+Slices 1-2 — outcome (2026-10-23, inchi-rs#7 + #8): mobile-H groups
 gate live, and the canonicalization is rebuilt as the reference's
 actual two-stage base flow. Stage 1 is hydrogen-blind (invariants,
 refinement, individualization, greatest table) and collects
@@ -112,11 +120,10 @@ S/P valence model lands.
 
 Next slices:
 
-1. ichitaut template port (retires the 98 residue entries) and the
-   auxiliary-ranking fidelity detail (retires the 11).
-2. The S/P valence model (sulfuric/phosphoric: fixed S-H + 4-O
-   groups) as its own unit.
-3. Then M4 stereo.
+1. The BNS valence-flow + ichitaut template port (retires the 180
+   triage entries: 98 tautomer-parity, 51 S/P-adjacent normalization,
+   11 auxiliary-ranking representatives, 20 seed-era).
+2. Then M4 stereo.
 
 ## Testing framework (current)
 
