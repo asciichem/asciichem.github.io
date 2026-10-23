@@ -143,10 +143,22 @@ capable S-H/thiolate donor — never as an S=O or sulfide single bond.
 zero post-withdrawal). Also lands the v0.2.1 pin that a working-tree
 switch had silently dropped from inchi-rs main.
 
+The residue diagnostic (inchi-rs#15) decodes the 152 into two
+patterns the template table must encode:
+
+- **73 extra-groups**: 1,5 walks cross BETWEEN ring systems (a
+  hydroxyquinone hydroxyl joining a neighboring carbonyl through the
+  aromatic ring) where the oracle's template stays within one ring
+  or exocyclic system.
+- **63 members-differ**: same endpoints, different pairing — the
+  oracle pairs each endpoint with its adjacent anchor's partner
+  ((H,7,8)(H,9,10)); ours pairs across anchors ((H,7,9)(H,8,10)).
+- 16 missing-groups.
+
 Next slices:
 
-1. The exact template phase/capacity table over quinone/azine and
-   the remaining thio systems — retires the 152.
+1. Encode those two patterns: walks confined to one ring/exocyclic
+   system, and adjacency-first endpoint pairing — retires the 152.
 2. Then M4 stereo.
 
 ## Testing framework (current)
