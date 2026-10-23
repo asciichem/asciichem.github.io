@@ -136,11 +136,17 @@ failures** (quinone/azine phase bookkeeping + thioamide/aci cases),
 all dated; ground truth stable at pass 1337 / skips 175 / iso 2 /
 beyond-±1 15.
 
+The thio-acceptor slice (inchi-rs#14, corpus v0.2.2): S joins a
+mobile group only as a thiocarbonyl acceptor (=S off a carbon) or a
+capable S-H/thiolate donor — never as an S=O or sulfide single bond.
+**23 entries retired: residue 152** (pass 1337, retirements asserted
+zero post-withdrawal). Also lands the v0.2.1 pin that a working-tree
+switch had silently dropped from inchi-rs main.
+
 Next slices:
 
-1. The exact template phase/capacity table over quinone/azine AND
-   thioamide systems (S endpoints with acceptor-only participation)
-   — retires the 175.
+1. The exact template phase/capacity table over quinone/azine and
+   the remaining thio systems — retires the 152.
 2. Then M4 stereo.
 
 ## Testing framework (current)
