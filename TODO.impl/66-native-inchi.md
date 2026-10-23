@@ -1,7 +1,7 @@
 # 66 — Native InChI engine (three-repo program)
 
 - **Priority:** P2
-- **Status:** in-progress — M0-M2 green; M3 slice 2 landed
+- **Status:** in-progress — M0-M2 green; M3 mobile-H at corpus v0.2.3
   (2026-10-23): mobile-H groups gate live at corpus pin v0.1.3
   (carboxyl, amide, urea, amidine patterns byte-exact); the
   tautomer-parity residue (98 fixtures) is triaged with dated reasons
@@ -155,11 +155,24 @@ patterns the template table must encode:
   ((H,7,8)(H,9,10)); ours pairs across anchors ((H,7,9)(H,8,10)).
 - 16 missing-groups.
 
+The template-table slice (inchi-rs#16, corpus v0.2.3): the ichitaut
+endpoint semantics ported — endpoint valence arithmetic (O/S/Se/Te 2,
+N 3; the H + bond-sum fill decides donor vs acceptor; overflow
+disqualifies, so nitro N and sulfone S drop out without special
+cases), complementary-role shift walks with the π-run grammar, and
+stage-2 ranking on numHNoTautH (mobile H removed — the members-differ
+half of the decoded residue was terminal-O ordering, not pairing).
+Also fixes the #11 aromatic-marking bug (the cycle loop inserted atom
+numbers as bond indices). **92 entries retired: residue 64** (pass
+1356, iso 2, beyond-15). The 4 new entries share one signature — the
+reference's iterative re-registration (pass-1 tautomeric bonds change
+what pass 2 sees) — recorded dated; retire with an
+iterative-registration port if M4+ leaves room.
+
 Next slices:
 
-1. Encode those two patterns: walks confined to one ring/exocyclic
-   system, and adjacency-first endpoint pairing — retires the 152.
-2. Then M4 stereo.
+1. M4 stereo (`/t`, `/b`, `/m`, `/s`).
+2. M5 InChIKey, then M6 bindings, M7 integration.
 
 ## Testing framework (current)
 
