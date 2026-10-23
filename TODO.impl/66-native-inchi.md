@@ -118,12 +118,20 @@ orbit-representative entries (auxiliary-ranking construction
 fidelity) — triaged v0.1.3/v0.1.4; S/P structures skip until the
 S/P valence model lands.
 
+Refinements (inchi-rs#10) sharpened the boundary without shrinking
+it: shift paths may anchor and pass through endpoints, nitro-N
+donors stay fixed — group membership reshuffles, the count stays
+180. A zero-skip corpus release (v0.1.6) was made prematurely and
+REVERTED by v0.1.7 (entries restored with a dated amendment; the
+record names the reversal).
+
 Next slices:
 
-1. The BNS valence-flow + ichitaut template port (retires the 180
-   triage entries: 98 tautomer-parity, 51 S/P-adjacent normalization,
-   11 auxiliary-ranking representatives, 20 seed-era).
-2. Then M4 stereo.
+1. Aromaticity perception + delocalized-bond templates (the residue's
+   root: amino-azine ring tautomerism runs over delocalized ring
+   bonds) — retires the tautomer-parity and S/P-adjacent entries.
+2. Auxiliary-ranking construction fidelity (11 entries).
+3. Then M4 stereo.
 
 ## Testing framework (current)
 
