@@ -90,24 +90,30 @@ terminals. Eight orbit representatives still choose differently
 (triaged in corpus v0.1.2; revisit with the reference's
 automorphism-orbit pruning, `CanonGraph` L10-L13).
 
-Slice 2 — outcome (2026-10-23, inchi-rs#7): mobile-H groups gate
-live. The decoded shape: groups are O/N endpoints linked through the
-documented 1,3 and 1,5 alternating single/double paths with
-shift-capable donors (H or negative charge) and non-endpoint
-intermediates; a group's H count is the ±1-standardized sum over its
-endpoints (acetate's mobile H rides (H,3,4)); groups emit after the
-fixed entries, ordered by member count then first rank. The
-heavy-atom numbering is UNCHANGED from the t-group-free
-canonicalization — verified 617/617 on the mobile slice before any
-t-group machinery. Residue (98 fixtures): the reference's
-template-based grouping over ring-conjugated systems and nitro/aci
-standardization — triaged v0.1.3; S/P structures skip until the S/P
-valence model lands (207 of 208 m3 tags are that scope).
+Slice 2 — outcome (2026-10-23, inchi-rs#7 + #8): mobile-H groups
+gate live, and the canonicalization is rebuilt as the reference's
+actual two-stage base flow. Stage 1 is hydrogen-blind (invariants,
+refinement, individualization, greatest table) and collects
+automorphism orbits from table-equal terminals; stage 2 rebuilds the
+initial partition from (orbit-minimal base rank, hydrogen count),
+orders candidates by that auxiliary rank (CellGetMinNode with
+nAuxRank), skips automorphic repeats, and keeps the greatest
+(table, H) terminal. The heavy-atom numbering itself is
+t-group-independent (617/617 verified).
 
-Next slice — ichitaut template port:
+**Goal item 2 achieved: all nine previously triaged /c and /h
+disagreements retired — breadth-448 included** (its labeling was
+never unreachable; it lives in the stage-2 ordering). Residue: 98
+tautomer-parity entries (ring-conjugated and nitro/aci template
+merges; the ichitaut port retires them) plus 11 stage-2
+orbit-representative entries (auxiliary-ranking construction
+fidelity) — triaged v0.1.3/v0.1.4; S/P structures skip until the
+S/P valence model lands.
 
-1. Port the reference's template-based tautomer grouping
-   (`ichitaut.c`) to retire the 98 residue triage entries.
+Next slices:
+
+1. ichitaut template port (retires the 98 residue entries) and the
+   auxiliary-ranking fidelity detail (retires the 11).
 2. The S/P valence model (sulfuric/phosphoric: fixed S-H + 4-O
    groups) as its own unit.
 3. Then M4 stereo.
