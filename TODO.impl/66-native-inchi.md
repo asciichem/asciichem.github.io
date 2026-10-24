@@ -213,11 +213,27 @@ options `-AuxNone -NoLabels -Key`):
   gem writes (the seed alanine pair is the pattern); breadth stays
   coordinate-free.
 
+## M4 — slice 2: double-bond `/b` — DONE (2026-10-24)
+
+Landed (inchi-rs#18, corpus v0.2.5): the oracle honors E/Z from 2D
+coordinates (cis/trans bond codes untested — coordinates are the
+carrier the gem layouts provide). A stereogenic double bond needs two
+distinct ligands at each end (terminal =CH2 out) and sits outside
+rings smaller than 8; the reference ligands are the highest canonical
+ranks at each end, and the sign is + when they lie on opposite sides
+of the drawn bond, − when on the same side. Degenerate or collinear
+layouts carry no stereo — the coordinate-free breadth corpus records
+no /b, exactly as the oracle behaves over the same coordinates. Pair
+format: endpoint ranks descending (b4-3+); /b orders between /p and
+/t (the order constants had T and B swapped). Validated 10/10 on the
+E/Z tranche (inchi-tests#16, recorded over hand-laid layouts since
+the gem writer does not yet carry E/Z through its layout — the
+stereo-ez-molfile-loss class documents that). Layer order: /b, /t,
+/m, /s.
+
 Next slices:
 
-1. M4 slice 2: double-bond `/b` (probe which E/Z carrier the oracle
-   honors — coordinates or cis/trans bond codes).
-2. M5 InChIKey, then M6 bindings, M7 integration.
+1. M5 InChIKey, then M6 bindings, M7 integration, hardening.
 
 ## Testing framework (current)
 
