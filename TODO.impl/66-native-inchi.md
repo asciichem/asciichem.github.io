@@ -55,7 +55,7 @@ Invariants:
 | M3 | Mobile-H (`/h`) — m3-tagged fixtures, parenthesized-`/h` fixtures, and triaged ids | slices 1-2 done (fixed-H + mobile groups live); ichitaut-parity residue triaged; S/P valence pending |
 | M4 | Stereo (`/t`, `/b`, `/m`, `/s`) | done (2026-10-24, slices 1-2, inchi-rs#17/#18) |
 | M5 | InChIKey (SHA-256 base-26 encoding over the canonical string) | done (2026-10-24, inchi-rs#19) — 1559/1559 recorded keys reproduce |
-| M6 | Bindings: PyO3, napi/wasm, Ruby native or C-ABI | pending |
+| M6 | Bindings: PyO3, napi/wasm, Ruby native or C-ABI | done (2026-10-24, inchi-rs#20): dependency-free C ABI (cdylib) + feature-gated PyO3/wasm/napi |
 | M7 | AsciiChem/Metanorma integration; identity claims | pending |
 
 ## M2 — outcome (2026-10-22)
@@ -233,9 +233,8 @@ stereo-ez-molfile-loss class documents that). Layer order: /b, /t,
 
 Next slices:
 
-1. M6 bindings (PyO3, napi/wasm, Ruby native), then M7 integration
-   and identity claims, then hardening (criterion, proptest,
-   cargo-fuzz, corpus scaling).
+1. M7 integration and identity claims, then hardening (criterion,
+   proptest, cargo-fuzz, corpus scaling).
 
 ## Testing framework (current)
 
