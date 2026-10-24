@@ -169,7 +169,24 @@ reference's iterative re-registration (pass-1 tautomeric bonds change
 what pass 2 sees) — recorded dated; retire with an
 iterative-registration port if M4+ leaves room.
 
-## M4 — slice 1: tetrahedral `/t` `/m` `/s` (open)
+## M4 — slice 1: tetrahedral `/t` `/m` `/s` — DONE (2026-10-24)
+
+Landed (inchi-rs#17, corpus v0.2.4): the reference's atom parity
+ported — heavy ligands in neighbor order (molfile bond order) lifted
+to 3D with the wedge z = ± drawn length, the implicit hydrogen
+closing the tetrahedron at −(sum), the triple product of ligands 1,
+2, H from ligand 0 giving odd/even, inverted once for the appended H,
+composed with the input→canonical permutation and one global
+convention constant. `/m` is the first center's parity; the meso case
+(same-orbit centers, opposite parity) emits bare `/t`. The decode
+journey is the lesson: bond-order-only parity models fail (the wedge
+sign reaches the parity only through the H closure), the neighbor
+order is bond order not atom-number, and the `/m` n-term was an
+artifact of fitting against the pre-closure parity. Validated on the
+20-fixture stereo tranche (inchi-tests#15: enantiomer pairs, adjacent
+dicentres, both meso forms) — 20/20 — plus the 12-layout probe grid
+and the 4-case dichlorobutane grid as unit tests. Original probe
+notes kept below for the record.
 
 Probed with the dev-time oracle (1.07.5, file interface; record
 options `-AuxNone -NoLabels -Key`):
@@ -198,9 +215,8 @@ options `-AuxNone -NoLabels -Key`):
 
 Next slices:
 
-1. M4 slice 1 (above), then M4 slice 2: double-bond `/b` (needs E/Z
-   carriers in the corpus molfiles — coordinates or cis/trans bond
-   codes; probe which the oracle honors).
+1. M4 slice 2: double-bond `/b` (probe which E/Z carrier the oracle
+   honors — coordinates or cis/trans bond codes).
 2. M5 InChIKey, then M6 bindings, M7 integration.
 
 ## Testing framework (current)
