@@ -58,7 +58,7 @@ author chose).
 | L1 semantics | **yes** | **yes** | **yes** | **yes** (round-trip subset — model subset mirrors the reference TransformRules; out-of-subset constructs report unsupported) |
 | L2 render | **yes** (MathML goldens, canonical text, wire) | **yes** (text, structural SVG, MathML goldens, wire) | **yes** (text, wire, MathML goldens, SVG byte-exact with TS) | **yes** (MathML goldens, canonical text, wire, SVG) |
 | L3 stereo | **yes** — text, SMILES, wire, parity-correct tokens, ring closures | **yes** — chirality, directional bonds, parity-correct canonical SMILES | **yes** — chirality, directional bonds | no |
-| L4 identity | **partial** — resolver + InChI engine (stereo layers via molfile parity) + OPSIN adapter + identifier cross-check shipped; sources settled: PubChem default, Common Chemistry opt-in (CC BY-NC, attributed) | partial (InChI via engine) | no | no |
+| L4 identity | **yes** — resolver + InChI engine (now native-capable: the `NativeEngine` drives the Rust engine's C ABI; the binary engine remains the fallback) + OPSIN adapter + identifier cross-check shipped; sources settled: PubChem default, Common Chemistry opt-in (CC BY-NC, attributed) | partial (InChI via engine) | no | **yes** — the native engine ([inchi-rs](https://github.com/asciichem/inchi-rs)): full identifier, /t /m /s /b stereo layers, and the InChIKey natively computed, gated 1559/1559 against the recorded oracle corpus; reachable from Ruby through the NativeEngine and from Python/JS through its C ABI and bindings |
 
 The matrix is regenerated from the conformance suite; a level claim
 without the green corpus run behind it does not ship.
