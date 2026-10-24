@@ -6,6 +6,19 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-10-24 — Native InChI: the engine is complete
+
+The native InChI program is done: the Rust engine
+([inchi-rs](https://github.com/asciichem/inchi-rs)) derives the full
+standard identifier natively — canonical numbering, mobile-H groups,
+tetrahedral and double-bond stereo, and the InChIKey, with a
+dependency-free SHA-256 — gated 1559/1559 against the recorded
+oracle corpus. It ships as a library, a C ABI (cdylib), and
+feature-gated Python/WASM/Node bindings, and the Ruby gem drives it
+through `AsciiChem::Inchi::NativeEngine`. The sixty-four remaining
+corpus disagreements are triaged with dated, decoded reasons. See
+the [conformance matrix](/guides/conformance-levels/).
+
 ## 2026-07-21 — AsciiChem v0.18: Strict body validation — TODO.complete FINISHED
 
 v0.18.0 completes the final item in TODO.complete (all 17 phases
