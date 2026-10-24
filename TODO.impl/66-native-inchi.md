@@ -169,9 +169,38 @@ reference's iterative re-registration (pass-1 tautomeric bonds change
 what pass 2 sees) — recorded dated; retire with an
 iterative-registration port if M4+ leaves room.
 
+## M4 — slice 1: tetrahedral `/t` `/m` `/s` (open)
+
+Probed with the dev-time oracle (1.07.5, file interface; record
+options `-AuxNone -NoLabels -Key`):
+
+- The V2000 atom-parity field is IGNORED for 2D input, and so are
+  wedges with degenerate (zeroed) coordinates — the stereo input
+  contract is a real 2D layout PLUS a wedge (1) / dash (6) bond-stereo
+  code whose FIRST atom is the stereocenter (the gem's molfile writer
+  already emits exactly this shape: centre→neighbour, TH1 up/TH2
+  down, with layout).
+- Single-center evidence (2-butanol, center = canonical rank 4):
+  every reading emits `/t4-`; the enantiomers differ ONLY in `/m`
+  (wedge to the rank-2 ligand up → m1; to the rank-3 ligand up →
+  m0; dash flips it). Model: `m = input_parity ⊕ parity(input→canonical
+  ligand permutation) ⊕ const`, `t` char per-center with H as the
+  last ligand — pin the constant and the H-placement rule with
+  two-center probes (pseudoephedrine pair) during implementation.
+- Work: molfile.rs reads the bond-stereo field; perception = wedge
+  atoms with 4 distinct ligands (implicit H included); canonical
+  parity = input parity composed with the ligand permutation under
+  canonical ranks; emit `/t…`, `/m…`, `/s1`; the gate starts
+  comparing the t/m/s kinds.
+- Corpus: a stereo tranche recorded from parity+wedge molfiles the
+  gem writes (the seed alanine pair is the pattern); breadth stays
+  coordinate-free.
+
 Next slices:
 
-1. M4 stereo (`/t`, `/b`, `/m`, `/s`).
+1. M4 slice 1 (above), then M4 slice 2: double-bond `/b` (needs E/Z
+   carriers in the corpus molfiles — coordinates or cis/trans bond
+   codes; probe which the oracle honors).
 2. M5 InChIKey, then M6 bindings, M7 integration.
 
 ## Testing framework (current)
