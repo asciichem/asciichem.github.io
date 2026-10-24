@@ -53,8 +53,8 @@ Invariants:
 | M1 | Formula layer (Hill/InChI order, implicit H, ±1 `/p`) | done — 1529 fixtures gated |
 | M2 | Canonical ranking + `/c` connection layer | done (2026-10-22, inchi-rs#5) — native canonicalization, corpus green at v0.1.1 |
 | M3 | Mobile-H (`/h`) — m3-tagged fixtures, parenthesized-`/h` fixtures, and triaged ids | slices 1-2 done (fixed-H + mobile groups live); ichitaut-parity residue triaged; S/P valence pending |
-| M4 | Stereo (`/t`, `/b`, `/m`, `/s`) | pending |
-| M5 | InChIKey (SHA-256 base-26 encoding over the canonical string) | pending |
+| M4 | Stereo (`/t`, `/b`, `/m`, `/s`) | done (2026-10-24, slices 1-2, inchi-rs#17/#18) |
+| M5 | InChIKey (SHA-256 base-26 encoding over the canonical string) | done (2026-10-24, inchi-rs#19) — 1559/1559 recorded keys reproduce |
 | M6 | Bindings: PyO3, napi/wasm, Ruby native or C-ABI | pending |
 | M7 | AsciiChem/Metanorma integration; identity claims | pending |
 
@@ -233,7 +233,9 @@ stereo-ez-molfile-loss class documents that). Layer order: /b, /t,
 
 Next slices:
 
-1. M5 InChIKey, then M6 bindings, M7 integration, hardening.
+1. M6 bindings (PyO3, napi/wasm, Ruby native), then M7 integration
+   and identity claims, then hardening (criterion, proptest,
+   cargo-fuzz, corpus scaling).
 
 ## Testing framework (current)
 
