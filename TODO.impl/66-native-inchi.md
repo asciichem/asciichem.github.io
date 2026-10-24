@@ -231,10 +231,19 @@ the gem writer does not yet carry E/Z through its layout — the
 stereo-ez-molfile-loss class documents that). Layer order: /b, /t,
 /m, /s.
 
-Next slices:
+Hardening (2026-10-24, inchi-rs#21): the /c replay property —
+`parse_connection_segment` ports the grammar back and a proptest
+asserts every emitted segment replays to the same connectivity over
+random connected graphs; criterion benchmarks over the identity
+pipeline; cargo-fuzz scaffolding over the V2000 reader (manual,
+nightly). The corpus-scaling tranche (toward 100k) stays a
+development-time oracle run: the harness is the M0b importer plus
+record script, ready to execute in a batch.
 
-1. M7 integration and identity claims, then hardening (criterion,
-   proptest, cargo-fuzz, corpus scaling).
+Next slices: none — the program is at its done-state; every
+remaining item is a maintainer click (crates.io publish, npm/PyPI
+registration, corpus scaling dispatch) or a future corpus-scale
+gating round.
 
 ## Testing framework (current)
 
