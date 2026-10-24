@@ -111,6 +111,15 @@ independent implementations pass the same corpus.
     opt-in under its CC BY-NC terms, attributed. See [Citing
     substances](/guides/citing-substances/).
   </Card>
+  <Card title="Native InChI, no binary at runtime" icon="seti:rust">
+    The Rust engine derives the full standard identifier — canonical
+    numbering, mobile-H groups, stereo layers, and the InChIKey with
+    a dependency-free SHA-256 — gated 1559/1559 against the recorded
+    oracle corpus. It ships as a Rust library, a C ABI, and
+    Python/WASM/Node bindings; the Ruby gem reaches it through
+    `AsciiChem::Inchi::NativeEngine`. See
+    [Identity](/guides/structures-and-resolution/).
+  </Card>
   <Card title="Four implementations, every gated level" icon="seti:rust">
     The Rust core completes the set: wire, canonical text, MathML
     goldens, and SVG byte-exact across renderers — and Python's SVG
