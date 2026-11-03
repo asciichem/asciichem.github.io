@@ -65,6 +65,21 @@ H_2O @logp("-0.5")
 
 Maps to CML `<property title="mw"><scalar>18.015</scalar></property>`.
 
+## Cite
+
+`@cite("source")` is a property annotation (title `cite`) that names
+the resolver source a substance should be cited from. It chains like
+any annotation and round-trips like any annotation:
+
+```asciichem
+CC(=O)OC1=CC=CC=C1C(=O)O @cas("50-78-2") @cite("pubchem")
+```
+
+The annotation itself carries no citation — the citation builder
+resolves the molecule's identifiers against the named source and
+emits a dataset-type bibitem. See
+[Citing substances](/guides/citing-substances/).
+
 ## Metadata
 
 Key-value metadata pairs using `@meta("key","value")`:

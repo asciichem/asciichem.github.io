@@ -37,6 +37,11 @@ The supported subset is honest about its edges: chirality (`@`) and
 E/Z bond directions (`/` `\`) raise actionable errors rather than
 silently dropping stereo.
 
+The [playground](/playground/) takes all three grammars side by side —
+type AsciiChem, paste a database SMILES, or paste a molfile and watch
+its coordinates drive the diagram. Same model, same renderers, in
+your browser.
+
 ## Resolution
 
 Resolution turns identifiers into substance records with provenance
@@ -96,6 +101,11 @@ AsciiChem::Rinchi.identity_for(reaction).long_rinchikey
     The canonical JSON every implementation emits — [/models](/models/).
   </Card>
   <Card title="Live renderer" icon="seti:default">
-    Parse and draw structures in the browser — [/playground](/playground/).
+    AsciiChem, SMILES, and molfile in, diagrams and wire JSON out —
+    [/playground](/playground/).
+  </Card>
+  <Card title="Cite what you resolve" icon="seti:doc">
+    Provenance becomes dataset-type citations —
+    [Citing substances](/guides/citing-substances/).
   </Card>
 </CardGrid>
