@@ -3,6 +3,8 @@ title: Citing substances
 description: One bibitem per (substance, source) - resolution provenance becomes machine-checkable citations.
 ---
 
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
 A molecule in a standards document is a *substance with identity*, not
 glyphs. AsciiChem closes that loop: resolve an identifier, then emit a
 **dataset-type Relaton bibitem** for the source you choose to cite.
@@ -20,11 +22,10 @@ From the CLI:
 asciichem cite --cas 50-78-2
 ```
 
-The bibitem carries the publisher, an accessed date from the
-resolution's provenance, a source-specific docidentifier (`PubChem
-CID 2244`, `CAS RN 50-78-2`), and **every identifier as a keyword** —
-so a citation is machine-checkable against its InChIKey long after
-the page numbers change.
+A bibitem can only be built from a *resolved* substance — the
+resolver's provenance (source, retrieved-at, attribution) is what the
+citation is made of. Ask a hand-built substance for a bibitem and the
+builder tells you to resolve it first.
 
 ## Citing what you typed: `@cite`
 
@@ -49,24 +50,126 @@ AsciiChem::Citation.for_molecule(molecule)
 `[source, bibitem]` pair per cited source. Annotate once, cite
 anywhere — the citation follows the molecule through every format.
 
+## Anatomy of a dataset bibitem
+
+This is the real output for aspirin resolved from PubChem (whitespace
+as emitted):
+
+```xml
+<bibitem id="PubChemCID2244" type="dataset">
+  <title type="main">2-acetyloxybenzoic acid - PubChem, U.S.
+    National Library of Medicine substance record</title>
+  <uri type="src">https://pubchem.ncbi.nlm.nih.gov/compound/2244</uri>
+  <docidentifier type="pubchem">PubChem CID 2244</docidentifier>
+  <date type="accessed">
+    <on>2026-11-03</on>
+  </date>
+  <contributor>
+    <role type="publisher"/>
+    <organization>
+      <name>PubChem, U.S. National Library of Medicine</name>
+    </organization>
+  </contributor>
+  <keyword><vocab>pubchem-cid=2244</vocab></keyword>
+  <keyword><vocab>inchikey=BSYNRYMUTXBXSQ-UHFFFAOYSA-N</vocab></keyword>
+  <keyword><vocab>inchi=InChI=1S/C9H8O4/...</vocab></keyword>
+  <keyword><vocab>canonical-smiles=CC(=O)OC1=CC=CC=C1C(=O)O</vocab></keyword>
+</bibitem>
+```
+
+Every field answers a data-citation question (who published this,
+what exactly, where, as of when) — and the keywords carry *every
+identifier the source returned*, so a citation stays machine-checkable
+against its InChIKey long after a URL changes.
+
+Per source, the fields differ the way two documents about one
+substance differ:
+
+| Field | PubChem | CAS Common Chemistry |
+|---|---|---|
+| Publisher | PubChem, U.S. National Library of Medicine | CAS Common Chemistry |
+| Title | *name* `- PubChem, U.S. National Library of Medicine substance record` | *name* `- CAS Common Chemistry substance record` |
+| Docidentifier | `PubChem CID 2244` | `CAS RN 50-78-2` |
+| Source link | `pubchem.ncbi.nlm.nih.gov/compound/{cid}` | `commonchemistry.cas.org/detail?cas_rn={rn}` |
+| Version | accessed date, from the record's provenance | accessed date, from the record's provenance |
+| Extra identifiers | CID, InChIKey, InChI, canonical SMILES | CAS RN, InChIKey, canonical SMILES, InChI, IUPAC name |
+
+Adding a source means adding one citation profile next to its resolver
+adapter — the builder itself never changes.
+
 ## One bibitem per (substance, source)
 
 Two databases agreeing on a substance are still two different
 documents. Resolution is multi-source; citation is per-source — pick
-the sources you trust, cite each once.
+the sources you trust, cite each once. The same substance cited twice
+from one source yields **one deduplicated entry**; the same substance
+cited from two sources yields **two entries**, both describing the
+same molecule.
+
+## InChIKey: the join key
+
+Deduplication and cross-referencing anchor on the **InChIKey** — the
+fixed-length, structure-derived identifier that plays the role for
+substances that the DOI plays for literature. In Metanorma documents
+the plugin rewrites each bibitem's anchor to its InChIKey
+(`BSYNRYMUTXBXSQ-UHFFFAOYSA-N` above), so `<<BSYNRYMUTXBXSQ-UHFFFAOYSA-N>>`
+cross-references work regardless of which source was cited, and two
+documents citing the same substance from different databases still
+link to the same identity.
+
+## Provenance and reproducible builds
+
+Every resolved record carries its provenance — source, retrieved-at
+timestamp, license attribution — and the bibitem's accessed date comes
+straight from that provenance. Resolution caches records in your user
+cache directory (never inside the gem), with a 7-day TTL; `--refresh`
+bypasses it.
+
+That makes document builds reproducible: point a Metanorma document
+at a seeded cache (`:asciichem-cache-dir:`, see
+[Chemistry in Metanorma](/guides/metanorma/)) and every rebuild emits
+byte-identical bibitems — the accessed dates come from the cached
+records, not from the wall clock.
 
 ## Sources and licensing
 
-- **PubChem** is the default: keyless, permissive, and the bulk
-  mirror of validated CAS RNs.
-- **CAS Common Chemistry** is *opt-in*: its data is CC BY-NC 4.0, so
-  the adapter never registers itself and every result carries the
-  required attribution.
+Which source you cite is also a licensing decision:
+
+- **PubChem** is the default: keyless access, permissive terms, and
+  the bulk mirror of validated CAS RNs. If your use is commercial or
+  you simply want no strings, cite PubChem.
+- **CAS Common Chemistry** is *opt-in* because its data is
+  **CC BY-NC 4.0** — non-commercial reuse with attribution. The
+  adapter never registers itself; you opt in explicitly:
 
 ```ruby
 AsciiChem::Resolver.register(:common_chemistry,
                              AsciiChem::Resolver::CommonChemistry)
 ```
 
+Opting in carries obligations, and the gem is built so you can meet
+them: the required attribution (`CAS Common Chemistry (CC BY-NC 4.0)`)
+rides in every record's provenance — including cached records — so
+whatever you publish downstream still carries it. Keep that
+attribution intact when you redistribute. If the NC terms don't fit
+your use, don't register the adapter; PubChem's record for the same
+substance is the default path.
+
 Results are cached in your user cache directory (TTL'd, attribution
 included); `--refresh` bypasses the cache.
+
+<CardGrid stagger>
+  <Card title="In a Metanorma document" icon="seti:doc">
+    `@cite`-annotated molecules become bibliography entries
+    automatically — [Chemistry in Metanorma](/guides/metanorma/).
+  </Card>
+  <Card title="Where records come from" icon="seti:default">
+    Resolution, provenance, and the interchange subset —
+    [Structures and resolution](/guides/structures-and-resolution/).
+  </Card>
+  <Card title="Try it live" icon="seti:default">
+    Paste a database SMILES and see the model —
+    the [playground](/playground/) parses SMILES and molfile in your
+    browser.
+  </Card>
+</CardGrid>

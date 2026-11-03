@@ -6,6 +6,22 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-11-03 — The playground speaks the database world: SMILES and molfile input
+
+The playground's live renderer now takes three input grammars side by
+side — AsciiChem, SMILES, and molfile — all parsing to the one
+semantic model in your browser via
+[asciichem-ts](https://github.com/asciichem/asciichem-ts). Paste a
+database SMILES and get the model, the diagram, and the wire JSON; a
+molfile's coordinates drive the diagram directly. The SMILES subset
+is honest about its edges: chirality and E/Z raise the corpus-defined
+error rather than a wrong structure. Alongside this, the citation
+guide grew the full bibitem story — field-by-field anatomy,
+InChIKey-anchored cross-referencing, reproducible builds from the
+resolver cache, and the CC BY-NC opt-in obligations for CAS Common
+Chemistry. See the [playground](/playground/) and
+[citing substances](/guides/citing-substances/).
+
 ## 2026-10-24 — Native InChI: the engine is complete
 
 The native InChI program is done: the Rust engine

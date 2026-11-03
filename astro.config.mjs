@@ -84,6 +84,7 @@ export default defineConfig({
           label: "Start",
           items: [
             { label: "Getting started", slug: "guides/getting-started" },
+            { label: "Playground", slug: "playground" },
             { label: "Why AsciiChem?", slug: "guides/why-asciichem" },
             { label: "What's new", slug: "guides/whats-new" },
           ],
@@ -176,7 +177,6 @@ export default defineConfig({
           label: "Project",
           items: [
             { label: "About", slug: "about" },
-            { label: "Playground", slug: "playground" },
             { label: "News", slug: "news" },
           ],
         },

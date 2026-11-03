@@ -72,3 +72,22 @@ diagnostics.any? { |d| d.severity == :error }  # => false if clean
 AsciiChem::Formatter[:mathml]  # => AsciiChem::Formatter::Mathml
 AsciiChem::Formatter.render(:html, formula)
 ```
+
+## Citation (v0.25+)
+
+Resolution produces a substance record with provenance; the citation
+builder turns that record into a Relaton `dataset`-type bibitem — one
+per (substance, source):
+
+```ruby
+substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
+AsciiChem::Citation.to_xml(substance)   # <bibitem type="dataset"> XML
+
+# The @cite annotation, from the parse tree:
+molecule = AsciiChem.parse('H_2O @name("aspirin") @cite("pubchem")').nodes.first
+AsciiChem::Citation.for_molecule(molecule)
+# => [["pubchem", #<Relaton::BibliographicItem ...>]]
+```
+
+The bibitem shape, per-source fields, and the licensing story are on
+[Citing substances](/guides/citing-substances/).

@@ -1,13 +1,23 @@
 ---
 /**
  * Live AsciiChem renderer: client-side parse + render via the
- * corpus-conformant asciichem-ts package (npm `asciichem`). Modes:
- * 2D structural diagram (authored bonds), typographic SVG, canonical
- * text, and the asciichem-model v1 wire JSON.
+ * corpus-conformant asciichem-ts package (npm `asciichem`). Three
+ * input grammars — the same semantic model behind each: AsciiChem
+ * (the syntax this site documents), SMILES, and molfile V2000
+ * (coordinates preserved; the highest-fidelity 2D path).
+ *
+ * Output modes: 2D structural diagram, typographic SVG, presentation
+ * MathML (L2 goldens, byte-identical with the Ruby reference),
+ * canonical text, and the asciichem-model v1 wire JSON.
  *
  * Formula-only molecules render typographically in diagram mode: a
  * formula is not a structure (C2H6O is ethanol or dimethyl ether) —
  * structure comes from authored bonds/rings or database identifiers.
+ *
+ * The SMILES subset is honest about its edges: chirality (`@`, `@@`)
+ * and E/Z bond directions (`/`, `\`) raise the corpus-defined clean
+ * ParseError instead of a wrong structure. The error box is shared
+ * with every other parse error — no special casing.
  */
 interface Props {
   initial?: string;
@@ -19,46 +29,80 @@ const initial = Astro.props.initial ?? "CH_3-CH_2-OH";
 const compact = Astro.props.compact ?? false;
 ---
 
-<section class:list={["live-renderer", { compact }]}>
+<section class:list={["live-renderer", { compact }]} data-lang="asciichem">
   <div class="lr-row">
     <div class="lr-editor">
-      <label for="lr-src">AsciiChem source</label>
+      <!-- The three front doors: one semantic model, three ways in. -->
+      <div class="lr-doors" role="group" aria-label="Input grammar">
+        <button
+          type="button"
+          class="lr-door lr-door--asciichem"
+          data-lang="asciichem"
+          aria-pressed="true"
+        >
+          <span class="lr-door-name">AsciiChem</span>
+          <span class="lr-door-desc">the syntax this site documents</span>
+        </button>
+        <button
+          type="button"
+          class="lr-door lr-door--db"
+          data-lang="smiles"
+          aria-pressed="false"
+        >
+          <span class="lr-door-name">SMILES</span>
+          <span class="lr-door-desc">paste a database structure</span>
+        </button>
+        <button
+          type="button"
+          class="lr-door lr-door--db"
+          data-lang="molfile"
+          aria-pressed="false"
+        >
+          <span class="lr-door-name">Molfile</span>
+          <span class="lr-door-desc">V2000 table, coordinates kept</span>
+        </button>
+      </div>
+      <label for="lr-src" id="lr-src-label">AsciiChem source</label>
       <textarea id="lr-src" spellcheck="false" autocomplete="off">{initial}</textarea>
-      <div class="lr-presets" role="group" aria-label="Preset examples">
-        <button type="button" data-preset="CH_3-CH_2-OH">ethanol chain</button>
-        <button type="button" data-preset="C1-C-C-C-C-C1">cyclohexane</button>
-        <button type="button" data-preset="H-O-H">water</button>
-        <button type="button" data-preset="^14C">isotope</button>
-        <button type="button" data-preset="2H_2 + O_2 ->[heat] 2H_2O">reaction</button>
-        <button type="button" data-preset="Ca^2+">charge</button>
+      <div class="lr-presets" role="group" aria-label="Example structures">
+        <button type="button" data-for="asciichem" data-preset="ethanol-chain">ethanol chain</button>
+        <button type="button" data-for="asciichem" data-preset="cyclohexane">cyclohexane</button>
+        <button type="button" data-for="asciichem" data-preset="water">water</button>
+        <button type="button" data-for="asciichem" data-preset="isotope">isotope</button>
+        <button type="button" data-for="asciichem" data-preset="reaction">reaction</button>
+        <button type="button" data-for="asciichem" data-preset="charge">charge</button>
+        <button type="button" data-for="smiles" data-preset="smiles-aspirin">aspirin</button>
+        <button type="button" data-for="smiles" data-preset="smiles-caffeine">caffeine</button>
+        <button type="button" data-for="smiles" data-preset="smiles-benzene">benzene (aromatic)</button>
+        <button type="button" data-for="smiles" data-preset="smiles-ethanol">ethanol</button>
+        <button type="button" data-for="molfile" data-preset="molfile-cyclohexane">cyclohexane (V2000)</button>
       </div>
     </div>
     <div class="lr-result">
-      <div class="lr-syntax" role="group" aria-label="Input syntax">
-        <button type="button" class="lr-lang is-active" data-lang="asciichem">AsciiChem</button>
-        <button type="button" class="lr-lang" data-lang="smiles">SMILES</button>
+      <div class="lr-modes" role="group" aria-label="Output mode">
+        <button type="button" class="lr-mode is-active" data-mode="structural" aria-pressed="true">Diagram</button>
+        <button type="button" class="lr-mode" data-mode="typographic" aria-pressed="false">Typography</button>
+        <button type="button" class="lr-mode" data-mode="mathml" aria-pressed="false">MathML</button>
+        <button type="button" class="lr-mode" data-mode="text" aria-pressed="false">Text</button>
+        <button type="button" class="lr-mode" data-mode="wire" aria-pressed="false">Wire JSON</button>
       </div>
-      <div class="lr-modes" role="tablist" aria-label="Output mode">
-        <button type="button" class="lr-mode is-active" data-mode="structural" role="tab">Diagram</button>
-        <button type="button" class="lr-mode" data-mode="typographic" role="tab">Typography</button>
-        <button type="button" class="lr-mode" data-mode="mathml" role="tab">MathML</button>
-        <button type="button" class="lr-mode" data-mode="text" role="tab">Text</button>
-        <button type="button" class="lr-mode" data-mode="wire" role="tab">Wire JSON</button>
-      </div>
-      <div class="lr-output" id="lr-output" aria-live="polite"></div>
+      <div class="lr-output" id="lr-output" aria-live="polite" role="region" aria-label="Rendered output"></div>
     </div>
   </div>
-  <p class="lr-error" id="lr-error" hidden></p>
+  <p class="lr-error" id="lr-error" role="alert" hidden></p>
 {!compact && (
   <p class="lr-note">
     Parsed in your browser by
     <a href="https://github.com/asciichem/asciichem-ts" rel="noopener noreferrer">asciichem-ts</a>
-    — the same shared corpus the Ruby reference passes. Diagrams are
-    drawn only from bonds you author; a bare formula renders
+    — the same shared corpus the Ruby reference passes. Nothing you
+    type leaves this page. Diagrams are drawn only from bonds you
+    author or coordinates in the file; a bare formula renders
     typographically because a formula alone does not determine a
-    structure. The URL fragment mirrors the editor
-    (<code>#code=…&amp;lang=…&amp;mode=…</code>), so a playground link
-    is a self-contained demo.
+    structure. The SMILES subset stops short of chirality and E/Z
+    (<code>@</code>, <code>/</code>, <code>\</code>) — those raise an
+    error rather than a wrong structure. The URL fragment mirrors the
+    editor (<code>#code=…&amp;lang=…&amp;mode=…</code>), so a
+    playground link is a self-contained demo.
   </p>
 )}
 </section>
@@ -80,6 +124,64 @@ const compact = Astro.props.compact ?? false;
       grid-template-columns: 1fr;
     }
   }
+
+  /* -- the three front doors ------------------------------------- */
+  /* Gold marks AsciiChem (authored here); blue marks the database
+   * grammars flowing into the same model. */
+  .lr-doors {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+  }
+  .lr-door {
+    display: grid;
+    gap: 0.1rem;
+    justify-items: start;
+    text-align: start;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-4);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .lr-door-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .lr-door-desc {
+    color: var(--sl-color-gray-3);
+    font-size: 0.72rem;
+  }
+  .lr-door:hover {
+    border-color: var(--sl-color-accent);
+  }
+  .lr-door[aria-pressed="true"] {
+    border-color: transparent;
+  }
+  .live-renderer[data-lang="asciichem"] .lr-door--asciichem[aria-pressed="true"],
+  .live-renderer:not([data-lang="asciichem"]) .lr-door--db[aria-pressed="true"] {
+    background: var(--color-asciichem-accent);
+    color: #191919;
+  }
+  .live-renderer:not([data-lang="asciichem"]) .lr-door--db[aria-pressed="true"] {
+    background: var(--color-asciichem-blue);
+  }
+  .live-renderer[data-lang="asciichem"] .lr-door--asciichem[aria-pressed="true"] .lr-door-desc,
+  .live-renderer:not([data-lang="asciichem"]) .lr-door--db[aria-pressed="true"] .lr-door-desc {
+    color: #191919;
+    opacity: 0.85;
+  }
+  .lr-door:focus-visible,
+  .lr-mode:focus-visible,
+  .lr-presets button:focus-visible {
+    outline: 2px solid var(--color-asciichem-blue);
+    outline-offset: 2px;
+  }
+
   .lr-editor label {
     display: block;
     font-size: 0.8rem;
@@ -97,6 +199,14 @@ const compact = Astro.props.compact ?? false;
     background: var(--sl-color-black);
     color: var(--sl-color-white);
     resize: vertical;
+  }
+  /* A molfile is a file: give the connection table room and keep the
+   * counts line unwrapped. */
+  .live-renderer[data-lang="molfile"] textarea {
+    min-height: 13rem;
+    font-size: 0.82rem;
+    white-space: pre;
+    overflow-x: auto;
   }
   .lr-presets {
     display: flex;
@@ -118,27 +228,15 @@ const compact = Astro.props.compact ?? false;
   .lr-modes button:hover {
     border-color: var(--sl-color-accent);
   }
-  .lr-syntax {
-    display: flex;
-    gap: 0.375rem;
-    margin-bottom: 0.375rem;
-  }
-  .lr-syntax button {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    border: 1px solid var(--sl-color-gray-4);
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-  .lr-lang.is-active {
-    background: var(--sl-color-accent);
-    border-color: var(--sl-color-accent);
-    color: var(--sl-color-black);
+  /* Example chips follow the active grammar. */
+  .live-renderer[data-lang="asciichem"] .lr-presets button:not([data-for="asciichem"]),
+  .live-renderer[data-lang="smiles"] .lr-presets button:not([data-for="smiles"]),
+  .live-renderer[data-lang="molfile"] .lr-presets button:not([data-for="molfile"]) {
+    display: none;
   }
   .lr-modes {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.375rem;
     margin-bottom: 0.625rem;
   }
@@ -170,10 +268,23 @@ const compact = Astro.props.compact ?? false;
     word-break: break-word;
   }
   .lr-error {
-    color: #f87171;
+    /* Red-700 on white passes AA; the brighter red is dark-only. */
+    color: #b91c1c;
     font-family: var(--sl-font-mono);
     font-size: 0.8rem;
     margin-top: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #b91c1c;
+    border-radius: 0.5rem;
+  }
+  :root[data-theme="dark"] .lr-error {
+    color: #f87171;
+    border-color: #f87171;
+  }
+  .lr-error::before {
+    content: "Parse error — ";
+    font-family: var(--font-serif);
+    font-weight: 700;
   }
   .live-renderer.compact {
     border-style: solid;
@@ -183,17 +294,66 @@ const compact = Astro.props.compact ?? false;
     color: var(--sl-color-gray-2);
     margin-block: 0.75rem 0;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .lr-door,
+    .lr-mode,
+    .lr-presets button {
+      transition: background-color 120ms ease, border-color 120ms ease;
+    }
+  }
 </style>
 
 <script>
-  import { parse, parseSmiles, renderMathml } from "asciichem";
+  import { parse, parseSmiles, parseMolfile, renderMathml, Formula, Molecule } from "asciichem";
 
+  const editor = document.querySelector<HTMLElement>(".live-renderer")!;
   const input = document.getElementById("lr-src") as HTMLTextAreaElement;
+  const label = document.getElementById("lr-src-label")!;
   const output = document.getElementById("lr-output")!;
   const errorBox = document.getElementById("lr-error") as HTMLParagraphElement;
   let mode = "structural";
   let lang = "asciichem";
   let shareTimer = 0;
+
+  const LABELS: Record<string, string> = {
+    asciichem: "AsciiChem source",
+    smiles: "SMILES",
+    molfile: "Molfile (V2000)",
+  };
+
+  // Example structures per grammar, keyed by chip. A molfile is
+  // multi-line, so chip values live here rather than in attributes.
+  const PRESETS: Record<string, string> = {
+    "ethanol-chain": "CH_3-CH_2-OH",
+    cyclohexane: "C1-C-C-C-C-C1",
+    water: "H-O-H",
+    isotope: "^14C",
+    reaction: "2H_2 + O_2 ->[heat] 2H_2O",
+    charge: "Ca^2+",
+    "smiles-aspirin": "CC(=O)Oc1ccccc1C(=O)O",
+    "smiles-caffeine": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
+    "smiles-benzene": "c1ccccc1",
+    "smiles-ethanol": "CCO",
+    "molfile-cyclohexane": [
+      "cyclohexane",
+      "  ASCIICHEM",
+      "",
+      "  6  6  0  0  0  0            999 V2000",
+      "    1.2130    0.7000    0.0000 C   0  0",
+      "    0.0000    1.4000    0.0000 C   0  0",
+      "   -1.2130    0.7000    0.0000 C   0  0",
+      "   -1.2130   -0.7000    0.0000 C   0  0",
+      "    0.0000   -1.4000    0.0000 C   0  0",
+      "    1.2130   -0.7000    0.0000 C   0  0",
+      "  1  2  1  0",
+      "  2  3  1  0",
+      "  3  4  1  0",
+      "  4  5  1  0",
+      "  5  6  1  0",
+      "  6  1  1  0",
+      "M  END",
+    ].join("\n"),
+  };
 
   // URL-fragment sharing (TODO.impl 51): #code=…&lang=…&mode=…
   // Round-trips the editor state so a playground link is a
@@ -205,7 +365,13 @@ const compact = Astro.props.compact ?? false;
     const code = params.get("code");
     if (code !== null) input.value = code;
     const sharedLang = params.get("lang");
-    if (sharedLang === "asciichem" || sharedLang === "smiles") lang = sharedLang;
+    if (
+      sharedLang === "asciichem" ||
+      sharedLang === "smiles" ||
+      sharedLang === "molfile"
+    ) {
+      lang = sharedLang;
+    }
     const sharedMode = params.get("mode");
     if (
       sharedMode === "structural" ||
@@ -232,26 +398,28 @@ const compact = Astro.props.compact ?? false;
     shareTimer = window.setTimeout(writeShare, 150);
   }
 
-  function activateToggle(selector: string, value: string, attr: string): void {
-    for (const button of document.querySelectorAll<HTMLButtonElement>(selector)) {
-      button.classList.toggle("is-active", button.dataset[attr] === value);
-    }
-  }
-
   function render(): void {
     errorBox.hidden = true;
     output.replaceChildren();
     try {
-      const formula = lang === "smiles" ? parseSmiles(input.value) : parse(input.value);
+      const formula =
+        lang === "smiles"
+          ? parseSmiles(input.value)
+          : lang === "molfile"
+            ? parseMolfile(input.value)
+            : parse(input.value);
       if (mode === "wire") {
         const pre = document.createElement("pre");
         pre.textContent = JSON.stringify(formula.toModelJSON(), null, 2);
         output.append(pre);
       } else if (mode === "mathml") {
         // L2 parity artifact: byte-identical with the reference gem's
-        // MathML output, pinned by the shared corpus goldens.
+        // MathML output, pinned by the shared corpus goldens. A
+        // molfile parses to a bare Molecule; the document form wraps
+        // it as a one-node Formula (what the other grammars produce).
+        const node = formula instanceof Molecule ? new Formula([formula]) : formula;
         const pre = document.createElement("pre");
-        pre.textContent = renderMathml(formula);
+        pre.textContent = renderMathml(node);
         output.append(pre);
       } else if (mode === "text") {
         const pre = document.createElement("pre");
@@ -263,7 +431,14 @@ const compact = Astro.props.compact ?? false;
         const holder = document.createElement("div");
         holder.innerHTML = svg;
         const rendered = holder.firstElementChild;
-        if (rendered) output.append(rendered);
+        if (rendered) {
+          // The diagram is a view over the source in the editor (whose
+          // accessible counterpart is the Text tab) — decorative for
+          // assistive tech, which the formatter's unlabelled
+          // role="img" would otherwise flag.
+          rendered.setAttribute("aria-hidden", "true");
+          output.append(rendered);
+        }
       }
     } catch (error) {
       errorBox.textContent = error instanceof Error ? error.message : String(error);
@@ -272,33 +447,46 @@ const compact = Astro.props.compact ?? false;
     scheduleShare();
   }
 
+  function setLang(next: string): void {
+    lang = next;
+    editor.dataset.lang = lang;
+    label.textContent = LABELS[lang] ?? LABELS.asciichem;
+    for (const button of editor.querySelectorAll<HTMLButtonElement>(".lr-door")) {
+      button.setAttribute("aria-pressed", String(button.dataset.lang === lang));
+    }
+    render();
+  }
+
   input.addEventListener("input", render);
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-lang")) {
-    button.addEventListener("click", () => {
-      lang = button.dataset.lang ?? "asciichem";
-      activateToggle(".lr-lang", lang, "lang");
-      render();
-    });
+  for (const button of editor.querySelectorAll<HTMLButtonElement>(".lr-door")) {
+    button.addEventListener("click", () => setLang(button.dataset.lang ?? "asciichem"));
   }
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
+  for (const button of editor.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
     button.addEventListener("click", () => {
       mode = button.dataset.mode ?? "structural";
-      activateToggle(".lr-mode", mode, "mode");
+      for (const other of editor.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
+        const active = other.dataset.mode === mode;
+        other.classList.toggle("is-active", active);
+        other.setAttribute("aria-pressed", String(active));
+      }
       render();
     });
   }
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>(".lr-presets button")) {
+  for (const button of editor.querySelectorAll<HTMLButtonElement>(".lr-presets button")) {
     button.addEventListener("click", () => {
-      input.value = button.dataset.preset ?? "";
+      input.value = PRESETS[button.dataset.preset ?? ""] ?? "";
       render();
     });
   }
 
   readShare();
-  activateToggle(".lr-lang", lang, "lang");
-  activateToggle(".lr-mode", mode, "mode");
-  render();
+  for (const other of editor.querySelectorAll<HTMLButtonElement>(".lr-mode")) {
+    const active = other.dataset.mode === mode;
+    other.classList.toggle("is-active", active);
+    other.setAttribute("aria-pressed", String(active));
+  }
+  setLang(lang);
 </script>

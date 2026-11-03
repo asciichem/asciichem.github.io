@@ -69,6 +69,23 @@ asciichem resolve --name aspirin --source pubchem -t model-json
 asciichem resolve --cas 50-78-2 --refresh
 ```
 
+## cite
+
+Resolves an identifier and emits a dataset-type Relaton bibitem
+(XML) for the source it was resolved from — the same code path the
+Metanorma plugin uses, so a document and the command line can never
+disagree:
+
+```sh
+asciichem cite --cas 50-78-2
+# <bibitem id="PubChemCID2244" type="dataset"> …
+```
+
+Options match `resolve` (`--cas/--name/--cid/--inchikey/--smiles`,
+`--source`, `--refresh`). One bibitem per (substance, source); the
+field-by-field shape is on
+[Citing substances](/guides/citing-substances/).
+
 ## validate
 
 Offline validation of identifier annotations in a formula:
