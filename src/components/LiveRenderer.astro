@@ -86,7 +86,7 @@ const compact = Astro.props.compact ?? false;
         <button type="button" class="lr-mode" data-mode="text" aria-pressed="false">Text</button>
         <button type="button" class="lr-mode" data-mode="wire" aria-pressed="false">Wire JSON</button>
       </div>
-      <div class="lr-output" id="lr-output" aria-live="polite"></div>
+      <div class="lr-output" id="lr-output" aria-live="polite" role="region" aria-label="Rendered output"></div>
     </div>
   </div>
   <p class="lr-error" id="lr-error" role="alert" hidden></p>
@@ -268,13 +268,18 @@ const compact = Astro.props.compact ?? false;
     word-break: break-word;
   }
   .lr-error {
-    color: #f87171;
+    /* Red-700 on white passes AA; the brighter red is dark-only. */
+    color: #b91c1c;
     font-family: var(--sl-font-mono);
     font-size: 0.8rem;
     margin-top: 0.75rem;
     padding: 0.625rem 0.75rem;
-    border: 1px solid #f87171;
+    border: 1px solid #b91c1c;
     border-radius: 0.5rem;
+  }
+  :root[data-theme="dark"] .lr-error {
+    color: #f87171;
+    border-color: #f87171;
   }
   .lr-error::before {
     content: "Parse error — ";
@@ -426,7 +431,14 @@ const compact = Astro.props.compact ?? false;
         const holder = document.createElement("div");
         holder.innerHTML = svg;
         const rendered = holder.firstElementChild;
-        if (rendered) output.append(rendered);
+        if (rendered) {
+          // The diagram is a view over the source in the editor (whose
+          // accessible counterpart is the Text tab) — decorative for
+          // assistive tech, which the formatter's unlabelled
+          // role="img" would otherwise flag.
+          rendered.setAttribute("aria-hidden", "true");
+          output.append(rendered);
+        }
       }
     } catch (error) {
       errorBox.textContent = error instanceof Error ? error.message : String(error);

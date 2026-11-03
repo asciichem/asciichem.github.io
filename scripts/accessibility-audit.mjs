@@ -33,11 +33,15 @@ const PAGES = [
 
 async function main() {
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  // axe-core/playwright requires a context-owned page (a bare
+  // browser.newPage() page is rejected at analyze time).
+  const context = await browser.newContext();
+  const page = await context.newPage();
   const violations = [];
 
   for (const path of PAGES) {
-    const url = URL + path.replace(/^\//, "");
+    // URL (the const above) shadows the global URL constructor here.
+    const url = URL + (path.startsWith("/") ? path : `/${path}`);
     await page.goto(url, { waitUntil: "load" });
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])
