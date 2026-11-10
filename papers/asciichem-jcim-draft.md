@@ -433,9 +433,9 @@ https://ctan.org/pkg/chemfig
 Comput. Sci.* **1988**, *28* (1), 31–36. DOI:
 [10.1021/ci00057a005](https://doi.org/10.1021/ci00057a005)
 
-(5) OpenSMILES Specification. https://www.opensmiles.org (accessed
-2026-11). *Re-verify the canonical URL at submission; the host was
-unreachable at draft time.*
+(5) OpenSMILES Specification. http://opensmiles.org/opensmiles.html
+(accessed 2026-11; confirmed live; the ASCIIDoc source is maintained
+at https://github.com/opensmiles/OpenSMILES)
 
 (6) Cohen, E. R.; Cvitaš, T.; Frey, J. G.; et al., Eds. *Quantities,
 Units and Symbols in Physical Chemistry* (IUPAC Green Book), 3rd ed.;
