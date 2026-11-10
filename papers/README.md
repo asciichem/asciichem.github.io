@@ -27,8 +27,10 @@ what must be true before it happens.
   to the ACS template on import (fonts, sizing, TOC graphic) and keep
   captions consistent with the artwork.
 - [ ] **References.** Journal citations have Crossref-verified DOIs.
-  Reference (2) (OpenSMILES) carries a note: its host was unreachable
-  at draft time — confirm the canonical URL. Convert bracketed numeric
+  Reference (5) (OpenSMILES): the canonical URL
+  `http://opensmiles.org/opensmiles.html` was confirmed live
+  (2026-11-10), with the ASCIIDoc source mirrored at
+  github.com/opensmiles/OpenSMILES. Convert bracketed numeric
   citations to ACS superscript style on import; check names, year
   (PubChem entry is the 2023 update, NAR 51(D1)), and volume/issue
   formatting in ACS Paragon.
