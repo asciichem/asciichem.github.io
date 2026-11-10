@@ -1,7 +1,8 @@
 # 55 — Model fields for external structures (aromatic, hydrogens)
 
 - **Priority:** P2
-- **Status:** done — asciichem-model#11, v0.4.0 (tagged; rubygems push pending trusted-publisher registration)
+- **Status:** done — asciichem-model#11, v0.4.0 (tagged; the model is
+  a git-tag contract repo since 59 — no rubygems push applies)
 - **Repo:** asciichem-model
 - **Depends on:** TODO.v2 09 decision (2026-09-12)
 
