@@ -1,11 +1,13 @@
 # 66 — Native InChI engine (three-repo program)
 
 - **Priority:** P2
-- **Status:** in-progress — M0-M2 green; M3 mobile-H at corpus v0.2.3
-  (2026-10-23): mobile-H groups gate live at corpus pin v0.1.3
-  (carboxyl, amide, urea, amidine patterns byte-exact); the
-  tautomer-parity residue (98 fixtures) is triaged with dated reasons
-  and the ichitaut template port is the retiring slice.
+- **Status:** done (2026-11-10) — full port complete: ledger ZERO
+  (all 19 dated triage entries accepted with decoded mechanisms),
+  21 gates green on corpus v0.3.41, byte-exact vs the IUPAC InChI
+  1.07.5 oracle; shipped across runtimes (chemomer crate on
+  crates.io, npm `chemomer` wasm, chemomer-py, chemomer-ruby gem)
+  with trusted publishing; the AsciiChem gem's native engine seam
+  consumes it (asciichem-ruby#147 null-pointer fix).
 - **Repos:** `asciichem/inchi-engine` (exploration), `asciichem/inchi-tests`
   (contract), `asciichem/inchi-rs` (production)
 - **Supersedes:** the vendoring follow-up in TODO 48 — the maintainer
