@@ -135,6 +135,8 @@ base node highlighted; right panel, the AsciiChem parse tree
 `Atom(element: C, isotope: 14)` with the isotope edge inside the atom
 node; below each tree, the same input and its rejected form `^14`.
 
+![Figure 1. The atom-binding contrast: AsciiMath binds the isotope to an empty base group; AsciiChem binds it to the atom and rejects a prefix with no following atom.](figures/fig1-atom-binding.svg)
+
 ## 3. The shared contract
 
 The normative artifact is not an implementation. Two contract
@@ -212,6 +214,8 @@ CI lanes to Ruby, TypeScript, Python, Rust; an arrow from the property
 harness into the corpus labeled "seeded generation (300)"; a separate
 oracle-corpus box feeding the identity gate.
 
+![Figure 2. The single-contract conformance model: corpus and wire schemas gate four independent implementations; the property harness seeds the corpus; the oracle corpus gates identity separately.](figures/fig2-single-contract.svg)
+
 ## 4. Substance identity and citation
 
 A molecule in a document is a substance with identity. The model
@@ -273,6 +277,8 @@ cross-check, engine derivation, resolver with source icons for
 PubChem/OPSIN/Common Chemistry); right, the References section of a
 Metanorma document showing one dataset bibitem with InChIKey and
 retrieval provenance.
+
+![Figure 3. The identity-to-citation pipeline: authored structures flow through the linter cross-check, engine derivation, and provenance-carrying resolution; each cited (substance, source) pair becomes a dataset bibitem anchored by InChIKey.](figures/fig3-identity-citation.svg)
 
 ## 5. Results and discussion
 

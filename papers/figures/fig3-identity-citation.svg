@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="330" viewBox="0 0 680 330" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- LEFT: the authored block -->
+  <rect x="24" y="36" width="170" height="150" rx="4" fill="#fafafa" stroke="#999"/>
+  <text x="34" y="54" font-size="10.5" fill="#666">[chem] block, authored</text>
+  <text x="34" y="74" font-family="Courier, monospace" font-size="10">C_9H_8O_4</text>
+  <text x="34" y="90" font-family="Courier, monospace" font-size="10">@cas("50-78-2")</text>
+  <text x="34" y="106" font-family="Courier, monospace" font-size="10">@name("aspirin")</text>
+  <text x="34" y="122" font-family="Courier, monospace" font-size="10">@cite("pubchem")</text>
+  <line x1="34" y1="134" x2="184" y2="134" stroke="#ddd"/>
+  <text x="34" y="152" font-size="10.5" fill="#555">drawn structure + annotations;</text>
+  <text x="34" y="166" font-size="10.5" fill="#555">ring closures carry connectivity</text>
+
+  <line x1="194" y1="110" x2="228" y2="110" stroke="#333" stroke-width="1.2" marker-end="url(#arrow3)"/>
+
+  <!-- CENTER: three stages -->
+  <g font-size="11.5">
+    <rect x="232" y="36" width="180" height="42" rx="4" fill="#fff" stroke="#8a6d3b"/>
+    <text x="322" y="54" text-anchor="middle" font-weight="bold">linter cross-check</text>
+    <text x="322" y="69" text-anchor="middle" font-size="10" fill="#555">annotated InChI/InChIKey vs derived</text>
+
+    <rect x="232" y="92" width="180" height="52" rx="4" fill="#fff" stroke="#2e7d43"/>
+    <text x="322" y="111" text-anchor="middle" font-weight="bold">engine derivation</text>
+    <text x="322" y="126" text-anchor="middle" font-size="10" fill="#555">IUPAC binary or native chemomer</text>
+    <text x="322" y="139" text-anchor="middle" font-size="10" fill="#555">(byte-exact vs the 1.07.5 oracle)</text>
+
+    <rect x="232" y="158" width="180" height="52" rx="4" fill="#fff" stroke="#5b7da6"/>
+    <text x="322" y="177" text-anchor="middle" font-weight="bold">resolver</text>
+    <text x="322" y="192" text-anchor="middle" font-size="10" fill="#555">per-source substance records</text>
+    <text x="322" y="205" text-anchor="middle" font-size="10" fill="#555">with provenance</text>
+  </g>
+
+  <!-- source stack feeding resolver -->
+  <g font-size="10">
+    <rect x="244" y="222" width="50" height="20" rx="10" fill="#eef2f7" stroke="#5b7da6"/>
+    <text x="269" y="236" text-anchor="middle">PubChem</text>
+    <rect x="300" y="222" width="46" height="20" rx="10" fill="#f4eef7" stroke="#7a5ba6"/>
+    <text x="323" y="236" text-anchor="middle">OPSIN</text>
+    <rect x="352" y="222" width="70" height="20" rx="10" fill="#f7f4ee" stroke="#8a6d3b"/>
+    <text x="387" y="236" text-anchor="middle">Common Chem.</text>
+  </g>
+  <text x="322" y="258" text-anchor="middle" font-size="9.5" fill="#666">PubChem default; others opt-in, attributed</text>
+  <text x="322" y="272" text-anchor="middle" font-size="9.5" fill="#666">each cited (substance, source) emits one bibitem</text>
+
+  <line x1="412" y1="130" x2="448" y2="130" stroke="#333" stroke-width="1.2" marker-end="url(#arrow3)"/>
+  <text x="430" y="120" text-anchor="middle" font-size="8.5" fill="#666">emit</text>
+
+  <!-- RIGHT: References section of the document -->
+  <rect x="452" y="36" width="206" height="230" rx="4" fill="#fafafa" stroke="#999"/>
+  <text x="464" y="56" font-size="11" font-weight="bold">References</text>
+  <line x1="464" y1="63" x2="646" y2="63" stroke="#ccc"/>
+  <text x="464" y="80" font-size="9.5" fill="#555">[1]</text>
+  <text x="482" y="80" font-size="9.5" font-weight="bold">2-Acetyloxybenzoic acid —</text>
+  <text x="482" y="93" font-size="9.5" font-weight="bold">PubChem substance record</text>
+  <text x="482" y="109" font-size="9" fill="#333">PubChem, U.S. National Library</text>
+  <text x="482" y="121" font-size="9" fill="#333">of Medicine, publisher</text>
+  <text x="482" y="137" font-size="9" fill="#333">docidentifier type="pubchem":</text>
+  <text x="482" y="149" font-size="9" fill="#333">PubChem CID 2244</text>
+  <text x="482" y="165" font-size="9" fill="#333">&lt;date type="accessed"&gt;2026-11-10</text>
+  <text x="482" y="184" font-size="9" fill="#7a5ba6">&lt;keyword&gt;inchikey=BSYNRYMUTXBXSQ-</text>
+  <text x="482" y="196" font-size="9" fill="#7a5ba6">UHFFFAOYSA-N</text>
+  <text x="464" y="218" font-size="8.5" fill="#666">id="BSYNRYMUTXBXSQ-UHFFFAOYSA-N"</text>
+  <text x="464" y="231" font-size="8.5" fill="#666">(the InChIKey is the cross-source join;</text>
+  <text x="464" y="243" font-size="8.5" fill="#666">two spellings of one substance collapse</text>
+  <text x="464" y="255" font-size="8.5" fill="#666">onto one anchor)</text>
+
+  <!-- provenance note callout -->
+  <rect x="452" y="276" width="206" height="40" rx="3" fill="#f4eef7" stroke="#7a5ba6" stroke-dasharray="4 2"/>
+  <text x="462" y="292" font-size="8.5" fill="#5a3a7a">&lt;note type="provenance"&gt;</text>
+  <text x="462" y="304" font-size="8.5" fill="#5a3a7a">Retrieved from pubchem; source attribution</text>
+
+  <line x1="446" y1="262" x2="460" y2="276" stroke="#7a5ba6" stroke-width="1" stroke-dasharray="3 2"/>
+</svg>
