@@ -22,9 +22,10 @@ what must be true before it happens.
   `asciichem-tests/corpus/fixtures/*.json`; identity corpus from
   `chemomer/inchi-tests/corpus/fixtures/identity*.json`; level claims
   from the site's conformance matrix page.
-- [ ] **Figures.** Figures 1–3 are captioned textual descriptions only;
-  draw them (vector formats per ACS) and keep captions consistent with
-  the artwork.
+- [ ] **Figures.** Figures 1–3 are drafted as vector SVG in
+  [figures/](figures/) and referenced from the draft captions; restyle
+  to the ACS template on import (fonts, sizing, TOC graphic) and keep
+  captions consistent with the artwork.
 - [ ] **References.** Journal citations have Crossref-verified DOIs.
   Reference (2) (OpenSMILES) carries a note: its host was unreachable
   at draft time — confirm the canonical URL. Convert bracketed numeric
