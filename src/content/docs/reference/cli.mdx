@@ -6,8 +6,16 @@ description: asciichem command-line subcommands and options.
 import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
 
-The `asciichem` CLI provides conversion, linting, and round-trip
-verification. Install via `gem install asciichem`.
+The `asciichem` CLI provides conversion, linting, identity, resolution,
+citation, and round-trip verification. Install via `gem install asciichem`.
+
+The full command list is also one keystroke away:
+
+```sh
+asciichem help              # the command list
+asciichem help convert      # options for one command
+asciichem tree              # compact command tree
+```
 
 ## convert
 
@@ -24,25 +32,32 @@ echo "H_2O" | asciichem convert -i - -t latex
 
 | Flag | Description |
 |---|---|
-| `-i, --input` | AsciiChem source text (or `-` for stdin) |
+| `-i, --input` | Source text (or `-` for stdin) |
 | `-f, --file` | Read source from a file |
-| `-t, --format` | Output format: `mathml` (default), `text`, `html`, `latex`, `svg`, `cml` |
+| `-t, --format` | Output format: `mathml` (default), `text`, `html`, `latex`, `svg`, `structural-svg`, `model-json`, `cml`, `smiles`, `molfile` |
+| `--from` | Input grammar: `asciichem` (default), `smiles`, `molfile` |
+| `--engine` | Parsing engine: `parslet` (default), `parsanol`, `parg` — see below |
 
-### Parsing engine
+### Parsing engines
 
-`convert --engine parsanol` selects the opt-in Rust-core engine for
-that invocation (parslet stays the default; the parsanol gem is an
-opt-in dependency). Without the gem installed, the command exits 6
-with install guidance.
+`--engine` selects the parsing engine for that invocation:
+
+- `parslet` — the default. Pure Ruby, zero extra dependencies.
+- `parsanol` — opt-in Rust-backed engine over the same grammar and
+  transform (needs the `parsanol` gem); absent gem exits 6 with
+  install guidance.
+- `parg` — opt-in engine over the compiled PARG grammar artifact
+  (the same checksummed artifact [asciichem-rs](/implement/rust/)
+  runs; needs parsanol ≥ 1.3.94).
 
 ```sh
 asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t text --engine parsanol
 ```
 
 The `ASCIICHEM_ENGINE` environment variable selects the engine for
-programmatic use and test runs.
+programmatic use and test runs (`parslet`, `parsanol`, or `parg`).
 
-## convert with input grammars
+### Input grammars
 
 Since 0.22.0, `convert` selects the input grammar with `--from asciichem|smiles|molfile`,
 and the output targets include `model-json`, `smiles`, `molfile`, and `structural-svg`:
@@ -59,15 +74,24 @@ file path (multiline text via `-f`).
 
 ## resolve
 
-Resolves an identifier into a substance record (networked; cached in
-your user cache directory). The default source is PubChem; results
-carry provenance because the citation track emits one bibitem per
-(substance, source).
+Resolves an identifier into a substance record from one resolver
+source (networked; cached in your user cache directory with a 7-day
+TTL). Give exactly one of `--cas`, `--name`, `--cid`, `--inchikey`,
+or `--smiles`:
 
 ```sh
 asciichem resolve --name aspirin --source pubchem -t model-json
-asciichem resolve --cas 50-78-2 --refresh
+asciichem resolve --cas 50-78-2 --refresh            # bypass the cache
+asciichem resolve --cas 50-78-2 --source common_chemistry -t smiles
 ```
+
+`--source` picks the source (`pubchem` is the default; `opsin`
+answers IUPAC names, `common_chemistry` answers CAS numbers), and
+`-t` picks the output (`model-json`, `text`, or `smiles`). Every
+result carries per-identifier provenance including the source's
+required attribution. In the library, all shipped sources are on by
+default and resolved together — see
+[Structures and resolution](/guides/structures-and-resolution/).
 
 ## cite
 
@@ -98,8 +122,8 @@ asciichem validate -i 'H_2O @cas("7732-18-5")'
 ## identity
 
 Derives InChI and InChIKey from the structure itself — offline, via
-the configured InChI engine (the IUPAC `inchi-1` binary; the InChI
-algorithm is never reimplemented):
+the configured InChI engine (the IUPAC `inchi-1` binary or the
+native Rust engine; the InChI algorithm is never reimplemented):
 
 ```sh
 asciichem identity -i "CC(=O)OC1=CC=CC=C1C(=O)O" --from smiles
@@ -109,8 +133,13 @@ asciichem identity -i "CC(=O)OC1=CC=CC=C1C(=O)O" --from smiles
 asciichem identity -i "..." --engine-bin /usr/local/bin/inchi-1
 ```
 
-Without an engine the command exits 5 with install guidance. In Ruby,
-register one globally:
+`--from` selects the input grammar (`asciichem`, `smiles`, or
+`molfile`); the formula must contain exactly one molecule.
+`--engine-bin` points at an `inchi-1` binary for this invocation.
+Without any engine the command exits 5 with install guidance — see
+[Local identity](/reference/identity/) for every engine option,
+including the native Rust engine driven through `CHEMOMER_LIB`. In
+Ruby, register one globally:
 
 ```ruby
 AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new
@@ -137,7 +166,8 @@ asciichem lint -i "crystal[x](a=-1){Na@f(0,0,0)}" -f json
 | `-i, --input` | AsciiChem source text |
 | `-f, --format` | Output format: `text` (default) or `json` |
 
-JSON output is an array of `{severity, message, node}` objects.
+JSON output is an array of `{severity, message, node}` objects. The
+checks behind it are on the [Linter](/reference/linter/) page.
 
 ## roundtrip
 
@@ -159,5 +189,17 @@ asciichem parse-cml -i "<cml xmlns=\"http://www.xml-cml.org/schema\">...</cml>"
 
 ```sh
 asciichem version
-asciichem --version
+asciichem --version   # or -v
 ```
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| 0 | Success (also: `lint` clean, `validate` with no invalid identifiers) |
+| 1 | Parse error; `lint` found errors; `roundtrip` mismatched; `validate` found an invalid identifier |
+| 2 | Unknown output format (`convert -t`) |
+| 3 | Resolve error (unknown source, no answer) |
+| 4 | Cite error |
+| 5 | Identity error (including no engine configured) |
+| 6 | Parsing engine unavailable (`--engine parsanol`/`parg` without the gem) |

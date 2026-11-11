@@ -6,6 +6,22 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-11-11 — Every resolver source is on by default
+
+All shipped resolver sources — PubChem, OPSIN, and CAS Common
+Chemistry — now resolve **by default** (asciichem 0.31.12;
+metanorma-plugin-asciichem 0.1.8 carries the `asciichem-sources`
+attribute and the `asciichem >= 0.31.12` floor). Common Chemistry's
+data is
+CC BY-NC 4.0; the judge call is the maintainer's (2026-11-11), and
+the obligation rides automatically: every record and every emitted
+bibitem carries the required attribution as a `type="provenance"`
+note. Documents that must stay NC-free limit what `@cite` may
+resolve against with the `:asciichem-sources:` document attribute
+(exclusions warn and emit no bibitem); Ruby callers limit the set
+with `Resolver.resolve(sources:)`. See
+[citing substances](/guides/citing-substances/).
+
 ## 2026-11-03 — The playground speaks the database world: SMILES and molfile input
 
 The playground's live renderer now takes three input grammars side by
@@ -25,7 +41,8 @@ Chemistry. See the [playground](/playground/) and
 ## 2026-10-24 — Native InChI: the engine is complete
 
 The native InChI program is done: the Rust engine
-([inchi-rs](https://github.com/asciichem/inchi-rs)) derives the full
+(now [chemomer](https://github.com/chemomer/chemomer), then inchi-rs)
+derives the full
 standard identifier natively — canonical numbering, mobile-H groups,
 tetrahedral and double-bond stereo, and the InChIKey, with a
 dependency-free SHA-256 — gated 1559/1559 against the recorded

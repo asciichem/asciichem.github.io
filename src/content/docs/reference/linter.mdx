@@ -26,21 +26,29 @@ asciichem lint -i "..." -f json
 
 ## Built-in checks
 
+The thirteen checks self-register at load time; `Linter.run` walks the
+model once and collects their diagnostics, sorted by severity.
+
 | Check | Severity | What it validates |
 |---|---|---|
 | `BalanceCheck` | error | Stoichiometric atom conservation in reactions |
 | `ChargeBalanceCheck` | error | Charge conservation in reactions (v0.7+) |
 | `BracketBalanceCheck` | error | Group bracket consistency |
-| `CrystalSanityCheck` | error | Cell lengths positive, angles in (0, 180], fractional coords in [0, 1) |
+| `CrystalSanityCheck` | error/warning | Cell lengths positive, angles in (0, 180]; fractional coords in [0, 1) |
 | `ZMatrixReferenceCheck` | error | References point to earlier rows; distances positive |
 | `SpectrumPeakCheck` | warning | Peak positions and intensities are numeric |
 | `ElementValidationCheck` | warning | Element symbols in the periodic table |
-| `IsotopeSanityCheck` | warning | Isotope mass ≥ atomic number |
+| `IsotopeSanityCheck` | error | Isotope mass ≥ atomic number (info when the element is unknown to the table) |
 | `UnclosedRingCheck` | error | Ring closure digits have matching pairs |
-| `ValenceCheck` | error | Bond order + charge ≤ max valence |
+| `ValenceCheck` | error | Bond order + charge ≤ max valence (info when no max valence is known) |
 | `IdentifierFormatCheck` | error | `@cas`/`@inchi`/`@inchikey`/`@smiles` values parse offline (check digits, layer structure) |
 | `IdentifierConsistencyCheck` | error/warning | Identifier values agree with the molecule they annotate (InChI formula layer, SMILES element set) |
 | `IdentityCrossCheck` | error/warning | Derives the structure's InChI via the configured engine and compares against `@inchi`/`@inchikey` annotations; mismatch = error, absent engine = one guidance warning |
+
+`IdentityCrossCheck` scales with the engine: without one it emits a
+single guidance warning; with one configured it derives every
+annotated molecule's identifier and asserts agreement — see
+[Local identity](/reference/identity/) for engine setup.
 
 ## Diagnostic object
 

@@ -7,9 +7,10 @@ description: The shared semantic model — versioned JSON Schemas, validators, a
 the canonical interchange contract of the AsciiChem ecosystem. Every
 implementation — the Ruby reference gem,
 [asciichem-ts](https://github.com/asciichem/asciichem-ts) (npm
-`asciichem`), and the planned Python API — emits and ingests the same
-JSON wire form, validated against the same versioned schemas. One
-dataset, many implementations, no drift.
+`asciichem`), [asciichem-py](https://github.com/asciichem/asciichem-py),
+and [asciichem-rs](https://github.com/asciichem/asciichem-rs) — emits
+and ingests the same JSON wire form, validated against the same
+versioned schemas. One dataset, many implementations, no drift.
 
 ## What's in the package
 
@@ -58,6 +59,9 @@ their corpus round-trip levels land.
 - **TypeScript (`asciichem` npm package):** the generated types are
   vendored via `scripts/update-model-types.sh` pinned to a model tag,
   and CI validates every corpus emission against the schemas.
+- **Python (`asciichem-py`) and Rust (`asciichem-rs`):** the corpus
+  and schemas are cloned as pinned siblings in CI and validated in
+  each conformance run.
 
 This repository is **not distributed as a package** — it is the
 implementation-independent source of truth this page documents (the
@@ -81,7 +85,16 @@ The behavioral contract lives next door in
 shared corpus (parser acceptance, identifiers, CML round-trip, fuzz,
 linter expectations) that every implementation runs in its own CI.
 An implementation states which corpus levels (L0–L4) it passes — the
-single-contract rule that replaced "one parser".
+single-contract rule that replaced "one parser". Current claims, per
+each implementation's CI:
 
-- Ruby reference: L0, L1, L3, L4 at 100% of current corpus levels.
-- asciichem-ts: parse/reject, L0, L1 at 100%.
+- Ruby reference: L0, L1, L2, L3, L4 — the full gate set.
+- asciichem-ts: parse/reject, L0, L1, L2 (MathML goldens + SVG), L3
+  stereo, SMILES, molfile — at 100%.
+- asciichem-py: the same gate set as TypeScript, with SVG byte-exact
+  against it.
+- asciichem-rs: parse/reject, wire round-trip, canonical text,
+  MathML goldens, SVG — at 100%.
+
+The claim language and the gate table are on
+[Conformance levels](/guides/conformance-levels/).

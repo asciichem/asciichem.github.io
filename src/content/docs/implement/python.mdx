@@ -35,7 +35,11 @@ assert render(back) == render(formula)
 
 ## Claimed levels
 
-Parse / reject · L0 emission · L1 text · **L2 MathML · L2 SVG** (SVG byte-exact with the TypeScript renderers) · SMILES · molfile — 100% of the shared corpus. See the [Implementations matrix](/implement/) for the full table.
+Parse / reject · L0 emission · L1 text · **L2 MathML · L2 SVG** (SVG
+byte-exact with the TypeScript renderers) · L3 stereo (chirality,
+directional bonds) · SMILES · molfile — 100% of the shared corpus.
+Resolver and InChI are not claimed (engine seam only). See the
+[Implementations matrix](/implement/) for the full table.
 
 ## What you get here, not elsewhere
 
@@ -44,7 +48,7 @@ The Python implementation is built for data and science workflows where dependen
 - **Zero runtime dependencies** — `jsonschema` and `pytest` are dev-only for the conformance suite. The shipped package is plain stdlib + the model dataclasses.
 - **Plain dataclasses** — the model is `@dataclass`-shaped, introspectable with standard tools (`dataclasses.asdict`, `pydantic` if you must). No framework magic.
 - **Wire form as the canonical I/O** — round-trips via `to_model_json`/`from_model_json` for pipelines that already speak JSON.
-- **Optional `asciichem[inchi]` extra** — RDKit-backed InChI engine when you need to derive identity locally; off by default.
+- **Optional `asciichem-py[inchi]` extra** — RDKit-backed InChI engine when you need to derive identity locally; off by default.
 - **Three-pane live diff** (above) — the parity is provable client-side.
 
 ## Repository

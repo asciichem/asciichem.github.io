@@ -112,14 +112,16 @@ configurations, and Lewis markers all have no clean AsciiMath
 spelling.
 
 The project is the language itself — a specification of syntax and
-semantics — with three independent implementations passing the same
+semantics — with four independent implementations passing the same
 [shared corpus](https://github.com/asciichem/asciichem-tests):
 the [asciichem-ruby](https://github.com/asciichem/asciichem-ruby)
 reference gem,
 [asciichem-ts](https://github.com/asciichem/asciichem-ts) for
-TypeScript, and
+TypeScript,
 [asciichem-py](https://github.com/asciichem/asciichem-py) for
-Python. See [Implementations](/implement/).
+Python, and
+[asciichem-rs](https://github.com/asciichem/asciichem-rs) for Rust.
+See [Implementations](/implement/).
 
 ## Mission
 
@@ -144,7 +146,13 @@ Constraints that shape every design decision:
 | Project | Description |
 |---------|-------------|
 | [asciichem-ruby](https://github.com/asciichem/asciichem-ruby) | Reference implementation (Ruby) |
-| [asciichem.github.io](https://github.com/asciichem/asciichem.github.io) | This specification site |
+| [asciichem-ts](https://github.com/asciichem/asciichem-ts) | TypeScript implementation (npm `asciichem`) |
+| [asciichem-py](https://github.com/asciichem/asciichem-py) | Python implementation (PyPI `asciichem-py`) |
+| [asciichem-rs](https://github.com/asciichem/asciichem-rs) | Rust implementation (native PARG consumer) |
+| [asciichem-model](https://github.com/asciichem/asciichem-model) | The shared contract: schemas, validators, generated types |
+| [asciichem-tests](https://github.com/asciichem/asciichem-tests) | The shared conformance corpus |
+| [metanorma-plugin-asciichem](https://github.com/metanorma/metanorma-plugin-asciichem) | Chemistry in Metanorma documents ([guide](/guides/metanorma/)) |
+| [chemomer](https://github.com/chemomer/chemomer) | The native InChI engine ([local identity](/reference/identity/)) |
 | [plurimath](https://github.com/plurimath/plurimath) | Embedded math (AsciiChem wraps Plurimath for math expressions) |
 
 ## Use cases

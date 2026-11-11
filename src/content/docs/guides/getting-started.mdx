@@ -6,10 +6,10 @@ description: Pick an implementation, install it, and parse your first formula.
 import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 import LiveDiff from "../../../components/LiveDiff.astro";
 
-AsciiChem is a language for chemistry. It has **three implementations**
-— Ruby, TypeScript, and Python — that pass the same shared corpus
-byte-for-byte. Pick the one that ships in your stack; the syntax and
-the model are identical everywhere.
+AsciiChem is a language for chemistry. It has **four implementations**
+— Ruby (the reference), TypeScript, Python, and Rust — that pass the
+same shared corpus. Pick the one that ships in your stack; the syntax
+and the model are identical everywhere.
 
 <Tabs>
   <TabItem label="Ruby">
@@ -38,6 +38,7 @@ the model are identical everywhere.
        asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t mathml
        asciichem lint -i "H_2 + O_2 -> H_2O"
        asciichem resolve --cas 50-78-2
+       asciichem cite --cas 50-78-2
        ```
 
     </Steps>
@@ -111,6 +112,29 @@ the model are identical everywhere.
 
     Full reference: [Python API](/reference/api-python/).
   </TabItem>
+  <TabItem label="Rust">
+    <Steps>
+
+    1. **Build from source** (the crate is not yet on crates.io)
+
+       ```bash
+       git clone https://github.com/asciichem/asciichem-rs
+       cd asciichem-rs && cargo build --release
+       ```
+
+    2. **Parse and render**
+
+       ```rust
+       asciichem::parse("2H_2 + O_2 -> 2H_2O")?;          // semantic model
+       asciichem::parse_to_text("H_2O")?;                 // canonical text
+       asciichem::mathml::render("^14C")?;                // byte-exact MathML
+       asciichem::svg::render("C1-C-C-C-C-C1")?;          // structural SVG
+       ```
+
+    </Steps>
+
+    Full reference: [Rust](/implement/rust/).
+  </TabItem>
 </Tabs>
 
 <LiveDiff compact />
@@ -137,8 +161,12 @@ you parsed in Ruby, TypeScript, or Python.
 
 ## Where to next?
 
-- **[Implementations](/implement/)** — the three packages, side by side.
+- **[Implementations](/implement/)** — the four packages, side by side.
 - **[Atoms](/syntax/atoms/)** — elements, isotopes, charges, oxidation
   states.
 - **[Molecules](/syntax/molecules/)** — stoichiometry, groups, brackets.
 - **[Reactions](/syntax/reactions/)** — forward, equilibrium, conditions.
+- **[Structures and resolution](/guides/structures-and-resolution/)** —
+  bring in SMILES/molfile, resolve identifiers, derive InChI identity.
+- **[Citing substances](/guides/citing-substances/)** — turn resolved
+  records into dataset-type bibitems.

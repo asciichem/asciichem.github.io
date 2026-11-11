@@ -32,11 +32,11 @@ independent implementations pass the same corpus.
   </Card>
   <Card title="Local identity: the InChI engine" icon="seti:search">
     Derive InChI/InChIKey from the drawn structure, offline — the
-    IUPAC `inchi-1` binary behind an opt-in engine, never a
-    reimplementation. `@inchi` annotations are cross-checked against
-    what you actually drew. CLI: `asciichem identity -i ... --from
-    smiles`. See [Structures and
-    resolution](/guides/structures-and-resolution/).
+    IUPAC `inchi-1` binary or the native Rust engine behind an
+    opt-in engine, never a reimplementation. `@inchi` annotations
+    are cross-checked against what you actually drew. CLI:
+    `asciichem identity -i ... --from smiles`. See
+    [Local identity](/reference/identity/).
   </Card>
   <Card title="MathML parity, byte for byte" icon="seti:json">
     The corpus grew an L2 level: MathML goldens from the reference
@@ -120,7 +120,7 @@ independent implementations pass the same corpus.
     oracle corpus. It ships as a Rust library, a C ABI, and
     Python/WASM/Node bindings; the Ruby gem reaches it through
     `AsciiChem::Inchi::NativeEngine`. See
-    [Identity](/guides/structures-and-resolution/).
+    [Local identity](/reference/identity/).
   </Card>
   <Card title="Four implementations, every gated level" icon="seti:rust">
     The Rust core completes the set: wire, canonical text, MathML

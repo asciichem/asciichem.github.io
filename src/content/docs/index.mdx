@@ -1,6 +1,6 @@
 ---
 title: AsciiChem
-description: An ASCII syntax for chemistry, model-driven and round-trippable, in Ruby, TypeScript, and Python.
+description: An ASCII syntax for chemistry, model-driven and round-trippable, in Ruby, TypeScript, Python, and Rust.
 template: splash
 hero:
   tagline: ASCII in, chemistry out — in your language.
@@ -18,20 +18,21 @@ that chemistry publications rely on. It is to chemistry what **AsciiMath** is
 to mathematics, but with a semantic model underneath: every parse produces
 the same tree, regardless of which front door you came in by.
 
-## One model, three implementations
+## One model, four implementations
 
-Three independent packages — `asciichem` (Ruby), `asciichem-ts` (TypeScript),
-and `asciichem-py` (Python) — implement the same model and pass the same
-[shared corpus](https://github.com/asciichem/asciichem-tests) byte-for-byte.
+Four independent packages — `asciichem` (Ruby, the reference),
+`asciichem` (TypeScript), `asciichem-py` (Python), and `asciichem-rs`
+(Rust) — implement the same model and pass the same
+[shared corpus](https://github.com/asciichem/asciichem-tests).
 Pick whichever ships in your stack:
 
 <ConformanceMatrix />
 
-## Why three
+## Why four
 
 A molecule has one structure regardless of the notation you write it in:
 InChI, SMILES, molfile, or AsciiChem. Likewise, the *AsciiChem model* has
-one shape regardless of the language you run it in. Three implementations
+one shape regardless of the language you run it in. Four implementations
 keep the contract honest — no single implementation's shortcuts become the
 specification.
 
@@ -40,7 +41,7 @@ specification.
 <CardGrid stagger>
   <Card title="Ruby (reference)" icon="seti:ruby">
     `gem install asciichem` — the reference implementation. MathML,
-    structural SVG, citations, InChI identity. See
+    structural SVG, citations, InChI identity, the CLI. See
     [Ruby](/implement/ruby/).
   </Card>
   <Card title="TypeScript" icon="seti:ts">
@@ -50,5 +51,10 @@ specification.
   <Card title="Python" icon="seti:python">
     `pip install asciichem-py` — plain dataclasses, zero runtime
     dependencies. See [Python](/implement/python/).
+  </Card>
+  <Card title="Rust" icon="seti:rust">
+    `asciichem-rs` — a native consumer of the compiled PARG grammar
+    artifact; canonical text, wire JSON, MathML, and SVG at 100%. See
+    [Rust](/implement/rust/).
   </Card>
 </CardGrid>
