@@ -152,6 +152,15 @@ AsciiChem::Resolver.resolve(value: '50-78-2', convention: 'cas',
                             sources: [:pubchem, :opsin])
 ```
 
+**Live availability (2026-11-11).** CAS has key-gated the Common
+Chemistry API: anonymous calls answer `401 Unauthorized`, so live
+lookups against `common_chemistry` currently return no record — the
+resolver skips the source (as of asciichem 0.31.13 a failing source
+never poisons the others), documents warn and emit no bibitem, and
+seeded-cache records keep resolving offline. Resolution continues
+against PubChem and OPSIN. A CAS API-key story for the adapter is a
+maintainer decision pending with CAS.
+
 The obligations ride with the data, and the gem is built so you can
 meet them: the required attribution
 (`CAS Common Chemistry (CC BY-NC 4.0)`) rides in every record's

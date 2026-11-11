@@ -49,7 +49,11 @@ Resolution turns identifiers into substance records with provenance
 OPSIN, and CAS Common Chemistry — are registered **and on by
 default**; every record carries its source's required attribution,
 and callers limit the set explicitly (`sources:`) when license
-obligations require it.
+obligations require it. A failing source never poisons the others:
+asciichem 0.31.13 skips sources that answer with errors (CAS has
+key-gated the Common Chemistry API — live lookups there currently
+return no record until a key story lands; see
+[Sources and licensing](/guides/citing-substances/#sources-and-licensing/)).
 
 ```ruby
 substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
