@@ -45,8 +45,10 @@ your browser.
 ## Resolution
 
 Resolution turns identifiers into substance records with provenance
-(TODO.v2 07). The default source is PubChem (keyless, permissive);
-more sources are opt-in because sources carry license obligations.
+(TODO.v2 07). All shipped sources — PubChem (keyless, permissive),
+OPSIN, and CAS Common Chemistry — are registered by default; every
+record carries its source's required attribution, and callers limit
+the set explicitly (`sources:`) when license obligations require it.
 
 ```ruby
 substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")

@@ -135,25 +135,34 @@ records, not from the wall clock.
 
 Which source you cite is also a licensing decision:
 
-- **PubChem** is the default: keyless access, permissive terms, and
-  the bulk mirror of validated CAS RNs. If your use is commercial or
-  you simply want no strings, cite PubChem.
-- **CAS Common Chemistry** is *opt-in* because its data is
-  **CC BY-NC 4.0** — non-commercial reuse with attribution. The
-  adapter never registers itself; you opt in explicitly:
+- **PubChem** and **OPSIN** are on by default: keyless access,
+  permissive terms.
+- **CAS Common Chemistry** is also **on by default** (maintainer
+  decision, 2026-11-11): its data is **CC BY-NC 4.0** — non-commercial
+  reuse with attribution — judged acceptable as a default, with the
+  obligation carried automatically and an escape hatch for documents
+  that must stay NC-free:
 
 ```ruby
-AsciiChem::Resolver.register(:common_chemistry,
-                             AsciiChem::Resolver::CommonChemistry)
+# all shipped sources (PubChem, OPSIN, Common Chemistry) are registered
+AsciiChem::Resolver.resolve(value: '50-78-2', convention: 'cas')
+
+# limit the set when your use requires it
+AsciiChem::Resolver.resolve(value: '50-78-2', convention: 'cas',
+                            sources: [:pubchem, :opsin])
 ```
 
-Opting in carries obligations, and the gem is built so you can meet
-them: the required attribution (`CAS Common Chemistry (CC BY-NC 4.0)`)
-rides in every record's provenance — including cached records — so
-whatever you publish downstream still carries it. Keep that
-attribution intact when you redistribute. If the NC terms don't fit
-your use, don't register the adapter; PubChem's record for the same
-substance is the default path.
+The obligations ride with the data, and the gem is built so you can
+meet them: the required attribution
+(`CAS Common Chemistry (CC BY-NC 4.0)`) rides in every record's
+provenance — including cached records — and into every emitted
+bibitem as a `type="provenance"` note, so whatever you publish
+downstream still carries it. Keep that attribution intact when you
+redistribute. If the NC terms don't fit your use, limit sources (in
+Ruby with `sources:`, or in Metanorma documents with the
+`:asciichem-sources:` attribute — see
+[Chemistry in Metanorma](/guides/metanorma/)); PubChem's record for
+the same substance remains available either way.
 
 Results are cached in your user cache directory (TTL'd, attribution
 included); `--refresh` bypasses the cache.

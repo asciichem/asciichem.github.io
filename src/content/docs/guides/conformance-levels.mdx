@@ -115,7 +115,7 @@ and bumps the pin deliberately, one line per corpus release.
 | L1 semantics | **yes** | **yes** (100%; wire round-trip lossless for the core set — beyond-core node types are emission-only) | **yes** (100%) | **yes** (100%; model subset mirrors the reference TransformRules — out-of-subset constructs report unsupported, never guessed) |
 | L2 render | **yes** | **yes** — canonical text, wire, MathML goldens, typographic + structural SVG | **yes** — canonical text, wire, MathML goldens, SVG byte-exact with TS | **yes** — MathML goldens and SVG byte-exact with TS |
 | L3 stereo | **yes** — chirality, directional bonds, wedge/hash; parity-correct canonical SMILES including ring closures | **yes** (100%) — chirality, directional bonds, parity-correct canonical SMILES | **yes** (100%) — chirality, directional bonds | not claimed |
-| L4 identity | **yes** — opt-in InChI engine (binary or native) with stereo layers, OPSIN adapter, identifier cross-check, resolver (PubChem default; Common Chemistry opt-in, attributed), citation bibitems | engine seam only (`identityFor` over a registered engine); no bundled engine — not claimed | engine seam only (`asciichem.inchi`); no bundled engine — not claimed | not claimed |
+| L4 identity | **yes** — opt-in InChI engine (binary or native) with stereo layers, OPSIN adapter, identifier cross-check, resolver (PubChem, OPSIN, and Common Chemistry registered by default — attributed; `sources:` limits the set), citation bibitems | engine seam only (`identityFor` over a registered engine); no bundled engine — not claimed | engine seam only (`asciichem.inchi`); no bundled engine — not claimed | not claimed |
 
 Notes:
 
@@ -125,6 +125,9 @@ Notes:
   corpus (pinned at v0.3.41). It is reachable from Ruby through the
   `NativeEngine` and from JavaScript and Python through its C ABI and
   bindings; it is not an asciichem-rs claim.
-- L4 resolution defaults: PubChem (keyless PUG-REST) is the default
-  source; CAS Common Chemistry is opt-in and attributed (CC BY-NC 4.0
-  licensing is the maintainer's source-selection call).
+- L4 resolution defaults: PubChem (keyless PUG-REST), OPSIN, and CAS
+  Common Chemistry are all registered by default (the CC BY-NC 4.0
+  default-on is the maintainer's source-selection call of 2026-11-11);
+  every record and bibitem carries the source's required attribution,
+  and callers limit the set explicitly (`sources:`, or the plugin's
+  `asciichem-sources` attribute) when a document must stay NC-free.

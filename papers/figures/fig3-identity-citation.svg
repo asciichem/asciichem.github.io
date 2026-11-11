@@ -44,7 +44,7 @@
     <rect x="352" y="222" width="70" height="20" rx="10" fill="#f7f4ee" stroke="#8a6d3b"/>
     <text x="387" y="236" text-anchor="middle">Common Chem.</text>
   </g>
-  <text x="322" y="258" text-anchor="middle" font-size="9.5" fill="#666">PubChem default; others opt-in, attributed</text>
+  <text x="322" y="258" text-anchor="middle" font-size="9.5" fill="#666">sources on by default; attributed</text>
   <text x="322" y="272" text-anchor="middle" font-size="9.5" fill="#666">each cited (substance, source) emits one bibitem</text>
 
   <line x1="412" y1="130" x2="448" y2="130" stroke="#333" stroke-width="1.2" marker-end="url(#arrow3)"/>

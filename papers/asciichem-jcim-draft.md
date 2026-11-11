@@ -222,11 +222,14 @@ A molecule in a document is a substance with identity. The model
 carries identifiers as first-class annotations (`@cas`, `@inchi`,
 `@smiles`, `@iupac`). The resolver turns identifiers into substance
 records with per-identifier provenance — which source asserted what,
-and when it was retrieved — over pluggable sources: PubChem (default)
-[9], an OPSIN name-to-structure adapter [10], and CAS Common Chemistry
-(opt-in; its CC BY-NC license makes it a policy choice, not a default)
-[11]. Resolver caches are reproducible artifacts, so a document's
-identity claims can be rebuilt from the recorded responses.
+and when it was retrieved — over pluggable sources: PubChem
+(keyless, permissive) [9], an OPSIN name-to-structure adapter [10],
+and CAS Common Chemistry (registered by default per the maintainer's
+license decision; its CC BY-NC attribution rides every record and
+emitted bibitem, and callers restrict the set explicitly with a
+source allow-list when a document must stay NC-free) [11]. Resolver
+caches are reproducible artifacts, so a document's identity claims
+can be rebuilt from the recorded responses.
 
 The linter cross-validates annotations against the drawn structure:
 format and consistency checks on every identifier, and a structural
@@ -349,9 +352,10 @@ work.
   distributing the IUPAC binary is a governance decision outside this
   paper's scope.
 - CAS Common Chemistry [11] carries a non-commercial license (CC BY-NC
-  4.0); source selection for resolution is a policy decision, and the
-  architecture keeps sources pluggable with the default set to
-  PubChem.
+  4.0). Source selection remains a policy decision: the default set
+  now includes it (maintainer decision, November 2026), the required
+  attribution travels with every record and bibitem, and documents
+  restrict the set explicitly when their use must stay NC-free.
 - L3 stereo is not yet claimed by the Rust implementation, and L4
   identity is claimed only partially by the TypeScript one; the gaps
   are visible in the conformance matrix rather than hidden.
