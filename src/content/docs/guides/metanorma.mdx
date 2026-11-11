@@ -93,9 +93,20 @@ a seeded cache to build with no network:
 Seed it with `asciichem resolve --name aspirin`. Failures warn and
 emit no bibitem; they never break the build.
 
-Which sources can be cited — and the licence story (PubChem by
-default, CAS Common Chemistry opt-in under CC BY-NC) — is the same as
-on the
+## Limiting sources
+
+All shipped sources (PubChem, OPSIN, CAS Common Chemistry) are
+registered by default. To keep a document NC-free (Common Chemistry
+data is CC BY-NC 4.0), restrict what its `@cite` annotations may
+resolve against:
+
+```adoc
+:asciichem-sources: pubchem,opsin
+```
+
+A `@cite` naming a source outside the list is skipped with a warning
+(no bibitem), so the author sees why an entry is missing. The licence
+story and the Ruby-level `sources:` equivalent live on the
 [citing substances](/guides/citing-substances/#sources-and-licensing/)
 page.
 
