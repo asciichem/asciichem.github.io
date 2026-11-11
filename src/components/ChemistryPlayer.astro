@@ -127,7 +127,8 @@ const elementColors: Record<string, string> = {
 
   .player-btn--play {
     background: var(--color-asciichem-accent, #baa300);
-    color: #fff;
+    /* Ink on gold — white on gold fails AA at 2.5:1. */
+    color: var(--color-asciichem-on-accent, #191919);
   }
 
   .player-btn--play:hover {
@@ -137,7 +138,7 @@ const elementColors: Record<string, string> = {
 
   [data-theme="dark"] .player-btn--play {
     background: #e7d67a;
-    color: #968400;
+    color: var(--color-asciichem-on-accent, #191919);
   }
 
   .player-btn--play.playing {
@@ -189,7 +190,8 @@ const elementColors: Record<string, string> = {
   }
 
   .player-display-hint {
-    color: var(--sl-color-gray-3, #888);
+    /* gray-2: readable on the gray-7 display panel in both themes. */
+    color: var(--sl-color-gray-2, #888);
     font-size: 0.9rem;
     font-style: italic;
   }
@@ -230,12 +232,13 @@ const elementColors: Record<string, string> = {
 
   .player-arrow {
     font-size: 1.2rem;
-    color: var(--sl-color-gray-3, #888);
+    /* gray-2: these sit on the gray-7 display panel. */
+    color: var(--sl-color-gray-2, #888);
     margin: 0 0.25rem;
   }
 
   .player-plus {
-    color: var(--sl-color-gray-3, #888);
+    color: var(--sl-color-gray-2, #888);
     margin: 0 0.15rem;
   }
 
@@ -244,7 +247,7 @@ const elementColors: Record<string, string> = {
     flex-wrap: wrap;
     gap: 0.75rem;
     font-size: 0.75rem;
-    color: var(--sl-color-gray-3, #666);
+    color: var(--sl-color-gray-2, #666);
   }
 
   .player-legend-item {

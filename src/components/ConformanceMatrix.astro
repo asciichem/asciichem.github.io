@@ -103,6 +103,12 @@ const implementations: Implementation[] = [
     border-bottom: 1px solid var(--sl-color-gray-5);
     white-space: nowrap;
   }
+  /* The page-level table style paints `main thead` brand gold; the
+   * dark-theme gold (#968400) is too light for Starlight's dark-mode
+   * gray-2 text (2.1:1). Ink on that gold is 4.9:1. */
+  :global([data-theme="dark"]) .cx-matrix th[scope="col"] {
+    color: var(--color-asciichem-on-accent, #191919);
+  }
   .cx-matrix tbody th[scope="row"] {
     text-align: left;
     font-weight: 600;

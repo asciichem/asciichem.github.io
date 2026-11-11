@@ -111,7 +111,8 @@ const challenges = [
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--sl-color-gray-3, #888);
+    /* gray-2, not gray-3: sits on a gray-7 panel (see QuizGame note). */
+    color: var(--sl-color-gray-2, #888);
     font-weight: 600;
   }
 
@@ -152,7 +153,8 @@ const challenges = [
 
   .game-hint {
     font-size: 0.95rem;
-    color: var(--sl-color-gray-3, #666);
+    /* gray-2: readable on the gray-7 challenge panel in both themes. */
+    color: var(--sl-color-gray-2, #666);
     margin: 0;
     max-width: 30rem;
   }
@@ -230,17 +232,24 @@ const challenges = [
 
   .game-btn--start {
     background: var(--color-asciichem-accent, #baa300);
-    color: #fff;
+    /* Ink on gold — white on gold fails AA at 2.5:1. */
+    color: var(--color-asciichem-on-accent, #191919);
   }
 
-  [data-theme="dark"] .game-btn--start { background: #e7d67a; color: #968400; }
+  [data-theme="dark"] .game-btn--start {
+    background: #e7d67a;
+    color: var(--color-asciichem-on-accent, #191919);
+  }
 
   .game-btn--submit {
     background: var(--color-asciichem-accent, #baa300);
-    color: #fff;
+    color: var(--color-asciichem-on-accent, #191919);
   }
 
-  [data-theme="dark"] .game-btn--submit { background: #e7d67a; color: #968400; }
+  [data-theme="dark"] .game-btn--submit {
+    background: #e7d67a;
+    color: var(--color-asciichem-on-accent, #191919);
+  }
 
   .game-btn--skip {
     background: var(--sl-color-gray-5, #e0e0e0);

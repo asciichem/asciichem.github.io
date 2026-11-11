@@ -86,7 +86,9 @@ const compact = Astro.props.compact ?? false;
         <button type="button" class="lr-mode" data-mode="text" aria-pressed="false">Text</button>
         <button type="button" class="lr-mode" data-mode="wire" aria-pressed="false">Wire JSON</button>
       </div>
-      <div class="lr-output" id="lr-output" aria-live="polite" role="region" aria-label="Rendered output"></div>
+      <!-- tabindex="0": the output pane scrolls (WCAG 2.1.1); keyboard
+           users must be able to reach the scrollable region. -->
+      <div class="lr-output" id="lr-output" aria-live="polite" role="region" aria-label="Rendered output" tabindex="0"></div>
     </div>
   </div>
   <p class="lr-error" id="lr-error" role="alert" hidden></p>
@@ -241,9 +243,11 @@ const compact = Astro.props.compact ?? false;
     margin-bottom: 0.625rem;
   }
   .lr-mode.is-active {
-    background: var(--sl-color-accent);
-    border-color: var(--sl-color-accent);
-    color: var(--sl-color-black);
+    /* Brand pair: ink on the brand blue is 4.9:1; Starlight's
+     * accent/black semantic pair drops to 3.9:1 in dark mode. */
+    background: var(--color-asciichem-blue, #1a8cd8);
+    border-color: var(--color-asciichem-blue, #1a8cd8);
+    color: var(--color-asciichem-on-accent, #191919);
   }
   .lr-output {
     min-height: 8rem;
@@ -293,6 +297,12 @@ const compact = Astro.props.compact ?? false;
     font-size: 0.78rem;
     color: var(--sl-color-gray-2);
     margin-block: 0.75rem 0;
+  }
+  /* Links in the note are prose links: never color-only (WCAG 1.4.1). */
+  .lr-note a {
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: 1px;
   }
   @media (prefers-reduced-motion: no-preference) {
     .lr-door,

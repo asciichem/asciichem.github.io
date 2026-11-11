@@ -19,6 +19,16 @@
   --color-asciichem-ink-light: #d8d8d8;
   --color-asciichem-gold-dark: #e7d67a;
   --color-asciichem-blue-dark: #98e6ff;
+  /* WCAG-AA text partners for the brand colors.
+   * on-accent: ink that reads on every gold surface (#baa300 → 7.6:1,
+   *   #968400 → 4.9:1, #e7d67a → 12:1). White on gold is 2.5:1 —
+   *   unusable for text, so gold surfaces carry ink, never white.
+   * accent-ink / blue-ink: darkened brand hues for TEXT on light
+   *   backgrounds (the raw accent gold and mid blue fail 4.5:1 there);
+   *   dark mode flips to the existing -dark tokens instead. */
+  --color-asciichem-on-accent: #191919;
+  --color-asciichem-accent-ink: #6b5e00;
+  --color-asciichem-blue-ink: #0f5e93;
   --font-serif: "Iowan Old Style", "Source Serif Pro", "Palatino Linotype",
     Georgia, ui-serif, serif;
   --font-mono: "Spline Sans Mono", "JetBrains Mono", ui-monospace,
@@ -80,6 +90,16 @@ mrow > mo {
   border-color: var(--ec-theme-border) !important;
 }
 
+/* Starlight defines --sl-color-gray-7 (its "paper panel" slot) only in
+ * the light theme — in dark the variable is missing, so every site
+ * style using it for panels, stripes, and hover washes fell back to a
+ * light gray while the theme's text went light: dark-on-light soup.
+ * Give dark mode a panel one step lighter than the dark background so
+ * all gray-7 pairings follow the theme. */
+:root[data-theme="dark"] {
+  --sl-color-gray-7: hsl(224, 14%, 20%);
+}
+
 /* Inline AsciiChem source snippets inside running prose. */
 code.asciichem-inline {
   font-family: var(--font-mono);
@@ -87,7 +107,8 @@ code.asciichem-inline {
   padding: 0.05em 0.35em;
   border-radius: 0.25em;
   font-size: 0.95em;
-  color: var(--color-asciichem-accent);
+  /* Darkened gold: the raw accent fails 4.5:1 on the soft-gold chip. */
+  color: var(--color-asciichem-accent-ink);
 }
 
 /* Rendered-example figure: source block on top, MathML below. */
@@ -102,7 +123,8 @@ figure.asciichem-example {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   background: var(--color-asciichem-accent);
-  color: #fff;
+  /* Ink on gold (7.6:1) — white on gold fails AA at 2.5:1. */
+  color: var(--color-asciichem-on-accent);
 }
 
 .asciichem-label {
@@ -130,6 +152,8 @@ figure.asciichem-example {
 .asciichem-source {
   padding: 0.75rem 1rem;
   background: var(--sl-color-gray-7, #f5f5f5);
+  /* Semantic ink tracks the theme with the panel above. */
+  color: var(--sl-color-white, #1a1a1a);
   font-family: var(--font-mono);
   font-size: 0.9rem;
   overflow-x: auto;
@@ -139,6 +163,7 @@ figure.asciichem-example {
   font-family: inherit;
   background: transparent;
   padding: 0;
+  color: inherit;
 }
 
 .asciichem-render {
@@ -359,7 +384,15 @@ main table {
 
 main thead {
   background: var(--color-asciichem-accent);
-  color: #fff;
+  /* Ink on gold (7.6:1) — white on gold fails AA at 2.5:1. */
+  color: var(--color-asciichem-on-accent);
+}
+
+/* Starlight's markdown table style colors `th` directly
+ * (--sl-color-white = white in dark), which would sit on the brand
+ * gold head at 3.8:1 in dark mode. Ink on gold holds in both themes. */
+main thead th {
+  color: var(--color-asciichem-on-accent, #191919);
 }
 
 main thead th {
@@ -425,13 +458,27 @@ textarea:focus-visible,
   outline-color: #e7d67a;
 }
 
+/* Links in prose: distinguishable without color ---------------------- */
+/* Starlight's markdown links are color-only, which fails WCAG 1.4.1
+ * (link-in-text-block). Underline every link inside a text block —
+ * paragraphs, list items, table cells, and definition lists. Navigational
+ * links (sidebar, header) are not prose and stay as they are. */
+.sl-markdown-content p a,
+.sl-markdown-content li a,
+.sl-markdown-content td a,
+.sl-markdown-content dd a {
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 1px;
+}
+
 /* Hero primary button: brand accent --------------------------------- */
 
 main.hero a.sl-c-link,
 main.hero a[href]:not([href*="//"]) {
   background: var(--color-asciichem-accent, #baa300);
   border-color: var(--color-asciichem-accent, #baa300);
-  color: #fff;
+  color: var(--color-asciichem-on-accent, #191919);
   transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
@@ -443,30 +490,37 @@ main.hero a[href]:not([href*="//"]):hover {
 [data-theme="dark"] main.hero a[href]:not([href*="//"]) {
   background: #e7d67a;
   border-color: #e7d67a;
-  color: #968400;
+  color: var(--color-asciichem-on-accent, #191919);
 }
 
 [data-theme="dark"] main.hero a[href]:not([href*="//"]):hover {
-  background: #1f8a5e;
+  background: #d6c254;
 }
 
 /* Sidebar active link: brand accent --------------------------------- */
 
+/* Starlight paints the current-page item as a pill in
+ * --sl-color-text-accent (its blue) with inverted text; the previous
+ * gold text override landed on that blue pill at 2.3:1. Keep the
+ * brand gold pill but put ink on it: gold+ink is 7.6:1 light,
+ * 12:1 on the soft gold used in dark. */
 .sidebar a[aria-current="page"] {
-  color: var(--color-asciichem-accent, #baa300);
+  color: var(--color-asciichem-on-accent, #191919);
+  background-color: var(--color-asciichem-accent, #baa300);
   font-weight: 600;
 }
 
 .sidebar a[aria-current="page"]::before {
-  background: var(--color-asciichem-accent, #baa300);
+  background: transparent;
 }
 
 [data-theme="dark"] .sidebar a[aria-current="page"] {
-  color: #e7d67a;
+  color: var(--color-asciichem-on-accent, #191919);
+  background-color: var(--color-asciichem-gold-dark, #e7d67a);
 }
 
 [data-theme="dark"] .sidebar a[aria-current="page"]::before {
-  background: #e7d67a;
+  background: transparent;
 }
 
 /* Smooth scrolling for anchor links --------------------------------- */

@@ -30,7 +30,8 @@ const isPlayground = currentPath.startsWith("/playground");
     gap: 0.5rem;
     padding: 0.7rem 1.1rem 0.7rem 0.85rem;
     background: var(--color-asciichem-accent, #baa300);
-    color: #fff;
+    /* Ink on gold — white on gold fails AA at 2.5:1. */
+    color: var(--color-asciichem-on-accent, #191919);
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 700;
@@ -42,7 +43,7 @@ const isPlayground = currentPath.startsWith("/playground");
 
   [data-theme="dark"] .floating-play {
     background: #e7d67a;
-    color: #968400;
+    color: var(--color-asciichem-on-accent, #191919);
     box-shadow: 0 4px 16px rgba(231, 214, 122, 0.35);
   }
 
