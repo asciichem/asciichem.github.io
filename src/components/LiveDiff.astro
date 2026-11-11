@@ -78,7 +78,9 @@ const lanes = [
           </div>
           <code class="ld-pane-pkg">{lane.package}</code>
         </header>
-        <pre class="ld-pane-out" data-pane={lane.name} aria-live="polite"></pre>
+        <!-- tabindex="0": the pane scrolls (WCAG 2.1.1); keyboard users
+             must be able to reach the scrollable region. -->
+        <pre class="ld-pane-out" data-pane={lane.name} aria-live="polite" tabindex="0"></pre>
         <footer class="ld-pane-foot">
           <code class="ld-pane-install">{lane.install}</code>
           <span class="ld-pane-note">{lane.note}</span>
@@ -106,7 +108,8 @@ const lanes = [
     font-size: 0.75rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-asciichem-accent);
+    /* Darkened gold — the raw accent fails 4.5:1 as text on white. */
+    color: var(--color-asciichem-accent-ink, #6b5e00);
   }
 
   .ld-intro h2 {
@@ -116,8 +119,29 @@ const lanes = [
 
   .ld-sub {
     margin: 0;
-    color: var(--color-asciichem-ink);
-    opacity: 0.78;
+    /* Muted ink via alpha color, not element opacity: opacity would
+     * composite the whole paragraph (links included) below AA. */
+    color: color-mix(in srgb, var(--color-asciichem-ink) 78%, transparent);
+  }
+
+  .ld-sub a {
+    /* Same treatment as prose links (WCAG 1.4.1): never color-only. */
+    color: var(--color-asciichem-blue-ink, #0f5e93);
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: 1px;
+  }
+
+  :global([data-theme="dark"]) .ld-eyebrow {
+    color: var(--color-asciichem-gold-dark, #e7d67a);
+  }
+
+  :global([data-theme="dark"]) .ld-sub {
+    color: color-mix(in srgb, var(--color-asciichem-ink-light) 78%, transparent);
+  }
+
+  :global([data-theme="dark"]) .ld-sub a {
+    color: var(--color-asciichem-blue-dark, #98e6ff);
   }
 
   /* Input — typewriter ribbon */
@@ -134,6 +158,10 @@ const lanes = [
     color: var(--color-asciichem-ink);
     opacity: 0.65;
     margin-bottom: 0.375rem;
+  }
+
+  :global([data-theme="dark"]) .ld-input label {
+    color: var(--color-asciichem-ink-light, #d8d8d8);
   }
 
   .live-diff textarea {
@@ -224,7 +252,9 @@ const lanes = [
   .ld-pane-pkg {
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    color: var(--color-asciichem-blue);
+    /* Deep blue ink — the mid brand blue fails 4.5:1 on the
+     * parchment pane background in both themes. */
+    color: var(--color-asciichem-blue-ink, #0f5e93);
     background: transparent;
     padding: 0;
   }
@@ -260,7 +290,7 @@ const lanes = [
     font-size: 0.72rem;
     background: transparent;
     padding: 0;
-    color: var(--color-asciichem-blue);
+    color: var(--color-asciichem-blue-ink, #0f5e93);
   }
 
   .ld-pane-note {
@@ -268,7 +298,9 @@ const lanes = [
     font-size: 0.7rem;
     letter-spacing: 0.04em;
     color: var(--color-asciichem-ink);
-    opacity: 0.6;
+    /* 0.6 opacity lands at 4.1:1 on the parchment pane — below AA.
+     * 0.75 keeps the muted look and clears 4.5:1 in both themes. */
+    opacity: 0.75;
   }
 
   /* Compact mode — drop the thesis, shrink everything, used on per-language pages */

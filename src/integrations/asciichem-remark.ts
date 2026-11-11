@@ -136,8 +136,11 @@ function buildItem(source: string): string {
     : `<div class="asciichem-render asciichem-render--missing">
          <em>Install the <code>asciichem</code> gem to see this rendered.</em>
        </div>`;
+  // tabindex="0" on the source pane: it scrolls horizontally, and
+  // keyboard users must be able to reach a scrollable region
+  // (WCAG 2.1.1 / axe `scrollable-region-focusable`).
   return `<div class="asciichem-item">
-    <div class="asciichem-source"><code class="language-asciichem">${escapeHtml(source)}</code></div>
+    <div class="asciichem-source" tabindex="0"><code class="language-asciichem">${escapeHtml(source)}</code></div>
     ${render}
   </div>`;
 }

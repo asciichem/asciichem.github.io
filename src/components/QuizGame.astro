@@ -71,7 +71,9 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--sl-color-gray-3, #888);
+    /* gray-2, not gray-3: this label sits on a gray-7 panel, where
+     * gray-3 in dark mode lands under 4.5:1. */
+    color: var(--sl-color-gray-2, #888);
     font-weight: 600;
   }
 
@@ -121,7 +123,8 @@
 
   .quiz-desc {
     font-size: 0.9rem;
-    color: var(--sl-color-gray-3, #666);
+    /* gray-2: readable on the gray-7 card panel in both themes. */
+    color: var(--sl-color-gray-2, #666);
     max-width: 28rem;
     margin: 0;
     line-height: 1.5;
@@ -184,10 +187,14 @@
 
   .quiz-btn--primary {
     background: var(--color-asciichem-accent, #baa300);
-    color: #fff;
+    /* Ink on gold — white on gold fails AA at 2.5:1. */
+    color: var(--color-asciichem-on-accent, #191919);
   }
 
-  [data-theme="dark"] .quiz-btn--primary { background: #e7d67a; color: #968400; }
+  [data-theme="dark"] .quiz-btn--primary {
+    background: #e7d67a;
+    color: var(--color-asciichem-on-accent, #191919);
+  }
 
   .quiz-btn--primary:hover {
     transform: translateY(-1px);
@@ -261,7 +268,8 @@
 
   .quiz-result-message {
     font-size: 1rem;
-    color: var(--sl-color-gray-3, #666);
+    /* gray-2: readable on the gray-7 card panel in both themes. */
+    color: var(--sl-color-gray-2, #666);
     max-width: 28rem;
     text-align: center;
   }
