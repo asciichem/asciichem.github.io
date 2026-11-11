@@ -50,9 +50,9 @@ OPSIN, and CAS Common Chemistry — are registered **and on by
 default**; every record carries its source's required attribution,
 and callers limit the set explicitly (`sources:`) when license
 obligations require it. A failing source never poisons the others:
-asciichem 0.31.13 skips sources that answer with errors (CAS has
-key-gated the Common Chemistry API — live lookups there currently
-return no record until a key story lands; see
+the resolver skips sources that answer with errors (CAS key-gated
+the Common Chemistry API — export `COMMON_CHEMISTRY_API_KEY` for
+live lookups there; see
 [Sources and licensing](/guides/citing-substances/#sources-and-licensing/)).
 
 ```ruby
