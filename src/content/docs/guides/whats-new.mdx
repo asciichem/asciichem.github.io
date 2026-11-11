@@ -21,8 +21,9 @@ independent implementations pass the same corpus.
   <Card title="Resolution with provenance" icon="seti:default">
     `AsciiChem::Resolver` turns identifiers into substance records —
     multi-source, cross-checked, cached in the user cache dir, with
-    per-identifier provenance. PubChem first; more sources opt-in.
-    CLI: `asciichem resolve --cas 50-78-2`.
+    per-identifier provenance. PubChem, OPSIN, and CAS Common
+    Chemistry resolve by default; documents limit the set with
+    `asciichem-sources`. CLI: `asciichem resolve --cas 50-78-2`.
   </Card>
   <Card title="Three implementations, one contract" icon="seti:json">
     TypeScript (`asciichem`) and Python (`asciichem-py`) joined the
@@ -107,9 +108,10 @@ independent implementations pass the same corpus.
   <Card title="The identity loop, closed" icon="seti:search">
     OPSIN resolves IUPAC names to structures, identifier cross-checks
     compare sources, and citations resolve per (substance, source) —
-    with the sources settled: PubChem default, CAS Common Chemistry
-    opt-in under its CC BY-NC terms, attributed. See [Citing
-    substances](/guides/citing-substances/).
+    with every shipped source on by default (PubChem, OPSIN, CAS
+    Common Chemistry), attribution carried into every record and
+    bibitem, and document-level limiting via `asciichem-sources` for
+    NC-free needs. See [Citing substances](/guides/citing-substances/).
   </Card>
   <Card title="Native InChI, no binary at runtime" icon="seti:rust">
     The Rust engine derives the full standard identifier — canonical
