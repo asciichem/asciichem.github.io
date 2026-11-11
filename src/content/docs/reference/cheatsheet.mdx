@@ -188,6 +188,29 @@ Backtick-delimited runs are parsed by Plurimath:
 Use embedded math for equilibrium constants, rate laws, and
 thermodynamic expressions that sit naturally inside chemistry.
 
+## Annotations and identity
+
+Molecules carry annotations with the `@key("value")` suffix; they
+chain and round-trip:
+
+| Annotation | Example | Meaning |
+|-----------|---------|---------|
+| Name | `H_2O @name("Water")` | Substance name |
+| Identifier | `C @cas("74-82-8")` | `@cas`/`@inchi`/`@inchikey`/`@smiles`/`@iupac`/`@cid` |
+| Cite | `... @cite("pubchem")` | The resolver source to cite from |
+| Property | `H_2O @mw("18.015")` | Any unknown key becomes a property |
+
+```asciichem
+CC(=O)OC1=CC=CC=C1C(=O)O @cas("50-78-2") @cite("pubchem")
+H_2O @name("Water")@cas("7732-18-5")
+```
+
+Identifiers resolve to substance records with provenance
+([Structures and resolution](/guides/structures-and-resolution/))
+and `@cite` turns them into dataset-type bibitems
+([Citing substances](/guides/citing-substances/)). Full detail on
+[Annotations](/syntax/annotations/).
+
 ## Combining everything
 
 Real chemistry mixes every construct:

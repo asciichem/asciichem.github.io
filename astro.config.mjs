@@ -162,6 +162,7 @@ export default defineConfig({
             { label: "TypeScript API", slug: "reference/api-typescript" },
             { label: "Python API", slug: "reference/api-python" },
             { label: "CLI", slug: "reference/cli" },
+            { label: "Local identity", slug: "reference/identity" },
             { label: "Output formats", slug: "reference/formats" },
             { label: "Linter", slug: "reference/linter" },
             { label: "CML round-trip", slug: "reference/cml" },

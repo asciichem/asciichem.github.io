@@ -1,6 +1,6 @@
 ---
 title: Output formats
-description: MathML, Text, HTML, LaTeX, SVG, StructuralSvg, and CML.
+description: MathML, Text, HTML, LaTeX, SVG, StructuralSvg, CML, wire JSON, SMILES, and molfile.
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -65,6 +65,9 @@ formula.to_latex    # "\\ce{H2O}"
 formula.to_svg      # SVG XML string
 formula.to_structural_svg  # structural SVG (diagrams)
 formula.to_cml      # CML XML string
+formula.to_model_json  # wire JSON (asciichem-model v1)
+formula.to_smiles   # canonical SMILES (molecules)
+mol.to_molfile      # V2000 molfile (molecules)
 ```
 
 ## CLI
@@ -74,4 +77,10 @@ asciichem convert -i "H_2O" -t mathml   # default
 asciichem convert -i "H_2O" -t html
 asciichem convert -i "H_2O" -t latex
 asciichem convert -i "H_2O" -t cml
+asciichem convert -i "CCO" --from smiles -t structural-svg
+asciichem convert -i "CCO" --from smiles -t model-json
+asciichem convert -i "CCO" --from smiles -t smiles
+asciichem convert -f ethanol.mol --from molfile -t molfile
 ```
+
+The full option set is on the [CLI reference](/reference/cli/) page.

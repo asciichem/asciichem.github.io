@@ -42,18 +42,22 @@ Parse / reject · L0 emission · L1 text · **L2 MathML** · SMILES · molfile �
 The reference implementation carries the long tail of features that make the contract concrete:
 
 - **All formatters** — MathML, Text (the canonicaliser), HTML, LaTeX, SVG (typographic), StructuralSvg (2D layout), CML via the chemicalml gem, SMILES and molfile writers, and the canonical wire JSON.
-- **Opt-in Rust-core engine** — the same grammar and transform over Parsanol's parslet-compat layer, at ~2.4× parse speed; parslet stays the default:
+- **Opt-in Rust-core engines** — the same grammar and transform over Parsanol's parslet-compat layer, or over the compiled PARG artifact; parslet stays the default:
 
   ```ruby
   # Gemfile: gem "parsanol", "~> 1.3.16"
   require "asciichem/engine/parsanol_engine"
-  AsciiChem::Engine.use(:parsanol)
+  AsciiChem::Engine.use(:parsanol)   # or :parg (parsanol >= 1.3.94)
   ```
 
+  The corpus passes identically under either engine (221/221), at
+  ~2.6x parse speed on the benchmark workload.
+
 - **Citations** — `AsciiChem::Citation.to_xml(substance)` emits a dataset-type Relaton bibitem per resolved source. CLI: `asciichem cite --cas 50-78-2`. See [Citing substances](/guides/citing-substances/).
-- **InChI identity** — opt-in engine over the IUPAC `inchi-1` binary with `IdentityCrossCheck` linter. CLI: `asciichem identity -i ...`. See [Structures and resolution](/guides/structures-and-resolution/).
+- **Resolution** — `AsciiChem::Resolver` resolves identifiers into substance records against PubChem, OPSIN, and CAS Common Chemistry (all on by default; `sources:` limits the set; `resolve!` cross-checks InChIKeys). See [Structures and resolution](/guides/structures-and-resolution/).
+- **InChI identity** — opt-in engines: the IUPAC `inchi-1` binary (`BinaryEngine`) or the native Rust engine (`NativeEngine` over `CHEMOMER_LIB`), plus RInChI for reactions and the `IdentityCrossCheck` linter. CLI: `asciichem identity -i ...`. See [Local identity](/reference/identity/).
 - **Beyond formulas** — crystals, spectra, computational results, Z-matrices, reaction mechanisms all parse into the semantic model and round-trip.
-- **The CLI** — `convert`, `lint`, `validate`, `resolve`, `cite`, `identity`, `version`. See [CLI reference](/reference/cli/).
+- **The CLI** — `convert`, `lint`, `validate`, `resolve`, `cite`, `identity`, `roundtrip`, `parse-cml`, `version`. See [CLI reference](/reference/cli/).
 
 ## Repository
 

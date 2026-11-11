@@ -46,21 +46,28 @@ your browser.
 
 Resolution turns identifiers into substance records with provenance
 (TODO.v2 07). All shipped sources — PubChem (keyless, permissive),
-OPSIN, and CAS Common Chemistry — are registered by default; every
-record carries its source's required attribution, and callers limit
-the set explicitly (`sources:`) when license obligations require it.
+OPSIN, and CAS Common Chemistry — are registered **and on by
+default**; every record carries its source's required attribution,
+and callers limit the set explicitly (`sources:`) when license
+obligations require it.
 
 ```ruby
 substance = AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
 substance.identifier_value("inchikey")   # => "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
 substance.structure.to_structural_svg    # parsed from the source SMILES
 substance.to_model_json                  # canonical substance record
+
+# every answering source, one record each:
+AsciiChem::Resolver.resolve_all(value: "50-78-2", convention: "cas")
+
+# cross-check mode: raises Resolver::Conflict on InChIKey disagreement
+AsciiChem::Resolver.resolve!(value: "50-78-2", convention: "cas")
 ```
 
 Every result carries provenance — source, retrieved-at, attribution —
 because the citation track emits one bibitem per (substance, source).
-Results are cached in your user cache directory; `--refresh`
-bypasses it.
+Results are cached in your user cache directory (7-day TTL);
+`--refresh` bypasses it.
 
 ```sh
 asciichem resolve --name aspirin --source pubchem
@@ -70,18 +77,20 @@ asciichem validate -i 'H_2O @cas("7732-18-5")'   # offline
 ## Local identity
 
 Identity can also be *computed* from the structure you drew —
-offline, through the IUPAC reference software (never a
-reimplementation). The engine is opt-in and external:
+offline, through reference software (never a reimplementation). The
+engine is opt-in and external:
 
 ```ruby
-AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new
+AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new   # IUPAC inchi-1 binary
+# or the native Rust engine (chemomer), driven through CHEMOMER_LIB:
+AsciiChem::Inchi.engine = AsciiChem::Inchi::NativeEngine.new
 AsciiChem::Inchi.identity_for(molecule).inchikey
 ```
 
 With an engine configured, `asciichem lint` structurally cross-checks
 `@inchi` and `@inchikey` annotations against the drawn structure —
 catching transcription errors that format validation cannot. Python
-wraps the same library via RDKit (`pip install 'asciichem[inchi]'`).
+wraps the same IUPAC library via RDKit (`pip install 'asciichem-py[inchi]'`).
 
 Stereochemistry crosses into the engine: tetrahedral chirality is
 written as MDL atom parity and stated hydrogens as the H-count
@@ -97,6 +106,9 @@ binary, yielding the RInChI and its short/long InChIKeys:
 AsciiChem::Rinchi.engine = AsciiChem::Rinchi::BinaryEngine.new
 AsciiChem::Rinchi.identity_for(reaction).long_rinchikey
 ```
+
+Engines, env vars, the native engine's bindings, and what crosses
+into the molfile pipe are on [Local identity](/reference/identity/).
 
 <CardGrid stagger>
   <Card title="Wire form" icon="seti:json">

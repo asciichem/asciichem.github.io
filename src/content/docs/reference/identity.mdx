@@ -1,0 +1,137 @@
+---
+title: Local identity
+description: Deriving InChI, InChIKey, AuxInfo, and RInChI from the drawn structure — the engine seam, the IUPAC binary, the native Rust engine, and what crosses into them.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Identity can be *computed* from the structure you drew — offline,
+through reference software. The InChI algorithm is **never
+reimplemented**: an engine wraps an InChI implementation behind one
+contract, and the pipe is always
+`Model::Molecule → molfile → engine → InChI/InChIKey`. Without an
+engine, every derivation raises an explicit error with install
+guidance — there is no silent fallback.
+
+## The engine contract
+
+```ruby
+AsciiChem::Inchi.engine = ...          # register once, or pass engine: per call
+AsciiChem::Inchi.identity_for(molecule)
+# => #<AsciiChem::Inchi::Identity inchi: "InChI=1S/...", inchikey: "BSYNRYMUTXBXSQ-UHFFFAOYSA-N">
+```
+
+Two engines ship with the gem; both are opt-in external artifacts —
+the core gem stays dependency-free.
+
+## Engine 1: the IUPAC `inchi-1` binary
+
+`AsciiChem::Inchi::BinaryEngine` shells out to the standalone IUPAC
+binary ([inchi-trust.org downloads](https://www.inchi-trust.org/downloads/)):
+
+```ruby
+AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new
+AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new(bin: "/usr/local/bin/inchi-1")
+```
+
+From the CLI, `--engine-bin` points at a binary for one invocation:
+
+```sh
+asciichem identity -i "CC(=O)OC1=CC=CC=C1C(=O)O" --from smiles
+asciichem identity -i "..." --engine-bin /usr/local/bin/inchi-1
+```
+
+The engine stages the molfile to a temp file and reads the output
+file back — the distributed binary's file interface is the contract
+(`-STDIO` is not part of it). Without any engine, `asciichem
+identity` exits 5 with install guidance.
+
+## Engine 2: the native Rust engine (chemomer)
+
+[chemomer](https://github.com/chemomer/chemomer) is a native Rust
+InChI engine — canonical numbering, every standard layer (mobile-H
+groups, tetrahedral and double-bond stereo), and the InChIKey with a
+dependency-free SHA-256 — gated byte-exactly against the recorded
+IUPAC 1.07.5 oracle corpus
+([chemomer/inchi-tests](https://github.com/chemomer/inchi-tests),
+pinned at v0.3.41). It ships as a Rust library, a C ABI (`cdylib`),
+and Python/WASM/Node bindings — no third-party binary at runtime.
+The C ABI also exports the AuxInfo line (`chemomer_aux_from_molfile`).
+
+The Ruby gem reaches it through `NativeEngine` over the C ABI (FFI
+loads lazily):
+
+```ruby
+AsciiChem::Inchi.engine = AsciiChem::Inchi::NativeEngine.new
+AsciiChem::Inchi.engine = AsciiChem::Inchi::NativeEngine.new(lib: "/path/libchemomer.dylib")
+```
+
+Build the cdylib once from an engine checkout and point `CHEMOMER_LIB`
+at it (or install the dylib on the loader's search path):
+
+```sh
+cargo build --release            # in the chemomer checkout
+export CHEMOMER_LIB=$PWD/target/release/libchemomer.dylib
+```
+
+The same engine ships ready-made for other stacks — each binding is
+its own thin package over the same C ABI:
+
+| Stack | Package | Call |
+|---|---|---|
+| Rust | [crates.io `chemomer`](https://crates.io/crates/chemomer) | `Engine::from_molfile(mol)` → `inchi_string()` / `inchikey()` |
+| Node / WASM | npm [`chemomer`](https://www.npmjs.com/package/chemomer) | `from_molfile(text)` / `aux_from_molfile(text)` / `inchikey(text)` |
+| Python | PyPI [`chemomer`](https://pypi.org/project/chemomer/) | `inchi, inchikey = chemomer.from_molfile(text)` |
+| Ruby | RubyGems [`chemomer`](https://rubygems.org/gems/chemomer) | `inchi, inchikey = Chemomer.from_molfile(text)` |
+
+<Aside type="note" title="Engine vs binding">
+  The `NativeEngine` route keeps identity inside AsciiChem's model
+  pipe (the gem writes the molfile for you). The `chemomer` packages
+  are the raw engine: molfile in, identifier out — useful when you
+  already have molfiles from elsewhere.
+</Aside>
+
+## What crosses into the engine
+
+- **Connectivity, charges, isotopes** cross through the V2000
+  molfile block.
+- **Tetrahedral chirality** is written as MDL atom parity; stated
+  hydrogens become the H-count field — so enantiomers derive
+  different InChIs.
+- **Directional bonds** (`/`, `\`) need stereo-aware 2D geometry,
+  which the molfile emitted here does not carry. The loss is
+  documented and asserted, never silent.
+
+Identity derivation needs **exactly one molecule**; formulas with
+several (or reactions) are rejected with a count in the message.
+
+## Reactions: RInChI
+
+Reactions get the same treatment through RInChI — the reaction is
+written as an MDL RXN file and passed to the opt-in IUPAC
+[`rinchi_cmdline`](https://github.com/IUPAC-InChI/RInChI) binary
+(built against InChI v1.07.5):
+
+```ruby
+AsciiChem::Rinchi.engine = AsciiChem::Rinchi::BinaryEngine.new
+AsciiChem::Rinchi.identity_for(reaction).long_rinchikey
+```
+
+Like the InChI engines, it is opt-in: without it, derivation raises
+`EngineMissingError` with build instructions.
+
+## The linter tie-in
+
+With an engine configured, the linter's `IdentityCrossCheck` derives
+every `@inchi`/`@inchikey`-annotated molecule's identifier and asserts
+agreement with what you actually drew — catching transcription errors
+that format validation cannot. Without an engine it emits one guidance
+warning. See the [Linter reference](/reference/linter/).
+
+<Aside type="caution" title="Resolution vs derivation">
+  Resolution asks a database who a `@cas`/`@name` is (networked,
+  cached, cited — [Structures and resolution](/guides/structures-and-resolution/)).
+  Derivation computes the identifier from the structure you drew
+  (offline, this page). The citation loop uses both: resolve for
+  provenance, derive for the cross-check.
+</Aside>

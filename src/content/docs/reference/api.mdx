@@ -11,6 +11,11 @@ import { Steps } from "@astrojs/starlight/components";
 ```ruby
 formula = AsciiChem.parse("2H_2 + O_2 -> 2H_2O")
 # => #<AsciiChem::Model::Formula>
+
+# Every input grammar lands in the same model:
+AsciiChem.parse_smiles("CC(=O)OC1=CC=CC=C1C(=O)O")  # aspirin
+AsciiChem.parse_molfile(molfile_text)                # V2000, coordinates preserved
+AsciiChem::Cml.parse(cml_xml)                        # CML in, AsciiChem out
 ```
 
 ## Model shortcuts
@@ -25,6 +30,9 @@ formula.to_latex       # LaTeX (mhchem \ce{})
 formula.to_svg         # linear SVG wrapper
 formula.to_structural_svg  # 2D structural SVG (elkrb for molecules)
 formula.to_cml         # CML XML string
+formula.to_model_json  # asciichem-model v1 wire JSON
+formula.to_smiles      # canonical SMILES (molecules)
+mol.to_molfile         # V2000 molfile (molecules)
 ```
 
 ## Molecule convenience methods (v0.12+)
@@ -66,12 +74,51 @@ diagnostics = AsciiChem::Linter.run(formula)
 diagnostics.any? { |d| d.severity == :error }  # => false if clean
 ```
 
+## InChI identity
+
+```ruby
+AsciiChem::Inchi.engine = AsciiChem::Inchi::BinaryEngine.new   # IUPAC inchi-1 binary
+# or: AsciiChem::Inchi::NativeEngine.new                       # chemomer Rust engine (CHEMOMER_LIB)
+AsciiChem::Inchi.identity_for(molecule)  # => Identity(inchi: ..., inchikey: ...)
+```
+
+Without an engine, derivation raises `EngineMissingError` with
+install guidance. Engine choices, the RInChI reaction path, and what
+crosses into the engine are on [Local identity](/reference/identity/).
+
 ## Formatter registry
 
 ```ruby
 AsciiChem::Formatter[:mathml]  # => AsciiChem::Formatter::Mathml
 AsciiChem::Formatter.render(:html, formula)
 ```
+
+## Resolution (v0.25+)
+
+Identifiers become substance records with per-identifier provenance.
+Every shipped source — PubChem, OPSIN, and CAS Common Chemistry — is
+registered **and on by default** (Common Chemistry is CC BY-NC 4.0,
+default-on per the maintainer decision of 2026-11-11); limit the set
+explicitly when your use requires it:
+
+```ruby
+# one record per answering source (nil dropped); first wins for #resolve
+AsciiChem::Resolver.resolve(value: "50-78-2", convention: "cas")
+AsciiChem::Resolver.resolve_all(value: "50-78-2", convention: "cas")
+# => [#<AsciiChem::Resolver::Substance ...>, ...]   (PubChem + Common Chemistry)
+
+# limit the set (NC-free resolution)
+AsciiChem::Resolver.resolve_all(value: "50-78-2", convention: "cas",
+                                sources: [:pubchem, :opsin])
+
+# cross-check mode: raises Resolver::Conflict when InChIKeys disagree
+AsciiChem::Resolver.resolve!(value: "50-78-2", convention: "cas")
+```
+
+Source conventions: PubChem answers `name`, `cas`, `pubchem-cid`,
+`inchikey`, `inchi`, `smiles`, and `canonical-smiles`; OPSIN answers
+`iupac-name`; Common Chemistry answers `cas`. Results cache in your
+user cache directory (7-day TTL; `refresh: true` bypasses).
 
 ## Citation (v0.25+)
 

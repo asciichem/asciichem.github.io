@@ -38,6 +38,10 @@ formula.toSvg();           // typographic SVG
 formula.toStructuralSvg(); // 2D structural SVG (bonds you author)
 formula.toSmiles();        // deterministic SMILES writer
 mol.toMolfile();           // V2000 molfile (molecules only)
+
+import { writeSmiles, writeMolfile, Perception } from "asciichem";
+writeSmiles(aspirin);      // same writers, function form
+Perception.aromaticRings(atoms, edges);  // shared perception pass
 ```
 
 ## Renderers
@@ -96,8 +100,11 @@ inchiIdentityFor(molecule)         // { inchi, inchikey? }
 ```
 
 The InChI algorithm is never reimplemented — engines wrap an InChI
-implementation (a WASM build of the IUPAC library in this
-environment).
+implementation. The native engine behind the Ruby gem ships a WASM
+build as the [`chemomer`](https://www.npmjs.com/package/chemomer) npm
+package (`from_molfile`, `inchikey`), byte-exact against the IUPAC
+1.07.5 oracle; a plain function adapter is all the seam needs. See
+[Local identity](/reference/identity/).
 
 ## What runs where
 
@@ -110,6 +117,7 @@ environment).
 
 ## Claimed levels
 
-Parse/reject · L0 emission · L1 text · L2 MathML · SMILES · molfile —
-100% of the shared corpus. See
+Parse/reject · L0 emission · L1 text · L2 MathML · L2 SVG
+(typographic + structural) · L3 stereo · SMILES · molfile — 100% of
+the shared corpus. CML and the linter are not yet claimed. See
 [Implementations](/implement/) for the full matrix.
