@@ -23,9 +23,11 @@ what must be true before it happens.
   `chemomer/inchi-tests/corpus/fixtures/identity*.json`; level claims
   from the site's conformance matrix page.
 - [ ] **Figures.** Figures 1–3 are drafted as vector SVG in
-  [figures/](figures/) and referenced from the draft captions; restyle
-  to the ACS template on import (fonts, sizing, TOC graphic) and keep
-  captions consistent with the artwork.
+  [figures/](figures/) and referenced from the draft captions; the
+  JCIM TOC/synopsis graphic is drafted as
+  [figures/toc-graphic.svg](figures/toc-graphic.svg). Restyle all to
+  the ACS template on import (fonts, sizing) and keep captions
+  consistent with the artwork.
 - [ ] **References.** Journal citations have Crossref-verified DOIs.
   Reference (5) (OpenSMILES): the canonical URL
   `http://opensmiles.org/opensmiles.html` was confirmed live
