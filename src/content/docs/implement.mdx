@@ -15,17 +15,29 @@ Schemas plus generated types) and the [conformance corpus](/models/#conformance)
 (asciichem-tests — the fixtures every implementation must pass in its
 own CI). Anything that passes both *is* AsciiChem.
 
-This is the single-contract rule: there is no "the parser". There is
-the reference implementation and its equals.
+This is the single-contract rule, with the order made explicit: there
+is no per-language parser. Every runtime parses through **parsanol
+over the one checksummed PARG artifact** of the grammar, and
+[asciichem-rs](https://github.com/asciichem/asciichem-rs) is the
+**authoritative implementation** — all runtimes carry identical
+functionality, and where a port is still pending the matrix below
+says so plainly.
 
 <ConformanceMatrix />
 
 ## The implementations
 
 <CardGrid stagger>
+  <Card title="Rust — asciichem-rs" icon="seti:rust">
+    The authoritative implementation. Parse through canonical text,
+    wire JSON, MathML, SVG, SMILES/molfile, CML, linter, resolver,
+    citations, in-process InChI, and the `asciichem` CLI.
+    [Rust →](/implement/rust/)
+  </Card>
   <Card title="Ruby — asciichem" icon="seti:ruby">
-    `gem install asciichem` — the reference. Full formatter set,
-    citations, InChI identity, linter, CLI. [Ruby →](/implement/ruby/)
+    `gem install asciichem` — the full formatter set, citations,
+    InChI identity, linter, resolver, CLI; the Metanorma path.
+    [Ruby →](/implement/ruby/)
   </Card>
   <Card title="TypeScript — asciichem-ts" icon="seti:ts">
     `npm install asciichem` — runs in the browser and Node.
@@ -35,10 +47,6 @@ the reference implementation and its equals.
     `pip install asciichem-py` — zero runtime deps, plain
     dataclasses. [Python →](/implement/python/)
   </Card>
-  <Card title="Rust — asciichem-rs" icon="seti:rust">
-    A native consumer of the compiled PARG grammar artifact — the
-    parse contract at 100%. [Rust →](/implement/rust/)
-  </Card>
 </CardGrid>
 
 ## Picking an implementation
@@ -46,15 +54,24 @@ the reference implementation and its equals.
 - **Documents and standards pipelines (Ruby)** — the gem integrates
   with Metanorma-style publishing; CML round-trip for interchange;
   the CLI covers parsing, rendering, linting, resolving, validation.
+- **Systems, CLIs, and services (Rust)** — the authoritative crate:
+  the whole surface as a library plus the `asciichem` binary, with
+  InChI identity derived in-process (no FFI seam) and networked
+  resolution on `ureq`.
 - **Web and interactive tools (TypeScript)** — parse and draw
   chemistry client-side; the corpus guarantees the same acceptance as
-  the reference, so your web previews match your build-time renders.
+  every other runtime, so your web previews match your build-time
+  renders.
 - **Data and science workflows (Python)** — zero-dependency parsing
   into plain dataclasses; wire JSON in and out for pipelines.
 
 All implementations speak the same wire form, so structures move
 freely between ecosystems. Conformance is claimed per
-[level](/guides/conformance-levels/), not per vibe.
+[level](/guides/conformance-levels/), not per vibe. The TypeScript
+and Python resolver, citation, and linter ports are tracked openly
+([asciichem-ts#26](https://github.com/asciichem/asciichem-ts/issues/26),
+[asciichem-py#19](https://github.com/asciichem/asciichem-py/issues/19))
+— until they land, those layers live in Rust and Ruby.
 
 ## Behind the implementations
 

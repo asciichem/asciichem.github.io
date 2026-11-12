@@ -1,30 +1,41 @@
 ---
 title: Rust — asciichem-rs
-description: The fourth implementation — a native PARG consumer that runs the checksummed grammar artifact and passes the shared parse, wire, canonical-text round-trip, MathML golden, and SVG contracts.
+description: The authoritative implementation — the full AsciiChem surface in one crate, parsing through parsanol over the checksummed PARG artifact.
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
 
-[asciichem-rs](https://github.com/asciichem/asciichem-rs) is the Rust
-implementation. It follows the same single-contract rule as the other
-three, but takes the grammar a different way: **it does not
-reimplement the syntax.** It consumes the compiled PARG artifact of
-the AsciiChem grammar and runs it on
-[parsanol](https://github.com/parsanol/parsanol-rs)'s portable engine.
+[asciichem-rs](https://github.com/asciichem/asciichem-rs) is the
+**authoritative AsciiChem implementation**: one crate carrying the
+whole surface — parse, canonical text, wire JSON, MathML, SVG,
+SMILES and molfile interchange, CML, the linter, the resolver,
+citations, in-process InChI identity, and the `asciichem` CLI. The
+other runtimes (Ruby, TypeScript, Python) carry identical
+functionality and converge on it through the shared corpus; where a
+port is still pending, this site says so plainly (see the
+[conformance matrix](/implement/)).
+
+Like every runtime, it **does not reimplement the syntax**: it embeds
+the compiled PARG artifact of the AsciiChem grammar and runs it on
+[parsanol](https://github.com/parsanol/parsanol-rs)'s portable
+engine.
 
 ```sh
-cargo add asciichem     # not yet published — build from source
-cargo test              # corpus-backed, see below
+git clone https://github.com/asciichem/asciichem-rs   # crates.io publication pending
+cd asciichem-rs && cargo build --release              # release pipeline: release-plz + trusted publishing
+cargo test                                            # corpus-backed, see below
 ```
 
 ## What PARG means here
 
 PARG is the compiled, checksummed form of the grammar language —
-one compiler (Ruby-side), N consumers. The crate vendors the artifact
-(`artifacts/asciichem.json`, the same one the Ruby `:parg` engine
-runs) and `parsanol` verifies the envelope checksum at load. A stale
-or tampered artifact fails loudly instead of parsing a different
-language.
+one compiler, N consumers, one artifact (grammar v0.4.0, sha256
+`b5c1f5289f0487e974091e451f5b2703c12c861347c09dd8332bdcfd1822c34f`).
+The crate vendors the artifact (`artifacts/asciichem.json`, byte-for-byte
+the artifact the Ruby gem, the TypeScript wasm engine, and the Python
+engine run) and `parsanol` verifies the envelope checksum at load.
+A stale or tampered artifact fails loudly instead of parsing a
+different language.
 
 ```rust
 asciichem::parse("2H_2 + O_2 -> 2H_2O")?;        // Ok when fully captured
@@ -43,14 +54,68 @@ Two behaviours worth knowing:
 - **Deep nesting runs on a dedicated large-stack thread.** The
   recursive PEG engine overflows a default thread stack on the fuzz
   corpus's deeply nested inputs; `parse` reserves a stack that is
-  committed only as used.
+  committed only as used — and the worker thread is spawned once and
+  reused, with inputs ≤ 16 KiB parsing inline (asciichem-rs#24).
+
+## The full surface
+
+| Layer | Entry point | Notes |
+|---|---|---|
+| Structures | `smiles::parse_smiles` / `write_smiles`, `molfile::parse_molfile` / `write_molfile` | corpus SMILES + perception families, molfile stereo-code gate, deterministic re-emission |
+| Linter | `linter` | the reference's thirteen checks (asciichem-rs#20) — the ten with a counterpart in the current model subset are ported; the three node-kind checks (Crystal, Spectrum, ZMatrix) port with the model-subset expansion |
+| Identity | `identity::derive`, `identity::derive_from_molfile` | InChI, AuxInfo, InChIKey — in-process |
+| Resolver | `resolver` | identifiers → substance records with provenance |
+| Citation | `citation::to_xml` | dataset-type Relaton bibitems |
+| CML | `cml::to_cml` / `cml::parse_cml` | the aci: extension channels, three-way round-trip |
+| CLI | `cargo build` → the `asciichem` binary | the eleven commands, same surface as the Ruby CLI |
+
+### Identity is in-process
+
+InChI/InChIKey derivation goes through
+[chemomer](https://github.com/chemomer/chemomer) — the native Rust
+InChI engine, byte-exact against the IUPAC oracle — consumed as a
+version-pinned dependency with **no FFI seam** (the Ruby gem reaches
+the same engine through its C ABI; TS/PY through wasm/PyO3). CI gates
+the oracle corpus's full recorded identity family (5,627 fixtures,
+[chemomer/inchi-tests](https://github.com/chemomer/inchi-tests) at a
+pinned tag) byte-exact through the dependency, in release profile.
+
+### The resolver
+
+`resolver` resolves identifiers into substance records: **PubChem by
+default**, plus OPSIN (IUPAC names) and CAS Common Chemistry (CAS
+numbers, the `/direct-api/detail` endpoint with the token as the
+`X-API-KEY` header). The Common Chemistry key comes from
+`COMMON_CHEMISTRY_API_KEY` or
+`~/.config/cas-common-chemistry-api.key`. Records carry TTL caching
+in the user cache dir and per-identifier provenance; `sources:`
+limits the set, and a dead or key-gated source fails in isolation
+without taking the resolution down. Network I/O rides
+[`ureq`](https://crates.io/crates/ureq) with rustls.
+
+### Citation and CML go through leptris
+
+Every byte of XML in the citation bibitems and the CML round-trip is
+parsed and serialized by the linked
+[leptris](https://github.com/leptris/leptris) engine — the family
+directive: no hand-rolled XML anywhere. `citation::to_xml` emits a
+dataset-type Relaton bibitem per (substance, source); `cml` carries
+the model through the canonical CML wire with the `aci:` extension
+channels (atom attributes, top-level elements, molecule groups). The
+TypeScript and Python ports will use leptris-ts and leptris-py.
+
+### The CLI
+
+The `asciichem` binary ships the eleven commands the Ruby CLI ships —
+`convert`, `lint`, `validate`, `resolve`, `cite`, `identity`,
+`roundtrip`, `parse-cml`, `version`, `help`, `tree` — with the same
+exit codes (asciichem-rs#25). See the [CLI reference](/reference/cli/).
 
 ## Conformance claim
 
-The Rust implementation claims the **parse contract** and the **L1
-text round-trip contract** — every corpus case parses or rejects
-exactly as marked, and every round-trip fixture renders back through
-the canonical text form byte-identically, gated in CI:
+The crate claims parse/reject, L0 wire round-trip, L1 canonical-text
+round-trip, L2 MathML goldens and SVG, L3 stereo, and the L4
+identity layer — gated in CI against the pinned corpus:
 
 | Level | Claim |
 |---|---|
@@ -59,8 +124,10 @@ the canonical text form byte-identically, gated in CI:
 | L1 (text round-trip) | 100% — every round-trip fixture satisfies `parse_to_text(s) == s` |
 | L2 (MathML goldens) | 100% — every corpus MathML golden renders byte-exactly |
 | L2 (SVG) | 100% — structural + linear SVG byte-exact with the TypeScript renderers |
+| L3 (stereo) | 100% — tetrahedral chirality, directional bonds, wedge/hash depiction, Hückel aromaticity + implicit-H perception with the declines, parity-correct canonical SMILES, the molfile stereo-code gate |
+| L4 (identity) | the identity layer: InChI/AuxInfo/InChIKey in-process via chemomer, the oracle identity family byte-exact; identifier cross-validation and resolution via the linter and resolver |
 
-The wire form mirrors the reference `WireAdapter` field for field —
+The wire form mirrors the ecosystem's `WireAdapter` field for field —
 camelCase keys, kebab-case type tags, empty collections omitted — so
 canonical JSON is interchangeable across implementations, with
 mechanism steps crossing as typed reactions (cascade steps have no
@@ -72,28 +139,31 @@ never a phantom base), `msubsup` for subscript + charge/oxidation,
 conditions as `mover`/`munder`/`munderover` — byte-exact with the L2
 goldens.
 
-The semantic model subset mirrors the reference implementation's
-`TransformRules`: atoms with isotopes, charges, oxidation states, Lewis
-markers, ring closures and chirality; all bond kinds; groups across
-bracket kinds; molecules with coefficients, stereo and `@`-annotations;
-reactions with all four arrows and bracket conditions; cascades;
-electron configurations; mechanisms with electron-flow flows and
-spectators; quoted text; embedded math. Constructs outside the subset
-report `not yet supported` rather than guessing.
+The semantic model subset mirrors the reference `TransformRules`:
+atoms with isotopes, charges, oxidation states, Lewis markers, ring
+closures and chirality; all bond kinds; groups across bracket kinds;
+molecules with coefficients, stereo and `@`-annotations; reactions
+with all four arrows and bracket conditions; cascades; electron
+configurations; mechanisms with electron-flow flows and spectators;
+quoted text; embedded math. Constructs outside the subset report
+`not yet supported` rather than guessing.
 
 The site's [conformance matrix](/guides/conformance-levels/) reports
 this honestly per implementation.
 
-## Roadmap
+## Performance, honestly
 
-The Rust implementation covers the parse, wire, canonical-text,
-MathML, and SVG contracts at 100%; L3 stereo and L4 identity are not
-claimed yet. The 2D layout is the same deterministic placer the
-TypeScript implementation uses (rings as regular polygons, fused
-rings anchored on shared atoms, chains as 120-degree zigzags), gated
-by a committed byte-parity reference snapshot. Because the grammar
-artifact is shared, the port is the tree-to-model transform, not the
-parser.
+The shared-workload benchmark lives in the crate
+(`benches/parse.rs`, criterion — asciichem-rs#24), and the numbers
+are recorded in the gem's
+[`benchmarks/RESULTS.md`](https://github.com/asciichem/asciichem-ruby/blob/main/benchmarks/RESULTS.md).
+The honest picture: peggy was **faster per-parse** than parsanol's
+portable engine (~32 µs vs ~200 µs on the shared workload). The
+directive is unification over speed — one grammar artifact, one
+engine family, four identical runtimes — and the named follow-up is
+the **parsanol-eval** optimization in the parsanol repo (setup ~12 µs,
+eval ~37 µs for tiny inputs today). What Rust is here is
+*authoritative*, not fastest.
 
 <CardGrid stagger>
   <Card title="Artifact provenance" icon="seti:json">
@@ -102,6 +172,7 @@ parser.
   </Card>
   <Card title="CI" icon="seti:github">
     Every PR runs `cargo fmt --check`, `cargo clippy -D warnings`, and
-    the corpus-backed tests against a cloned asciichem-tests.
+    the corpus-backed tests against a cloned asciichem-tests — plus
+    the identity oracle family against chemomer/inchi-tests.
   </Card>
 </CardGrid>
