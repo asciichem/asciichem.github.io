@@ -43,7 +43,7 @@ another.
    │              "2H_2 + O_2 -> 2H_2O"                          │
    └────────────────────────────┬────────────────────────────────┘
                                 │
-                    AsciiChem::Parser (parslet)
+                    parsanol over the PARG artifact
                                 │
                                 ▼
    ┌─────────────────────────────────────────────────────────────┐
@@ -437,7 +437,7 @@ xml         = AsciiChem::Cml::Extensions.inject(xml, translation.atom_mapping)
 ### Step-by-step: how `H_2O` becomes CML
 
 <Steps>
-  1. **Parse the text.** The parslet grammar tokenises `H_2O` into
+  1. **Parse the text.** The PARG artifact engine (parsanol) tokenises `H_2O` into
      three atoms: `H` with subscript `2`, then `O`.
 
      ```ruby

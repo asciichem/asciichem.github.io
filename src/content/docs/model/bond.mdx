@@ -48,8 +48,8 @@ bond := "##"  (quadruple)
 ```
 
 Alternation order is **longest-first**: `##` must be tried before `#`,
-`>-` before `-`, `~>` before `~`. Parslet's `|` is first-match-wins, so
-the order is the contract.
+`>-` before `-`, `~>` before `~`. PARG alternation is ordered choice —
+first match wins — so the order is the contract.
 
 ## Why dative is `~>`, not `->`
 

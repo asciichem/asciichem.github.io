@@ -5,10 +5,11 @@ description: The shared semantic model — versioned JSON Schemas, validators, a
 
 **[asciichem-model](https://github.com/asciichem/asciichem-model)** is
 the canonical interchange contract of the AsciiChem ecosystem. Every
-implementation — the Ruby reference gem,
+implementation — [asciichem-rs](https://github.com/asciichem/asciichem-rs)
+(the authoritative crate), the Ruby gem `asciichem`,
 [asciichem-ts](https://github.com/asciichem/asciichem-ts) (npm
-`asciichem`), [asciichem-py](https://github.com/asciichem/asciichem-py),
-and [asciichem-rs](https://github.com/asciichem/asciichem-rs) — emits
+`asciichem`), and [asciichem-py](https://github.com/asciichem/asciichem-py) —
+emits
 and ingests the same JSON wire form, validated against the same
 versioned schemas. One dataset, many implementations, no drift.
 
@@ -88,13 +89,15 @@ An implementation states which corpus levels (L0–L4) it passes — the
 single-contract rule that replaced "one parser". Current claims, per
 each implementation's CI:
 
-- Ruby reference: L0, L1, L2, L3, L4 — the full gate set.
+- asciichem-rs (authoritative): parse/reject, wire round-trip,
+  canonical text, MathML goldens, SVG, L3 stereo, SMILES, molfile,
+  CML, the identity layer — at 100%; the linter and the
+  resolver/citation layers ride with it.
+- Ruby: L0, L1, L2, L3, L4 — the full gate set.
 - asciichem-ts: parse/reject, L0, L1, L2 (MathML goldens + SVG), L3
   stereo, SMILES, molfile — at 100%.
 - asciichem-py: the same gate set as TypeScript, with SVG byte-exact
   against it.
-- asciichem-rs: parse/reject, wire round-trip, canonical text,
-  MathML goldens, SVG — at 100%.
 
 The claim language and the gate table are on
 [Conformance levels](/guides/conformance-levels/).
