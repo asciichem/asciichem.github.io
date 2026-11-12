@@ -6,6 +6,56 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-11-12 — Rust is the authoritative implementation; one parse engine everywhere
+
+The architecture directive landed across the ecosystem, in one slice:
+
+- **asciichem-rs is the authoritative AsciiChem implementation.** The
+  Rust crate completed the surface: L3 stereo
+  ([asciichem-rs#17](https://github.com/asciichem/asciichem-rs/pull/17)),
+  molfile interchange
+  ([#19](https://github.com/asciichem/asciichem-rs/pull/19)),
+  InChI identity derived in-process through
+  [chemomer](https://github.com/chemomer/chemomer) — no FFI seam —
+  with the recorded oracle identity family gated byte-exact
+  ([#18](https://github.com/asciichem/asciichem-rs/pull/18)), the
+  thirteen-check linter
+  ([#20](https://github.com/asciichem/asciichem-rs/pull/20)), the
+  resolver (PubChem default; OPSIN; Common Chemistry via the
+  `X-API-KEY` direct-api contract, `COMMON_CHEMISTRY_API_KEY` or
+  `~/.config/cas-common-chemistry-api.key`, TTL cache, provenance,
+  `sources:` limiting, per-source failure isolation, on `ureq`,
+  [#21](https://github.com/asciichem/asciichem-rs/pull/21)), citation
+  bibitems and the CML round-trip built on the leptris XML engine
+  ([#22](https://github.com/asciichem/asciichem-rs/pull/22),
+  [#23](https://github.com/asciichem/asciichem-rs/pull/23)), and the
+  `asciichem` CLI binary
+  ([#25](https://github.com/asciichem/asciichem-rs/pull/25)).
+- **One parse engine everywhere.** Every runtime parses through the
+  parsanol family over one checksummed PARG artifact (grammar v0.4.0,
+  sha256 `b5c1f528…`): Rust embeds it (parsanol-rs); Ruby runs the
+  PARG artifact engine (0.31.16 — the parslet parser and transform,
+  the engine selector, the `--engine` flag, and the parslet gem
+  dependency are deleted,
+  [asciichem-ruby#161](https://github.com/asciichem/asciichem-ruby/pull/161));
+  TypeScript parses on the parsanol wasm build (0.1.4 — peggy
+  deleted, [asciichem-ts#27](https://github.com/asciichem/asciichem-ts/pull/27));
+  Python through parsanol-python (0.1.2 — rd deleted,
+  [asciichem-py#20](https://github.com/asciichem/asciichem-py/pull/20)).
+
+The convergence ports that remain are tracked openly — resolver,
+citation, and linter for TypeScript
+([ts#26](https://github.com/asciichem/asciichem-ts/issues/26)) and
+Python ([py#19](https://github.com/asciichem/asciichem-py/issues/19)).
+On performance, honestly: peggy was faster per-parse than parsanol's
+portable engine; the directive is unification over speed, the
+shared-workload numbers live in the gem's
+[`benchmarks/RESULTS.md`](https://github.com/asciichem/asciichem-ruby/blob/main/benchmarks/RESULTS.md)
+(the rs bench is `benches/parse.rs`), and the named follow-up is the
+parsanol-eval optimization. See
+[Implementations](/implement/) and the
+[conformance levels](/guides/conformance-levels/).
+
 ## 2026-11-11 — Every resolver source is on by default
 
 All shipped resolver sources — PubChem, OPSIN, and CAS Common

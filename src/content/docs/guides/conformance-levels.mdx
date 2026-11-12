@@ -12,10 +12,10 @@ corpus run behind it does not ship.
 
 ## The syntax contract
 
-L0 is defined against a grammar contract, not against the reference
-parser's observed behaviour. The single source of truth for the syntax
-is [asciichem-parg](https://github.com/asciichem/asciichem-parg): the
-complete AsciiChem grammar as a committed PARG text contract,
+L0 is defined against a grammar contract, not against any
+implementation's observed behaviour. The single source of truth for
+the syntax is [asciichem-parg](https://github.com/asciichem/asciichem-parg):
+the complete AsciiChem grammar as a committed PARG text contract,
 `grammar/asciichem.parg` (sha256
 `a94cfb4f59936a381e9974e8c141c661e56a25babe46d64b0a288bfd0b4b3e3d`).
 
@@ -24,11 +24,12 @@ pinned by ref in the contract repo's CI) compiles the contract to a
 checksummed artifact whose envelope carries the source hash and the
 compiler version; `parsanol parg check` compares both and exits
 non-zero on a stale artifact, so an implementation cannot silently
-parse a different language than the contract. Implementations vendor
-the artifact from the contract repo. The copies vendored by the Ruby
-reference (`lib/asciichem/engine/parg/asciichem.json`) and
-[asciichem-rs](https://github.com/asciichem/asciichem-rs)
-(`artifacts/asciichem.json`) are byte-identical (sha256
+parse a different language than the contract. All four runtimes
+vendor the artifact from the contract repo — and all four parse it
+on the parsanol family: the Rust crate embeds it (parsanol-rs), the
+Ruby gem runs its PARG artifact engine, the TypeScript package parses
+it on the parsanol wasm build, and Python consumes it through
+parsanol-python. The vendored copies are byte-identical (sha256
 `b5c1f5289f0487e974091e451f5b2703c12c861347c09dd8332bdcfd1822c34f`),
 and their embedded source hash matches the committed grammar.
 
@@ -78,10 +79,11 @@ diastereomers stay distinct through the canonical form, and canonical
 SMILES emits parity-correct tokens.
 
 **L4 — Identity.** The model resolves to authoritative identity:
-InChI/InChIKey via the opt-in engine, identifier cross-validation
-(`@inchi`/`@smiles`/`@cas` checked against the structure), and
-citation-grade resolution — one bibitem per (substance, source) the
-author chose, with per-identifier provenance.
+InChI/InChIKey derived through the chemomer engine (in-process in
+Rust; opt-in behind the engine seam elsewhere), identifier
+cross-validation (`@inchi`/`@smiles`/`@cas` checked against the
+structure), and citation-grade resolution — one bibitem per
+(substance, source) the author chose, with per-identifier provenance.
 
 ## How the corpus gates each level
 
@@ -109,13 +111,13 @@ Claims are pinned to what each implementation's CI actually runs —
 every implementation pins the corpus at a tag (currently **v0.8.0**)
 and bumps the pin deliberately, one line per corpus release.
 
-| Level | Ruby (reference) | TypeScript | Python | Rust |
+| Level | Rust (authoritative) | Ruby | TypeScript | Python |
 |---|---|---|---|---|
-| L0 notation | **yes** | **yes** (100%) | **yes** (100%) | **yes** — parses the PARG artifact; canonical text |
-| L1 semantics | **yes** | **yes** (100%; wire round-trip lossless for the core set — beyond-core node types are emission-only) | **yes** (100%) | **yes** (100%; model subset mirrors the reference TransformRules — out-of-subset constructs report unsupported, never guessed) |
-| L2 render | **yes** | **yes** — canonical text, wire, MathML goldens, typographic + structural SVG | **yes** — canonical text, wire, MathML goldens, SVG byte-exact with TS | **yes** — MathML goldens and SVG byte-exact with TS |
-| L3 stereo | **yes** — chirality, directional bonds, wedge/hash; parity-correct canonical SMILES including ring closures | **yes** (100%) — chirality, directional bonds, parity-correct canonical SMILES | **yes** (100%) — chirality, directional bonds | **yes** — chirality, directional bonds, Hückel perception, canonical aromatic SMILES (asciichem-rs#17; the molfile stereo-code gate lands with interchange, rs#10) |
-| L4 identity | **yes** — opt-in InChI engine (binary or native) with stereo layers, OPSIN adapter, identifier cross-check, resolver (PubChem, OPSIN, and Common Chemistry registered by default — attributed; `sources:` limits the set), citation bibitems | engine seam only (`identityFor` over a registered engine); no bundled engine — not claimed | engine seam only (`asciichem.inchi`); no bundled engine — not claimed | **engine in-process** — chemomer as a pinned crate dependency, the full oracle family (5,627 fixtures) gated byte-exact (asciichem-rs#18); resolver and citation land with rs#13/#14 |
+| L0 notation | **yes** — parses the PARG artifact; canonical text round-trip | **yes** | **yes** (100%) | **yes** (100%) |
+| L1 semantics | **yes** (100%; model subset mirrors the reference TransformRules — out-of-subset constructs report unsupported, never guessed) | **yes** | **yes** (100%; wire round-trip lossless for the core set — beyond-core node types are emission-only) | **yes** (100%) |
+| L2 render | **yes** — MathML goldens and SVG byte-exact with TS | **yes** | **yes** — canonical text, wire, MathML goldens, typographic + structural SVG | **yes** — canonical text, wire, MathML goldens, SVG byte-exact with TS |
+| L3 stereo | **yes** (100%) — chirality, directional bonds, wedge/hash depiction, Hückel perception, parity-correct canonical SMILES, and the molfile stereo-code gate (asciichem-rs#17, rs#19) | **yes** — chirality, directional bonds, wedge/hash; parity-correct canonical SMILES including ring closures | **yes** (100%) — chirality, directional bonds, parity-correct canonical SMILES | **yes** (100%) — chirality, directional bonds |
+| L4 identity | **yes** — the identity layer: InChI/AuxInfo/InChIKey derived in-process through the chemomer dependency, the full oracle family (5,627 fixtures) gated byte-exact (asciichem-rs#18); identifier cross-validation rides the linter; the resolver (PubChem default, OPSIN, Common Chemistry) and citation bibitems carry provenance (asciichem-rs#21, rs#22) | **yes** — opt-in InChI engine (binary or native) with stereo layers, OPSIN adapter, identifier cross-check, resolver (PubChem, OPSIN, and Common Chemistry registered by default — attributed; `sources:` limits the set), citation bibitems | engine seam only (`identityFor` over a registered engine); no bundled engine, resolver, or citation — the convergence port is [asciichem-ts#26](https://github.com/asciichem/asciichem-ts/issues/26) | engine seam only (`asciichem.inchi`); no bundled engine, resolver, citation, or linter — the convergence port is [asciichem-py#19](https://github.com/asciichem/asciichem-py/issues/19) |
 
 Notes:
 
@@ -124,7 +126,8 @@ Notes:
   the [inchi-tests](https://github.com/chemomer/inchi-tests) oracle
   corpus (pinned at v0.3.41). It is reachable from Ruby through the
   `NativeEngine` and from JavaScript and Python through its C ABI and
-  bindings; it is not an asciichem-rs claim.
+  bindings; asciichem-rs consumes it in-process as a version-pinned
+  dependency — no FFI seam.
 - L4 resolution defaults: PubChem (keyless PUG-REST), OPSIN, and CAS
   Common Chemistry are all registered by default (the CC BY-NC 4.0
   default-on is the maintainer's source-selection call of 2026-11-11);

@@ -113,14 +113,17 @@ spelling.
 
 The project is the language itself — a specification of syntax and
 semantics — with four independent implementations passing the same
-[shared corpus](https://github.com/asciichem/asciichem-tests):
-the [asciichem-ruby](https://github.com/asciichem/asciichem-ruby)
-reference gem,
+[shared corpus](https://github.com/asciichem/asciichem-tests), all
+parsing through the parsanol family over the one checksummed PARG
+artifact of the grammar:
+[asciichem-rs](https://github.com/asciichem/asciichem-rs) for Rust
+(the authoritative implementation),
+the Ruby gem
+[asciichem](https://github.com/asciichem/asciichem-ruby),
 [asciichem-ts](https://github.com/asciichem/asciichem-ts) for
-TypeScript,
+TypeScript, and
 [asciichem-py](https://github.com/asciichem/asciichem-py) for
-Python, and
-[asciichem-rs](https://github.com/asciichem/asciichem-rs) for Rust.
+Python.
 See [Implementations](/implement/).
 
 ## Mission
@@ -145,10 +148,10 @@ Constraints that shape every design decision:
 
 | Project | Description |
 |---------|-------------|
-| [asciichem-ruby](https://github.com/asciichem/asciichem-ruby) | Reference implementation (Ruby) |
+| [asciichem-rs](https://github.com/asciichem/asciichem-rs) | Authoritative implementation (Rust) |
+| [asciichem-ruby](https://github.com/asciichem/asciichem-ruby) | Ruby implementation (gem `asciichem`; the Metanorma path) |
 | [asciichem-ts](https://github.com/asciichem/asciichem-ts) | TypeScript implementation (npm `asciichem`) |
 | [asciichem-py](https://github.com/asciichem/asciichem-py) | Python implementation (PyPI `asciichem-py`) |
-| [asciichem-rs](https://github.com/asciichem/asciichem-rs) | Rust implementation (native PARG consumer) |
 | [asciichem-model](https://github.com/asciichem/asciichem-model) | The shared contract: schemas, validators, generated types |
 | [asciichem-tests](https://github.com/asciichem/asciichem-tests) | The shared conformance corpus |
 | [metanorma-plugin-asciichem](https://github.com/metanorma/metanorma-plugin-asciichem) | Chemistry in Metanorma documents ([guide](/guides/metanorma/)) |
@@ -213,7 +216,10 @@ AsciiChem is open source under the BSD-2-Clause license.
 
 ## Get started
 
-1. **Install a reference implementation**: `gem install asciichem`
+1. **Install an implementation**: `gem install asciichem`,
+   `npm install asciichem`, `pip install asciichem-py`, or build
+   [asciichem-rs](https://github.com/asciichem/asciichem-rs) — the
+   authoritative crate.
 2. **Read the syntax tour**: [Syntax overview](/syntax/)
 3. **Try the examples**: [Common formulae](/examples/common-formulae/)
 4. **Join the community**: star the repos and open issues.

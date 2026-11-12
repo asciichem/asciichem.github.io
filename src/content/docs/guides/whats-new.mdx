@@ -7,10 +7,41 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
 import ConformanceMatrix from "../../../components/ConformanceMatrix.astro";
 
 The v0.2x line turns AsciiChem from a parser into a chemistry
-platform: external structures flow in, identities resolve, and three
-independent implementations pass the same corpus.
+platform: external structures flow in, identities resolve, and
+independent implementations pass the same corpus. The current order
+is the November 2026 directive below: **Rust is authoritative, and
+one parse engine runs everywhere.**
 
 <CardGrid stagger>
+  <Card title="Rust is the authoritative implementation (November 2026)" icon="seti:rust">
+    The architecture directive, landed: [asciichem-rs](https://github.com/asciichem/asciichem-rs)
+    is the **authoritative implementation** — all runtimes carry
+    identical functionality, and where a port is pending (the
+    TypeScript and Python resolver/citation/linter convergence,
+    ts#26/py#19) the [matrix](/implement/) says so. rs completed the
+    surface slice: L3 stereo (rs#17), SMILES + molfile interchange
+    (rs#19), in-process InChI identity through chemomer (rs#18), the
+    thirteen-check linter (rs#20), the resolver — PubChem default,
+    OPSIN, Common Chemistry with the key chain, TTL cache, provenance,
+    per-source isolation (rs#21) — citation bibitems and CML built on
+    the leptris XML engine (rs#22, rs#23), and the `asciichem` CLI
+    binary (rs#25). See [Rust](/implement/rust/).
+  </Card>
+  <Card title="One parse engine everywhere (November 2026)" icon="seti:json">
+    The parslet/peggy/rd era is over. Every runtime now parses through
+    the parsanol family over **one checksummed PARG artifact**
+    (grammar v0.4.0, sha256 `b5c1f528…`): Rust embeds it (parsanol-rs),
+    Ruby runs the PARG artifact engine (0.31.16 — the parslet parser,
+    the engine selector, the `--engine` flag, and the parslet gem
+    dependency are deleted; [asciichem-ruby#161](https://github.com/asciichem/asciichem-ruby/pull/161)),
+    TypeScript parses on the parsanol wasm build (0.1.4 — peggy
+    deleted; [asciichem-ts#27](https://github.com/asciichem/asciichem-ts/pull/27)),
+    Python through parsanol-python (0.1.2 — rd deleted;
+    [asciichem-py#20](https://github.com/asciichem/asciichem-py/pull/20)).
+    Performance, honestly: peggy was faster per-parse; the directive
+    is unification over speed, and the named follow-up is the
+    parsanol-eval optimization. See [the syntax contract](/guides/conformance-levels/#the-syntax-contract).
+  </Card>
   <Card title="Structure interchange" icon="right-arrow">
     SMILES and molfile (V2000) ingest into the semantic model — the
     same tree the AsciiChem syntax produces — so database chemistry
@@ -61,14 +92,16 @@ independent implementations pass the same corpus.
     automatically into the References section. See [Chemistry in
     Metanorma](/guides/metanorma/).
   </Card>
-  <Card title="Opt-in Rust-core parsing engine (0.29.0)" icon="seti:rust">
-    The same grammar and transform now run over
+  <Card title="Opt-in Rust-core parsing engine (0.29.0) — superseded" icon="seti:rust">
+    *Historical (2026; superseded by the November 2026 unification
+    above — parslet is deleted and the PARG artifact engine is the
+    one engine).* The same grammar and transform ran over
     [Parsanol](https://github.com/parsanol/parsanol-ruby)'s Rust-backed
     parslet-compat layer: `AsciiChem::Engine.use(:parsanol)` or
-    `asciichem convert --engine parsanol` — the full corpus passes
+    `asciichem convert --engine parsanol` — the full corpus passed
     identically under either engine (221/221 re-verified against
     parsanol 1.3.27, all four reported upstream issues fixed), at
-    ~2.6× parse speed. Parslet stays the default; parsanol is an
+    ~2.6× parse speed. Parslet stayed the default; parsanol was an
     opt-in soft dependency.
   </Card>
   <Card title="The contract is not a package" icon="seti:folder">
