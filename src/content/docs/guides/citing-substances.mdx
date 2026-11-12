@@ -153,20 +153,22 @@ AsciiChem::Resolver.resolve(value: '50-78-2', convention: 'cas',
 ```
 
 **Live availability.** CAS key-gated the Common Chemistry API:
-anonymous calls answer `401 Unauthorized`. The key is the user's to
-provide — request one at
+anonymous calls answer `401 Unauthorized`. The token is the user's
+to provide — request one at
 [cas.org/services/commonchemistry-api](https://www.cas.org/services/commonchemistry-api)
-and export it as `COMMON_CHEMISTRY_API_KEY` (asciichem 0.31.14;
-sent as the `apikey` query parameter — CAS's access email is
-authoritative if their contract differs). Without a key, live
-lookups against `common_chemistry` return no record: the resolver
-skips the source (a failing source never poisons the others),
-documents warn and emit no bibitem, and seeded-cache records keep
-resolving offline. Resolution continues against PubChem and OPSIN.
-There is no bulk-download or GitHub copy of the Common Chemistry
-dataset — the API and the web UI are CAS's only distribution
-channels, and the CC-derived records PubChem mirrors resolve
-key-free through PubChem itself, with PubChem provenance.
+(valid 12 months; CAS emails a renewal notice) and either export it
+as `COMMON_CHEMISTRY_API_KEY` or store it at
+`~/.config/cas-common-chemistry-api.key` (asciichem 0.31.15 sends
+it as the `X-API-KEY` header on the `/direct-api` endpoint, exactly
+as CAS's access email specifies). Without a token, live lookups
+against `common_chemistry` return no record: the resolver skips the
+source (a failing source never poisons the others), documents warn
+and emit no bibitem, and seeded-cache records keep resolving
+offline. Resolution continues against PubChem and OPSIN. There is
+no bulk-download or GitHub copy of the Common Chemistry dataset —
+the API and the web UI are CAS's only distribution channels, and
+the CC-derived records PubChem mirrors resolve key-free through
+PubChem itself, with PubChem provenance.
 
 The obligations ride with the data, and the gem is built so you can
 meet them: the required attribution
