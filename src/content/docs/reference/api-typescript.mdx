@@ -9,7 +9,9 @@ import { Aside } from "@astrojs/starlight/components";
 npm install asciichem
 ```
 
-Zero runtime dependencies. Runs in the browser, Node, and workers.
+One runtime dependency: [`parsanol`](https://www.npmjs.com/package/parsanol)
+— its wasm engine parses the checksummed PARG artifact the Rust
+crate embeds. Runs in the browser, Node, and workers.
 
 ## Parsing
 
@@ -110,14 +112,17 @@ package (`from_molfile`, `inchikey`), byte-exact against the IUPAC
 
 - **Browser** — everything above. This site's [playground](/playground/)
   uses exactly this package, client-side.
-- **Node** — same API; the peggy grammar ships prebuilt.
+- **Node** — same API; the PARG artifact and the parsanol wasm engine
+  ship prebuilt.
 - **Build tools** — parse at build time, emit SVG/MathML into static
-  output; the corpus guarantees your web previews match the Ruby
-  gem's build-time renders.
+  output; the corpus guarantees your web previews match every other
+  runtime's build-time renders.
 
 ## Claimed levels
 
 Parse/reject · L0 emission · L1 text · L2 MathML · L2 SVG
 (typographic + structural) · L3 stereo · SMILES · molfile — 100% of
-the shared corpus. CML and the linter are not yet claimed. See
-[Implementations](/implement/) for the full matrix.
+the shared corpus. The CML and linter layers, and the
+resolver/citation ports, are not yet claimed
+([asciichem-ts#26](https://github.com/asciichem/asciichem-ts/issues/26)).
+See [Implementations](/implement/) for the full matrix.

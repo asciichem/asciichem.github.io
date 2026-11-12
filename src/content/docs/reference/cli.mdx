@@ -7,7 +7,11 @@ import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
 
 The `asciichem` CLI provides conversion, linting, identity, resolution,
-citation, and round-trip verification. Install via `gem install asciichem`.
+citation, and round-trip verification. The same eleven-command surface
+ships twice: with the Ruby gem (`gem install asciichem`) and as the
+Rust crate's `asciichem` binary ([asciichem-rs](/implement/rust/) —
+crates.io publication pending; build from source today). The exit
+codes are identical by contract.
 
 The full command list is also one keystroke away:
 
@@ -36,26 +40,14 @@ echo "H_2O" | asciichem convert -i - -t latex
 | `-f, --file` | Read source from a file |
 | `-t, --format` | Output format: `mathml` (default), `text`, `html`, `latex`, `svg`, `structural-svg`, `model-json`, `cml`, `smiles`, `molfile` |
 | `--from` | Input grammar: `asciichem` (default), `smiles`, `molfile` |
-| `--engine` | Parsing engine: `parslet` (default), `parsanol`, `parg` — see below |
 
-### Parsing engines
-
-`--engine` selects the parsing engine for that invocation:
-
-- `parslet` — the default. Pure Ruby, zero extra dependencies.
-- `parsanol` — opt-in Rust-backed engine over the same grammar and
-  transform (needs the `parsanol` gem); absent gem exits 6 with
-  install guidance.
-- `parg` — opt-in engine over the compiled PARG grammar artifact
-  (the same checksummed artifact [asciichem-rs](/implement/rust/)
-  runs; needs parsanol ≥ 1.3.94).
-
-```sh
-asciichem convert -i "2H_2 + O_2 -> 2H_2O" -t text --engine parsanol
-```
-
-The `ASCIICHEM_ENGINE` environment variable selects the engine for
-programmatic use and test runs (`parslet`, `parsanol`, or `parg`).
+Parsing runs on the one engine everywhere: parsanol over the
+checksummed PARG artifact of the grammar. The engine-selection
+machinery is gone from the Ruby CLI — the `--engine` flag, the
+`ASCIICHEM_ENGINE` variable, and the legacy engines themselves (the
+Ruby parslet parser, the TS peggy port, the Python `rd` port) are
+deleted. The Rust binary still accepts `--engine parsanol` as a
+compatibility no-op; any other value exits 6.
 
 ### Input grammars
 
@@ -202,4 +194,4 @@ asciichem --version   # or -v
 | 3 | Resolve error (unknown source, no answer) |
 | 4 | Cite error |
 | 5 | Identity error (including no engine configured) |
-| 6 | Parsing engine unavailable (`--engine parsanol`/`parg` without the gem) |
+| 6 | Parsing-engine value rejected (Rust binary only; `--engine` other than `parsanol`) |

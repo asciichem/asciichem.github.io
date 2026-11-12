@@ -20,8 +20,8 @@ with SLSA provenance attestations — see the
 ```ts
 import { parse, parseSmiles, parseMolfile, renderMathml } from "asciichem";
 
-// Same model as the Ruby reference — every format the gem emits, in
-// the browser or Node.
+// The same model as every runtime — the authoritative one is the
+// Rust crate; the corpus keeps this package identical to it.
 parse("2H_2 + O_2 ->[heat] 2H_2O").toText();
 
 parse("C1-C-C-C-C-C1").toStructuralSvg();  // cyclohexane hexagon
@@ -41,16 +41,18 @@ console.log(renderMathml(parse("^14C")));
 
 Parse / reject · L0 emission · L1 text · **L2 MathML · L2 SVG**
 (typographic + structural, deterministic) · L3 stereo (parity-correct
-canonical SMILES) · SMILES · molfile — 100% of the shared corpus. CML
-and the linter are not yet claimed. See the [Implementations
-matrix](/implement/) for the full table.
+canonical SMILES) · SMILES · molfile — 100% of the shared corpus. The
+CML and linter layers, and the resolver/citation ports, are not yet
+claimed ([asciichem-ts#26](https://github.com/asciichem/asciichem-ts/issues/26)
+converges them from the Rust contract). See the
+[Implementations matrix](/implement/) for the full table.
 
 ## What you get here, not elsewhere
 
 This is the package that powers this site's live renderer and every diagram on this page. Highlights:
 
 - **Runs in the browser** — the [live playground](/playground/) uses it directly. No server, no build step beyond `import`.
-- **Peggy parser** — a faithful port of the reference grammar, with the same atoms, same precedence, same round-trip guarantees. Zero runtime dependencies.
+- **The shared parse engine** — parsing runs on [parsanol](https://www.npmjs.com/package/parsanol)'s wasm engine over the one checksummed PARG artifact the Rust crate embeds (0.1.4, [asciichem-ts#27](https://github.com/asciichem/asciichem-ts/pull/27); the peggy port is deleted). Same artifact, same engine family, same acceptance — zero drift by construction.
 - **All formats in TS** — Text, typographic SVG, 2D structural SVG, presentation MathML (L2 goldens), wire JSON, SMILES writer, molfile reader/writer.
 - **Three-pane live diff** (above) — type once, three identical outputs across Ruby / TypeScript / Python, the live demonstration of the single-contract rule.
 

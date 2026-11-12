@@ -1,6 +1,6 @@
 ---
 title: Python
-description: asciichem-py - zero-dependency parsing into plain dataclasses.
+description: asciichem-py - parsing into plain dataclasses, one runtime dependency.
 ---
 
 import LiveDiff from "../../../components/LiveDiff.astro";
@@ -38,14 +38,16 @@ assert render(back) == render(formula)
 Parse / reject · L0 emission · L1 text · **L2 MathML · L2 SVG** (SVG
 byte-exact with the TypeScript renderers) · L3 stereo (chirality,
 directional bonds) · SMILES · molfile — 100% of the shared corpus.
-Resolver and InChI are not claimed (engine seam only). See the
-[Implementations matrix](/implement/) for the full table.
+Resolver, citation, and the linter are not yet claimed
+([asciichem-py#19](https://github.com/asciichem/asciichem-py/issues/19)
+converges them from the Rust contract); InChI stays an engine seam.
+See the [Implementations matrix](/implement/) for the full table.
 
 ## What you get here, not elsewhere
 
-The Python implementation is built for data and science workflows where dependencies are liabilities:
+The Python implementation is built for data and science workflows where heavy dependencies are liabilities:
 
-- **Zero runtime dependencies** — `jsonschema` and `pytest` are dev-only for the conformance suite. The shipped package is plain stdlib + the model dataclasses.
+- **One runtime dependency: parsanol** — parsing runs on the parsanol family over the checksummed PARG artifact (the same artifact the Rust crate embeds; the `rd` grammar port is deleted, 0.1.2, [asciichem-py#20](https://github.com/asciichem/asciichem-py/pull/20)). parsanol's per-platform wheels vendor the native engine, so `pip install` stays clean.
 - **Plain dataclasses** — the model is `@dataclass`-shaped, introspectable with standard tools (`dataclasses.asdict`, `pydantic` if you must). No framework magic.
 - **Wire form as the canonical I/O** — round-trips via `to_model_json`/`from_model_json` for pipelines that already speak JSON.
 - **Optional `asciichem-py[inchi]` extra** — RDKit-backed InChI engine when you need to derive identity locally; off by default.
