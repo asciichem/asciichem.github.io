@@ -12,8 +12,10 @@ AsciiChem is to chemistry what AsciiMath is to mathematics. The syntax is
 ASCII-only, model-based (every parse produces a semantic tree), and
 round-trippable (model → AsciiChem text reproduces the input).
 
-This repo is **specification-only**. The reference implementation lives in the
-sibling Ruby gem at `../asciichem-ruby` (see "Paired ecosystem" below).
+This repo is **specification-only**. The authoritative implementation is
+the sibling Rust crate at `../asciichem-rs`; all runtimes carry identical
+functionality and parse through the parsanol family over the one
+checksummed PARG artifact (see "Paired ecosystem" below).
 
 ## Why AsciiMath is insufficient for chemistry (project motivation)
 
@@ -49,13 +51,16 @@ mirrors the plurimath ecosystem layout.
 | Repo | Path from here | Role |
 |---|---|---|
 | `asciichem.github.io` | `.` (this repo) | Astro spec site, examples, renderings, playground |
-| `asciichem-ruby` | `../asciichem-ruby` | Reference implementation: parser gem → model → MathML/Text/HTML/LaTeX/SVG/CML |
+| `asciichem-rs` | `../asciichem-rs` | Authoritative implementation (Rust): parsanol-rs over the PARG artifact → model → MathML/Text/SVG/CML, identity (chemomer in-process), linter, resolver, citation, the `asciichem` CLI |
+| `asciichem-ruby` | `../asciichem-ruby` | Ruby implementation: the PARG artifact engine (parsanol) → model → MathML/Text/HTML/LaTeX/SVG/CML; the Metanorma path |
 | `asciichem-model` | `../asciichem-model` | Shared contract: versioned JSON Schemas + validators + generated TS types for the wire form |
 | `asciichem-tests` | `../asciichem-tests` | Shared conformance corpus every implementation runs in CI |
-| `asciichem-ts` | `../asciichem-ts` | TypeScript implementation (npm `asciichem`), corpus-conformant; powers the live renderer |
+| `asciichem-ts` | `../asciichem-ts` | TypeScript implementation (npm `asciichem`, parsanol wasm), corpus-conformant; powers the live renderer |
+| `asciichem-py` | `../asciichem-py` | Python implementation (PyPI `asciichem-py`, parsanol-python), corpus-conformant |
 
-When a spec page describes syntax, the reference gem must implement it;
-when the gem adds a feature, a spec page must document it. Cross-repo
+When a spec page describes syntax, the implementations must implement it;
+when an implementation adds a feature, a spec page must document it.
+Cross-repo
 changes belong in the same logical unit of work and should reference each
 other in their commit/PR messages.
 
@@ -138,9 +143,10 @@ Mirror Primmel's structure. Key invariants:
   metadata — no hardcoded nav arrays.
 - **Rendered examples are model-driven.** Each spec example embeds an
   AsciiChem snippet plus its rendered MathML/SVG output. The build step
-  shells out to `../asciichem-ruby` (or imports the compiled gem via a
-  build-time script) to produce the rendering. The site never reimplements
-  the parser — the gem is the single source of truth for parsing.
+  shells out to an implementation (today `../asciichem-ruby`; the
+  authoritative `../asciichem-rs` is the intended path) to produce the
+  rendering. The site never reimplements the parser — every runtime
+  parses through parsanol over the one checksummed PARG artifact.
 - **OCP layout hierarchy.** `BaseLayout → DocLayout / PageLayout`. New page
   types extend, never modify.
 - **Single CSS entry** (`src/styles/app.css`) with Tailwind 4 `@theme`
@@ -152,8 +158,9 @@ Mirror Primmel's structure. Key invariants:
 
 Mirror Plurimath's structure. Key invariants:
 
-- **Parslet parser → transform → model.** Same shape as
-  `Plurimath::Asciimath`.
+- **parsanol over the PARG artifact → model.** The PARG artifact engine
+  is the one engine; the parslet parser/transform and the engine
+  selector are deleted (0.31.16).
 - **The model is the canonical form.** AsciiChem text, MathML, and any
   future format are all *views* over the model. There is no
   text-to-MathML shortcut that bypasses the model.
@@ -225,7 +232,8 @@ to main. Every change goes through a PR. For cross-repo changes (spec page
 - **No `double()` in specs.** Use real model instances or lightweight
   `Struct`s. See global CLAUDE.md "NEVER USE DOUBLES IN SPECS".
 - **The single-contract rule (v2).** Static, correctness-critical examples
-  render via the reference gem at build time. Client-side interactive
+  render via an implementation at build time (the authoritative Rust
+  crate is the intended path). Client-side interactive
   rendering (the playground live renderer) uses asciichem-ts, which is
   legitimate because it passes the same shared corpus (asciichem-tests)
   and validates against the same schemas (asciichem-model) in its CI.
