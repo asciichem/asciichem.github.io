@@ -356,9 +356,12 @@ work.
   now includes it (maintainer decision, November 2026), the required
   attribution travels with every record and bibitem, and documents
   restrict the set explicitly when their use must stay NC-free.
-- L3 stereo is not yet claimed by the Rust implementation, and L4
-  identity is claimed only partially by the TypeScript one; the gaps
-  are visible in the conformance matrix rather than hidden.
+- The Rust implementation now claims L3 stereo (perception and
+  canonical aromatic SMILES gated at the pinned corpus); L4 identity
+  is claimed only partially by the TypeScript and Python ones, and
+  the conformance program converges all runtimes on Rust as the
+  authoritative implementation — the gaps are visible in the
+  conformance matrix rather than hidden.
 
 ## 7. Related work
 
