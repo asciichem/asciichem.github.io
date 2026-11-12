@@ -13,6 +13,11 @@ contract, and the pipe is always
 engine, every derivation raises an explicit error with install
 guidance — there is no silent fallback.
 
+This page is the Ruby (and binding) seam. The authoritative Rust
+crate needs none of it: chemomer rides in-process as a version-pinned
+dependency — no FFI, no engine registration (see
+[Rust](/implement/rust/)).
+
 ## The engine contract
 
 ```ruby
