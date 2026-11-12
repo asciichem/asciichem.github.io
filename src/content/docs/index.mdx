@@ -1,6 +1,6 @@
 ---
 title: AsciiChem
-description: An ASCII syntax for chemistry, model-driven and round-trippable, in Ruby, TypeScript, Python, and Rust.
+description: An ASCII syntax for chemistry, model-driven and round-trippable — Rust is the authoritative implementation, and Ruby, TypeScript, and Python carry the same contract.
 template: splash
 hero:
   tagline: ASCII in, chemistry out — in your language.
@@ -20,11 +20,13 @@ the same tree, regardless of which front door you came in by.
 
 ## One model, four implementations
 
-Four independent packages — `asciichem` (Ruby, the reference),
-`asciichem` (TypeScript), `asciichem-py` (Python), and `asciichem-rs`
-(Rust) — implement the same model and pass the same
-[shared corpus](https://github.com/asciichem/asciichem-tests).
-Pick whichever ships in your stack:
+Four independent packages — `asciichem-rs` (Rust, the authoritative
+implementation), `asciichem` (Ruby), `asciichem` (TypeScript), and
+`asciichem-py` (Python) — implement the same model and pass the same
+[shared corpus](https://github.com/asciichem/asciichem-tests). Every
+one of them parses through the same engine: **parsanol over the single
+checksummed PARG artifact** of the grammar — there is no per-language
+parser left to drift. Pick whichever ships in your stack:
 
 <ConformanceMatrix />
 
@@ -33,28 +35,31 @@ Pick whichever ships in your stack:
 A molecule has one structure regardless of the notation you write it in:
 InChI, SMILES, molfile, or AsciiChem. Likewise, the *AsciiChem model* has
 one shape regardless of the language you run it in. Four implementations
-keep the contract honest — no single implementation's shortcuts become the
-specification.
+keep the contract honest — and the order among them is explicit:
+**asciichem-rs is the authoritative implementation**. When the corpus is
+silent, what the Rust crate does is the operating answer; the shared
+corpus and the one PARG artifact keep the other runtimes identical to it.
 
 ## Pick one and start
 
 <CardGrid stagger>
-  <Card title="Ruby (reference)" icon="seti:ruby">
-    `gem install asciichem` — the reference implementation. MathML,
-    structural SVG, citations, InChI identity, the CLI. See
-    [Ruby](/implement/ruby/).
+  <Card title="Rust (authoritative)" icon="seti:rust">
+    `asciichem-rs` — the authoritative implementation: parse, canonical
+    text, wire JSON, MathML, SVG, SMILES/molfile, CML, the linter, the
+    resolver, citations (via leptris), in-process InChI identity, and
+    the `asciichem` CLI. See [Rust](/implement/rust/).
+  </Card>
+  <Card title="Ruby" icon="seti:ruby">
+    `gem install asciichem` — the full formatter set, citations,
+    InChI identity, the linter, the resolver, and the CLI, on the
+    same PARG artifact engine. See [Ruby](/implement/ruby/).
   </Card>
   <Card title="TypeScript" icon="seti:ts">
     `npm install asciichem` — runs in the browser or Node. Powers this
     page's live renderer. See [TypeScript](/implement/typescript/).
   </Card>
   <Card title="Python" icon="seti:python">
-    `pip install asciichem-py` — plain dataclasses, zero runtime
-    dependencies. See [Python](/implement/python/).
-  </Card>
-  <Card title="Rust" icon="seti:rust">
-    `asciichem-rs` — a native consumer of the compiled PARG grammar
-    artifact; canonical text, wire JSON, MathML, and SVG at 100%. See
-    [Rust](/implement/rust/).
+    `pip install asciichem-py` — plain dataclasses for data and science
+    workflows. See [Python](/implement/python/).
   </Card>
 </CardGrid>

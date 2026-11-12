@@ -31,9 +31,15 @@ const levels: Level[] = [
 
 const implementations: Implementation[] = [
   {
+    name: "Rust",
+    href: "/implement/rust/",
+    package: "asciichem-rs · authoritative",
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true, cml: true, linter: true },
+  },
+  {
     name: "Ruby",
     href: "/implement/ruby/",
-    package: "asciichem gem · reference",
+    package: "asciichem gem",
     levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true, cml: true, linter: true },
   },
   {
@@ -82,8 +88,12 @@ const implementations: Implementation[] = [
   </table>
   <p class="cx-caption">
     Filled cells are claimed at 100% of the asciichem-tests corpus, verified in each
-    implementation's CI. The Ruby gem is the reference; a claim is only as good as
-    the shared corpus behind it.
+    implementation's CI. <strong>Rust is the authoritative implementation</strong> — the
+    reference the other runtimes converge on; the shared corpus keeps them identical.
+    Every runtime parses through the same engine: parsanol over the one checksummed
+    PARG artifact of the grammar. Where a port is genuinely pending (the TypeScript
+    and Python resolver, citation, and linter layers — asciichem-ts#26,
+    asciichem-py#19), the cell stays open until its CI gate is green.
   </p>
 </section>
 
