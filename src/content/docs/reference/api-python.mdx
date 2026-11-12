@@ -1,6 +1,6 @@
 ---
 title: Python API
-description: asciichem-py - parse chemistry into plain dataclasses, zero runtime deps.
+description: asciichem-py - parse chemistry into plain dataclasses.
 ---
 
 import { Aside } from "@astrojs/starlight/components";
@@ -9,8 +9,10 @@ import { Aside } from "@astrojs/starlight/components";
 pip install asciichem-py
 ```
 
-Zero runtime dependencies — `jsonschema` and `pytest` are dev-only
-for the conformance suite.
+One runtime dependency: [`parsanol`](https://pypi.org/project/parsanol/),
+which parses the checksummed PARG artifact on its vendored native
+engine (`jsonschema`, `pytest`, and friends stay dev-only for the
+conformance suite).
 
 ## Parsing
 
@@ -43,7 +45,7 @@ write_smiles(aspirin)                        # round-trips exactly
 write_molfile(mol)
 ```
 
-The MathML output is **byte-identical with the Ruby reference** —
+The MathML output is **byte-identical across all runtimes** —
 pinned by the shared corpus goldens (`format/mathml/*`), enforced in
 CI.
 
@@ -55,7 +57,7 @@ mol.nodes[0]              # Atom(element="H", subscript="2", ...)
 ```
 
 Introspectable with standard tools (`dataclasses.asdict`,
-`inspect`); no framework magic. The class set mirrors the reference
+`inspect`); no framework magic. The class set mirrors the shared
 model: `Formula`, `Molecule`, `Atom`, `Group`, `Bond`, `Reaction`,
 `ReactionCascade`, `ElectronConfiguration`, `EmbeddedMath`, `Text`,
 `Crystal`, `Spectrum`, `Calculation`, `ZMatrix`, `Mechanism`.
@@ -102,6 +104,7 @@ install guidance — the InChI algorithm is never reimplemented.
 
 Parse/reject · L0 emission · L1 text · L2 MathML · L2 SVG (byte-exact
 with TypeScript) · L3 stereo (chirality, directional bonds) · SMILES ·
-molfile — 100% of the shared corpus. Resolver and InChI are not
-claimed (engine seam only). See
+molfile — 100% of the shared corpus. The resolver, citation, and
+linter ports are pending ([asciichem-py#19](https://github.com/asciichem/asciichem-py/issues/19));
+InChI stays an engine seam. See
 [Implementations](/implement/) for the full matrix.
