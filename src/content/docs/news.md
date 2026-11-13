@@ -15,8 +15,8 @@ engine major; npm flattens to `{major}.{minor}.{increment}`):
 
 | | engine ([crates.io](https://crates.io/crates/asciichem)) | RubyGems | npm | PyPI |
 |---|---|---|---|---|
-| **asciichem** | 1.0.0 | [1.0.0.0](https://rubygems.org/gems/asciichem) | [1.0.0](https://www.npmjs.com/package/asciichem) | [1.0.0.0](https://pypi.org/project/asciichem/) |
-| **chemomer** (InChI) | [1.0.0](https://crates.io/crates/chemomer) | [1.0.0.0](https://rubygems.org/gems/chemomer) | [1.0.0](https://www.npmjs.com/package/chemomer) | [1.0.0.0](https://pypi.org/project/chemomer/) |
+| **asciichem** | 1.0.0 | [1.0.0.0](https://rubygems.org/gems/asciichem) | `1.0.0` | [1.0.0.0](https://pypi.org/project/asciichem/) |
+| **chemomer** (InChI) | [1.0.0](https://crates.io/crates/chemomer) | [1.0.0.0](https://rubygems.org/gems/chemomer) | `1.0.0` | [1.0.0.0](https://pypi.org/project/chemomer/) |
 
 The gem's 0.31.x line and the packages' 0.1.x lines were the
 pre-scheme lines; every future release derives from the engine semver.
@@ -30,7 +30,7 @@ Alongside the renumbering:
   Rust, Ruby, TypeScript, and Python); Python gained its CLI, CML
   layer, and html/latex formatters; TypeScript gained its command set,
   CML, html/latex formatters, and an optional wasm InChI engine over
-  [chemomer](https://www.npmjs.com/package/chemomer).
+  `chemomer`.
 - **The chemomer bindings are oracle-gated**: each of the three
   transports (FFI, wasm, PyO3) byte-compares the full inchi-tests
   identity corpus (5,598 cases, v0.3.41) in its own CI.
