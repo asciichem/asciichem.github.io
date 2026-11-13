@@ -175,7 +175,7 @@ Four implementations are gated by the same corpus: Ruby (the
 reference), TypeScript, Python, and Rust; each clones the corpus at a
 pinned tag in its own CI. The Rust implementation does not reimplement
 the grammar by hand: the syntax is maintained as a PARG text contract
-(asciichem-parg), compiled to a checksummed JSON artifact that the
+(asciichem-grammar), compiled to a checksummed JSON artifact that the
 Rust parser verifies at load time and runs on the parsanol engine.
 
 Implementations claim conformance *levels*, cumulative and
