@@ -6,6 +6,35 @@ description: AsciiChem project news, release notes, and design deep-dives.
 Project news, release announcements, and design deep-dives from the
 AsciiChem team.
 
+## 2026-11-13 — Everything is 1.0.0: the engines anchor the version scheme
+
+Both ecosystem engines are now **1.0.0**, and every runtime package
+renumbered onto them under the shared scheme
+`{engine-semver}.{runtime-increment}` (the increment resets at a new
+engine major; npm flattens to `{major}.{minor}.{increment}`):
+
+| | engine ([crates.io](https://crates.io/crates/asciichem)) | RubyGems | npm | PyPI |
+|---|---|---|---|---|
+| **asciichem** | 1.0.0 | [1.0.0.0](https://rubygems.org/gems/asciichem) | [1.0.0](https://www.npmjs.com/package/asciichem) | [1.0.0.0](https://pypi.org/project/asciichem/) |
+| **chemomer** (InChI) | [1.0.0](https://crates.io/crates/chemomer) | [1.0.0.0](https://rubygems.org/gems/chemomer) | [1.0.0](https://www.npmjs.com/package/chemomer) | [1.0.0.0](https://pypi.org/project/chemomer/) |
+
+The gem's 0.31.x line and the packages' 0.1.x lines were the
+pre-scheme lines; every future release derives from the engine semver.
+Alongside the renumbering:
+
+- **The grammar SSOT is [asciichem-grammar](https://github.com/asciichem/asciichem-grammar)**
+  (renamed from asciichem-parg) — the committed PARG text contract and
+  the checksummed artifact (`grammar-v0.4.0`, sha256 `b5c1f528…`)
+  every engine and runtime vendors and verifies.
+- **Every CLI family case gates in every runtime** (22/22 across
+  Rust, Ruby, TypeScript, and Python); Python gained its CLI, CML
+  layer, and html/latex formatters; TypeScript gained its command set,
+  CML, html/latex formatters, and an optional wasm InChI engine over
+  [chemomer](https://www.npmjs.com/package/chemomer).
+- **The chemomer bindings are oracle-gated**: each of the three
+  transports (FFI, wasm, PyO3) byte-compares the full inchi-tests
+  identity corpus (5,598 cases, v0.3.41) in its own CI.
+
 ## 2026-11-12 — Rust is the authoritative implementation; one parse engine everywhere
 
 The architecture directive landed across the ecosystem, in one slice:
