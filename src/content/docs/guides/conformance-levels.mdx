@@ -14,7 +14,7 @@ corpus run behind it does not ship.
 
 L0 is defined against a grammar contract, not against any
 implementation's observed behaviour. The single source of truth for
-the syntax is [asciichem-parg](https://github.com/asciichem/asciichem-parg):
+the syntax is [asciichem-grammar](https://github.com/asciichem/asciichem-grammar):
 the complete AsciiChem grammar as a committed PARG text contract,
 `grammar/asciichem.parg` (sha256
 `a94cfb4f59936a381e9974e8c141c661e56a25babe46d64b0a288bfd0b4b3e3d`).
@@ -108,7 +108,7 @@ numbers.
 ## Current claims
 
 Claims are pinned to what each implementation's CI actually runs —
-every implementation pins the corpus at a tag (currently **v0.8.0**)
+every implementation pins the corpus at a tag (currently **v0.11.0**)
 and bumps the pin deliberately, one line per corpus release.
 
 | Level | Rust (authoritative) | Ruby | TypeScript | Python |
@@ -117,7 +117,7 @@ and bumps the pin deliberately, one line per corpus release.
 | L1 semantics | **yes** (100%; model subset mirrors the reference TransformRules — out-of-subset constructs report unsupported, never guessed) | **yes** | **yes** (100%; wire round-trip lossless for the core set — beyond-core node types are emission-only) | **yes** (100%) |
 | L2 render | **yes** — MathML goldens and SVG byte-exact with TS | **yes** | **yes** — canonical text, wire, MathML goldens, typographic + structural SVG | **yes** — canonical text, wire, MathML goldens, SVG byte-exact with TS |
 | L3 stereo | **yes** (100%) — chirality, directional bonds, wedge/hash depiction, Hückel perception, parity-correct canonical SMILES, and the molfile stereo-code gate (asciichem-rs#17, rs#19) | **yes** — chirality, directional bonds, wedge/hash; parity-correct canonical SMILES including ring closures | **yes** (100%) — chirality, directional bonds, parity-correct canonical SMILES | **yes** (100%) — chirality, directional bonds |
-| L4 identity | **yes** — the identity layer: InChI/AuxInfo/InChIKey derived in-process through the chemomer dependency, the full oracle family (5,627 fixtures) gated byte-exact (asciichem-rs#18); identifier cross-validation rides the linter; the resolver (PubChem default, OPSIN, Common Chemistry) and citation bibitems carry provenance (asciichem-rs#21, rs#22) | **yes** — opt-in InChI engine (binary or native) with stereo layers, OPSIN adapter, identifier cross-check, resolver (PubChem, OPSIN, and Common Chemistry registered by default — attributed; `sources:` limits the set), citation bibitems | engine seam only (`identityFor` over a registered engine); no bundled engine, resolver, or citation — the convergence port is [asciichem-ts#26](https://github.com/asciichem/asciichem-ts/issues/26) | engine seam only (`asciichem.inchi`); no bundled engine, resolver, citation, or linter — the convergence port is [asciichem-py#19](https://github.com/asciichem/asciichem-py/issues/19) |
+| L4 identity | **yes** — the identity layer: InChI/AuxInfo/InChIKey derived in-process through the chemomer dependency, the full oracle family (5,627 fixtures) gated byte-exact (asciichem-rs#18); identifier cross-validation rides the linter; the resolver (PubChem default, OPSIN, Common Chemistry) and citation bibitems carry provenance (asciichem-rs#21, rs#22) | **yes** — opt-in InChI engine (binary or native) with stereo layers, OPSIN adapter, identifier cross-check, resolver (PubChem, OPSIN, and Common Chemistry registered by default — attributed; `sources:` limits the set), citation bibitems | **yes, engine-postured** — the optional chemomer wasm engine (`npm install chemomer`) drives `identityFor`, verified by the `inchi-posture` CI job; the linter, resolver (PubChem/OPSIN/Common Chemistry), and citation bibitems are shipped and corpus-gated (asciichem-ts#29, #31) | **yes, engine-postured** — the `asciichem[inchi]` extra (rdkit) drives identity, and the CI runs both postures; the linter, resolver, citation (through leptris-py), and the CLI are shipped and corpus-gated (asciichem-py#23, #25) |
 
 Notes:
 
