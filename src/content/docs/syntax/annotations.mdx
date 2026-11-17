@@ -1,12 +1,38 @@
 ---
 title: Molecule annotations
-description: CML metadata annotations — names, identifiers, properties, labels, and more.
+description: CML metadata annotations — names, identifiers, properties, labels — and the standalone structure reference.
 ---
 
 import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 
 Molecule annotations attach CML metadata to a molecule using the
 `@key("value")` suffix. Multiple annotations can be chained.
+
+## The structure reference
+
+A `@smiles("...")` annotation **standing alone** is an ingest edge:
+the annotation carries a structure in, and the model is the molecule
+the runtime's own SMILES reader produces — renderable, citable, and
+identity-deriving like any other structure (grammar v0.6.0).
+
+```asciichem
+@smiles("c1cc[nH]c1")
+```
+
+Pyrrole, ingested locally: the SMILES is parsed at read time, the
+connection table lands on the model (aromatic atoms, bonds, the
+bracket hydrogen), and every formatter and the identity engine see an
+ordinary molecule.
+
+- The **attached** form (`molecule @smiles("...")`) is different and
+  unchanged: there the annotation is the identifier annotation
+  documented below — the string rides the model as identifier data,
+  the drawn atoms stay the structure.
+- The reference syntax itself is an ingest boundary: the canonical
+  text of `@smiles("CCO")` is the expanded `C-C-O` — the same posture
+  as molfile and SMILES file ingest.
+- v1 carries `smiles` only. A standalone `@molfile("...")` rejects at
+  parse time; later sources join as data.
 
 ## Names
 
