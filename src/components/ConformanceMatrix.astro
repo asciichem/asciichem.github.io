@@ -24,6 +24,7 @@ const levels: Level[] = [
   { id: "l1", label: "L1", hint: "canonical Text round-trip" },
   { id: "l2", label: "L2", hint: "byte-identical MathML against the shared goldens" },
   { id: "smiles", label: "SMILES", hint: "ingestion + deterministic emission of every structure fixture" },
+  { id: "identity", label: "InChI", hint: "derived InChI agrees with the oracle across every recorded identity fixture" },
   { id: "molfile", label: "molfile", hint: "V2000 ingestion + emission with coordinates" },
   { id: "cml", label: "CML", hint: "three-way CML round-trip" },
   { id: "linter", label: "linter", hint: "diagnostics match corpus expectations" },
@@ -34,25 +35,25 @@ const implementations: Implementation[] = [
     name: "Rust",
     href: "/implement/rust/",
     package: "asciichem-rs · authoritative",
-    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true, cml: true, linter: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, identity: true, molfile: true, cml: true, linter: true },
   },
   {
     name: "Ruby",
     href: "/implement/ruby/",
     package: "asciichem gem",
-    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true, cml: true, linter: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, identity: true, molfile: true, cml: true, linter: true },
   },
   {
     name: "TypeScript",
     href: "/implement/typescript/",
     package: "asciichem · npm",
-    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, identity: true, molfile: true },
   },
   {
     name: "Python",
     href: "/implement/python/",
     package: "asciichem-py",
-    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, molfile: true },
+    levels: { parse: true, l0: true, l1: true, l2: true, smiles: true, identity: true, molfile: true },
   },
 ];
 ---
@@ -91,9 +92,11 @@ const implementations: Implementation[] = [
     implementation's CI. <strong>Rust is the authoritative implementation</strong> — the
     reference the other runtimes converge on; the shared corpus keeps them identical.
     Every runtime parses through the same engine: parsanol over the one checksummed
-    PARG artifact of the grammar. Where a port is genuinely pending (the TypeScript
-    and Python resolver, citation, and linter layers — asciichem-ts#26,
-    asciichem-py#19), the cell stays open until its CI gate is green.
+    PARG artifact of the grammar. The InChI column is the identity gate: each runtime
+    derives InChI for the recorded fixtures and must agree with the oracle recording
+    leg (three-leg discipline — engine, gem molfile, oracle). Where a port is genuinely
+    pending (the TypeScript and Python resolver, citation, and linter layers —
+    asciichem-ts#26, asciichem-py#19), the cell stays open until its CI gate is green.
   </p>
 </section>
 
