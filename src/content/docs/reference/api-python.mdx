@@ -1,12 +1,12 @@
 ---
 title: Python API
-description: asciichem-py - parse chemistry into plain dataclasses.
+description: asciichem (Python) - parse chemistry into plain dataclasses.
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
 ```sh
-pip install asciichem-py
+pip install asciichem
 ```
 
 One runtime dependency: [`parsanol`](https://pypi.org/project/parsanol/),
@@ -87,7 +87,7 @@ len(atoms), len(edges)   # atom list + bond list for downstream tools
 ## InChI engine (optional extra)
 
 ```sh
-pip install 'asciichem-py[inchi]'   # pulls in RDKit's InChI support
+pip install 'asciichem[inchi]'      # pulls in RDKit's InChI support
 ```
 
 ```python
