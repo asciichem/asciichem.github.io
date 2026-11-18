@@ -88,7 +88,7 @@ const compact = Astro.props.compact ?? false;
       </div>
       <!-- tabindex="0": the output pane scrolls (WCAG 2.1.1); keyboard
            users must be able to reach the scrollable region. -->
-      <div class="lr-output" id="lr-output" aria-live="polite" role="region" aria-label="Rendered output" tabindex="0"></div>
+      <div class="lr-output not-content" id="lr-output" aria-live="polite" role="region" aria-label="Rendered output" tabindex="0"></div>
     </div>
   </div>
   <p class="lr-error" id="lr-error" role="alert" hidden></p>
@@ -251,9 +251,9 @@ const compact = Astro.props.compact ?? false;
   }
   .lr-output {
     min-height: 8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    /* Block + text-align (not flex): the math root must stay inline,
+     * and flex blockifies children. */
+    text-align: center;
     border: 1px dashed var(--sl-color-gray-5);
     border-radius: 0.5rem;
     padding: 0.75rem;

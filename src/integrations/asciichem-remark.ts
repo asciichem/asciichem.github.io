@@ -14,7 +14,7 @@
  *
  * Renders as:
  *
- *   <figure class="asciichem-example">
+ *   <figure class="asciichem-example not-content">
  *     <pre><code>H_2O</code></pre>
  *     <div class="asciichem-render"><math>...</math></div>
  *   </figure>
@@ -79,6 +79,14 @@ function resolveCli(): Cli | null {
 
 const CLI = resolveCli();
 
+function renderOnce(cli: Cli, source: string): string {
+  return execFileSync(
+    cli.cmd,
+    [...cli.args, "convert", "-i", source, "-t", "mathml"],
+    { encoding: "utf-8", timeout: 15_000, cwd: cli.cwd },
+  ).trim();
+}
+
 function renderMathml(source: string): string | null {
   if (cache.bySource.has(source)) {
     return cache.bySource.get(source)!;
@@ -87,30 +95,55 @@ function renderMathml(source: string): string | null {
     cache.bySource.set(source, "");
     return null;
   }
-  try {
-    const out = execFileSync(
-      CLI.cmd,
-      [...CLI.args, "convert", "-i", source, "-t", "mathml"],
-      { encoding: "utf-8", timeout: 15_000, cwd: CLI.cwd },
-    ).trim();
-    cache.bySource.set(source, out);
-    return out;
-  } catch (err) {
+  // One retry: each call boots Ruby, and under parallel page builds a
+  // call can transiently blow the timeout. A cached failure would
+  // punch a permanent "install the gem" hole into a deployed page.
+  let out: string | null = null;
+  let err: unknown;
+  for (let attempt = 0; attempt < 2 && out === null; attempt++) {
+    try {
+      out = renderOnce(CLI, source);
+    } catch (e) {
+      err = e;
+    }
+  }
+  if (out === null) {
     console.warn(`[asciichem] render failed for ${JSON.stringify(source)}:`, err);
     cache.bySource.set(source, "");
     return null;
   }
+  cache.bySource.set(source, out);
+  return out;
 }
 
 function buildFigure(source: string): string {
-  // Whole-block first: multi-line constructs (spectrum{...},
-  // mechanism{...}, calc{...}, z-matrices) are one expression; their
-  // body lines are not standalone formulas and must not be parsed as
-  // such. Falls back to per-line rendering (the common case: one
-  // example per line).
+  // Per-line first: a multi-line block is normally one example per
+  // line, and rendering the whole block in one shot would concatenate
+  // every formula into a single <math> run-on row (H₂H₂OH₂SO₄…). The
+  // grammar accepts several formulas as one document, so a successful
+  // whole-block parse proves nothing about intent. Only when some line
+  // is not a standalone formula do we fall back to the whole block —
+  // that's the genuinely-one-expression case (spectrum{...},
+  // mechanism{...}, calc{...}, z-matrices).
+  const lines = source.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length > 1) {
+    const mathmls = lines.map((line) => renderMathml(line.trim()));
+    if (mathmls.every((m) => Boolean(m))) {
+      const items = mathmls
+        .map((mathml, i) => buildItemFromMathml(lines[i].trim(), mathml!))
+        .join("\n  ");
+      return `<figure class="asciichem-example not-content">
+  <div class="asciichem-example-header">
+    <span class="asciichem-label">Source</span>
+    <span class="asciichem-label">Rendered</span>
+  </div>
+  ${items}
+</figure>`;
+    }
+  }
   const whole = renderMathml(source.trim());
   if (whole !== null) {
-    return `<figure class="asciichem-example">
+    return `<figure class="asciichem-example not-content">
   <div class="asciichem-example-header">
     <span class="asciichem-label">Source</span>
     <span class="asciichem-label">Rendered</span>
@@ -118,9 +151,8 @@ function buildFigure(source: string): string {
   ${buildItem(source.trim())}
 </figure>`;
   }
-  const lines = source.split(/\r?\n/).filter((l) => l.length > 0);
   const items = lines.map((line) => buildItem(line)).join("\n  ");
-  return `<figure class="asciichem-example">
+  return `<figure class="asciichem-example not-content">
   <div class="asciichem-example-header">
     <span class="asciichem-label">Source</span>
     <span class="asciichem-label">Rendered</span>
@@ -131,6 +163,10 @@ function buildFigure(source: string): string {
 
 function buildItem(source: string): string {
   const mathml = renderMathml(source);
+  return buildItemFromMathml(source, mathml);
+}
+
+function buildItemFromMathml(source: string, mathml: string | null): string {
   const render = mathml
     ? `<div class="asciichem-render">${mathml}</div>`
     : `<div class="asciichem-render asciichem-render--missing">

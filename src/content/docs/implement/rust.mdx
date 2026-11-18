@@ -1,5 +1,5 @@
 ---
-title: Rust — asciichem-rs
+title: Rust — asciichem
 description: The authoritative implementation — the full AsciiChem surface in one crate, parsing through parsanol over the checksummed PARG artifact.
 ---
 
@@ -21,9 +21,10 @@ the compiled PARG artifact of the AsciiChem grammar and runs it on
 engine.
 
 ```sh
-git clone https://github.com/asciichem/asciichem-rs   # crates.io publication pending
-cd asciichem-rs && cargo build --release              # release pipeline: release-plz + trusted publishing
-cargo test                                            # corpus-backed, see below
+cargo add asciichem                                    # crates.io: the published crate
+git clone https://github.com/asciichem/asciichem-rs    # repo `asciichem-rs`, to build from source
+cd asciichem-rs && cargo build --release               # release pipeline: release-plz + trusted publishing
+cargo test                                             # corpus-backed, see below
 ```
 
 ## What PARG means here

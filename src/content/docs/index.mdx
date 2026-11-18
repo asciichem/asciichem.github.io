@@ -20,9 +20,11 @@ the same tree, regardless of which front door you came in by.
 
 ## One model, four implementations
 
-Four independent packages — `asciichem-rs` (Rust, the authoritative
-implementation), `asciichem` (Ruby), `asciichem` (TypeScript), and
-`asciichem-py` (Python) — implement the same model and pass the same
+Four independent implementations — every one published as the package
+`asciichem` (on crates.io, RubyGems, npm, and PyPI; the repos are
+`asciichem-rs`, `asciichem-ruby`, `asciichem-ts`, and `asciichem-py`,
+with Rust the authoritative implementation) — implement the same model
+and pass the same
 [shared corpus](https://github.com/asciichem/asciichem-tests). Every
 one of them parses through the same engine: **parsanol over the single
 checksummed PARG artifact** of the grammar — there is no per-language
@@ -44,7 +46,8 @@ corpus and the one PARG artifact keep the other runtimes identical to it.
 
 <CardGrid stagger>
   <Card title="Rust (authoritative)" icon="seti:rust">
-    `asciichem-rs` — the authoritative implementation: parse, canonical
+    `cargo add asciichem` — the authoritative implementation (repo
+    `asciichem-rs`): parse, canonical
     text, wire JSON, MathML, SVG, SMILES/molfile, CML, the linter, the
     resolver, citations (via leptris), in-process InChI identity, and
     the `asciichem` CLI. See [Rust](/implement/rust/).
@@ -59,7 +62,7 @@ corpus and the one PARG artifact keep the other runtimes identical to it.
     page's live renderer. See [TypeScript](/implement/typescript/).
   </Card>
   <Card title="Python" icon="seti:python">
-    `pip install asciichem-py` — plain dataclasses for data and science
+    `pip install asciichem` — plain dataclasses for data and science
     workflows. See [Python](/implement/python/).
   </Card>
 </CardGrid>
