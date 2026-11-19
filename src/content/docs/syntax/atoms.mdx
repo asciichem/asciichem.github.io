@@ -151,6 +151,36 @@ In AsciiMath, the same input would force a phantom carrier:
 — an empty base followed by a sibling atom. The semantic binding
 (isotope 14 belongs to Carbon) is lost.
 
+## The atomic-number prefix
+
+mhchem's left-subscript isotope component — `^{227}_{90}Th` — rides
+the combined form:
+
+```asciichem
+^227_90Th
+```
+
+The parse produces one `Atom` with `isotope: "227"` AND
+`atomic_number: "90"`. The MathML output stacks them as the
+prescript pair — the atomic number under the mass number:
+
+```xml
+<mmultiscripts>
+  <mi>Th</mi><none/><none/><mprescripts/>
+  <mn>90</mn><mn>227</mn>
+</mmultiscripts>
+```
+
+The atomic number only arrives attached to a `^`-mass prefix —
+non-breaking by construction: the standalone `_14C` keeps its legacy
+isotope reading (the canonical text spells the caret form), and after
+the element the `_digits` suffix stays a subscript (`^14C_6` is six
+carbons-14). The linter cross-checks the pair against the element's
+real atomic number — `^14_7C` is an error ("stated atomic number 7
+does not match C's atomic number 6"), while `^14_6C` and plain
+`^14C` stay silent. The wire carries `atomicNumber` (model v0.8.0)
+and CML the `aci:atomicNumber` attribute.
+
 ## Stoichiometric coefficients
 
 Leading digits on a molecule are the coefficient, distinct from the
