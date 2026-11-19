@@ -50,6 +50,34 @@ Leading digits on a molecule are its coefficient:
 The `Molecule#coefficient` field holds the string. The MathML renderer
 emits it as an `<mn>` before the atoms.
 
+## State marks
+
+A whitespace-separated lowercase `v` or `^` after a molecule marks its
+phase state — mhchem's precipitate and gas glyphs:
+
+```asciichem
+AgCl v
+AgCl ^
+Ag^+ + Cl^- -> AgCl v
+```
+
+`AgCl v` carries `state: :precipitate` (typeset as the down arrow ↓,
+the solid falling out); `AgCl ^` carries `state: :gas` (↑). The
+canonical text preserves the authored glyph — the round-trip
+contract — while the renderers typeset: MathML emits the arrow, HTML
+the entity, LaTeX `\downarrow` / `\uparrow` (mhchem's own output
+form), linear SVG the unicode arrow. CML carries the state through
+the `aci:state` attribute, and the model JSON wire round-trips it
+losslessly.
+
+The mark is whitespace-separated and lowercase-only by construction:
+an uppercase `V` stays a vanadium atom, and the tight `^` forms keep
+their existing binding — `AgCl^14C` is the isotope prefix, `Ca^2+`
+the charge superscript. A tight `^2+` after whitespace (`Ca ^2+`)
+rejects at parse. `(aq)` / `(s)` / `(l)` / `(g)` phase labels keep
+rendering through the quoted-text and group syntax; the state mark
+models the two glyphs mhchem typesets.
+
 ## Groups
 
 Parenthesised sub-formulas are groups. A group can carry an outer
