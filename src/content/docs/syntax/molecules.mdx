@@ -78,6 +78,33 @@ rejects at parse. `(aq)` / `(s)` / `(l)` / `(g)` phase labels keep
 rendering through the quoted-text and group syntax; the state mark
 models the two glyphs mhchem typesets.
 
+## Adducts — the middle dot
+
+The mhchem middle-dot connective joins molecules at the formula
+level — `CuSO4 . 5H2O` hydrates:
+
+```asciichem
+CuSO4 . 5H2O
+NaCl . KCl . CaCl2
+CuSO4 · 5H2O
+```
+
+The parse produces one n-ary `Adduct` node whose components are the
+dot-separated molecules (each component's coefficient carries its
+multiplicity). The ASCII spelling is the period with whitespace on
+both sides; the literal middle dot (`·`) is accepted as the mhchem
+alias. The canonical text emits the ASCII ` . ` form while the
+renderers typeset: MathML the `·` glyph, HTML `&middot;`, LaTeX
+`\cdot` (mhchem's own connective), linear SVG the unicode dot. The
+wire carries the `adduct` node (model v0.9.0) and CML the
+`<aci:adduct>` text channel.
+
+**Disambiguation by construction:** the UNspaced period stays
+radical-suffix territory — `Cl.` is a chlorine with one radical
+electron and `Cl.Fe` reads as a radical-bearing molecule plus its
+continuation. Only the whitespace-separated period is the connective,
+so `Cl.`, `Cl.Fe`, and `CuSO4 . 5H2O` coexist without rules.
+
 ## Groups
 
 Parenthesised sub-formulas are groups. A group can carry an outer
