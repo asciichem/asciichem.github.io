@@ -32,8 +32,11 @@ jobs:
           else
             echo "Comparing against $COUNT committed baselines."
             set -o pipefail
-            npx playwright test 2>&1 | tee visual.log
-            STATUS=$?
+            # The runner is bash -e: capture the pipeline's failure
+            # instead of aborting at this line (STATUS drives the
+            # missing-baseline bootstrap below).
+            STATUS=0
+            npx playwright test 2>&1 | tee visual.log || STATUS=$?
             # A newly added page test has no committed linux baseline
             # yet: generate ONLY the missing ones (a real regression
             # still fails the re-run) and verify against the full set.
