@@ -3,18 +3,42 @@ title: Depiction backends
 description: Structural SVG delegates atom placement to a swappable backend — depictions are views over the model.
 ---
 
+import LiveRenderer from "../../../components/LiveRenderer.astro";
+
 Structural SVG has two independent halves: **where atoms sit** and
 **how they are drawn**. AsciiChem owns the drawing (bonds, labels,
 stereo marks) and delegates placement to a *depiction backend*, so a
 stronger layout engine can be plugged in behind the model without
 touching the renderer.
 
-```ruby
-AsciiChem::Layout.backend = MyBackend.new
-formula.to_structural_svg   # drawn from MyBackend's positions
-```
+<LiveRenderer initial="C1-C-C-C2-C-C-C2-C-C1" />
 
-## The backend contract
+The renderer above places the fused ring system live: perceived rings
+draw as regular polygons, fused rings fit rigidly onto their shared
+atoms (placed atoms never move), and chains grow as standard-angle
+zigzags — the chemistry-shaped placement every runtime ships.
+
+## Placement across the runtimes
+
+All four implementations read the same model; placement is a view,
+so each runtime's renderer speaks the same three-tier posture:
+
+1. **Authored coordinates first.** When every atom carries `x2`/`y2`
+   (a CML round-trip or a molfile ingest preserves them), the layout
+   uses them verbatim — the molecule's own geometry wins, no placer
+   runs. Partial authoring is ignored (the placer takes over).
+2. **The depiction placer.** Rings as regular polygons (fused rings
+   anchored on their shared atoms, spiro centres oriented away from
+   the placed region), chains as ±60° alternating zigzags grown
+   breadth-first, deterministic collision-avoiding substituent
+   placement. TypeScript and Python use it as their built-in
+   placement; the Ruby gem exposes it opt-in:
+   `AsciiChem::Layout.layout(molecule, algorithm: 'depiction')`.
+3. **The layered layout** (Ruby's default). The elkrb Sugiyama
+   layering stays the reference implementation's default — the
+   determinism the visual-regression goldens depend on.
+
+## The backend contract (Ruby)
 
 A backend responds to `layout(molecule, algorithm:)` and returns a
 `Layout::Result`:
@@ -37,19 +61,12 @@ Positions are plain numbers in the drawing's coordinate space; the
 renderer scales to the SVG viewport. Atom `id`s must match the ids the
 walker assigns, exactly as the built-in pipeline does.
 
-## The built-in backend
-
-`AsciiChem::Layout::BuiltinBackend` is the default: authored
-coordinates when the model has them (CML `x2`/`y2`), otherwise an
-elkrb layered layout that is deterministic across runs — the property
-visual regression goldens depend on.
-
 ## When to plug in another
 
 - A heavier depiction engine (RDKit, CDK, or a Rust layout core)
   produces better coordinates for crowded structures.
 - A domain-specific arrangement (crystal packing, polymer repeat
-  units) needs placement rules elkrb does not know.
+  units) needs placement rules the built-in placer does not know.
 
 Assigning `Layout.backend` is process-global; tests and servers that
 swap it should restore the default (`Layout.backend = nil`).

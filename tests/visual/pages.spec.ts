@@ -51,3 +51,13 @@ for (const lang of ["ruby", "typescript", "python"]) {
     await expect(here).toHaveScreenshot(`implement-${lang}.png`);
   });
 }
+
+test("depiction guide renders the placer demo", async ({ page }) => {
+  await page.goto("/guides/depiction-backends/");
+  const renderer = page.locator(".live-renderer").first();
+  await expect(renderer).toBeVisible();
+  // The structural diagram filled in: the fused-ring system placed by
+  // the depiction placer (ring polygons, rigid fusion).
+  await expect(renderer.locator("#lr-output svg").first()).toBeVisible();
+  await expect(renderer).toHaveScreenshot("depiction-guide.png");
+});

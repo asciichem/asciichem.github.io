@@ -31,7 +31,19 @@ jobs:
             npx playwright test --update-snapshots
           else
             echo "Comparing against $COUNT committed baselines."
-            npx playwright test
+            set -o pipefail
+            npx playwright test 2>&1 | tee visual.log
+            STATUS=$?
+            # A newly added page test has no committed linux baseline
+            # yet: generate ONLY the missing ones (a real regression
+            # still fails the re-run) and verify against the full set.
+            if [ "$STATUS" -ne 0 ] && grep -qiE "snapshot doesn.t exist|screenshot doesn.t exist" visual.log; then
+              echo 'Missing baselines detected - generating (missing only).'
+              npx playwright test --update-snapshots=missing
+              npx playwright test
+            else
+              exit "$STATUS"
+            fi
           fi
       - name: Upload baselines (commit these after generation runs)
         uses: actions/upload-artifact@v4
