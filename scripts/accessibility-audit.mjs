@@ -16,6 +16,7 @@ const PAGES = [
   "/guides/getting-started/",
   "/guides/why-asciichem/",
   "/guides/structures-and-resolution/",
+  "/guides/depiction-backends/",
   "/guides/citing-substances/",
   "/guides/metanorma/",
   "/playground/",
