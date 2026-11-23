@@ -9,12 +9,14 @@ bracketed groups immediately after the arrow.
 
 ## Arrow types
 
-| Arrow | Kind           | Use                                  |
-| ----- | -------------- | ------------------------------------ |
-| `->`  | `:forward`     | Net forward reaction                 |
-| `<-`  | `:reverse`     | Net reverse reaction                 |
-| `<=>` | `:equilibrium` | Equilibrium (Haber, acid/base)       |
-| `<->` | `:resonance`   | Resonance structures                 |
+| Arrow   | Kind              | Use                                    |
+| ------- | ----------------- | -------------------------------------- |
+| `->`    | `:forward`        | Net forward reaction                   |
+| `<-`    | `:reverse`        | Net reverse reaction                   |
+| `<=>`   | `:equilibrium`    | Equilibrium (Haber, acid/base)         |
+| `<=>+`  | `:donation`       | Equilibrium carrying an electron-pair donation (mhchem's form) |
+| `<=>-`  | `:removal`        | Equilibrium carrying an electron-pair removal  |
+| `<->`   | `:resonance`      | Resonance structures                   |
 
 ## Basic reactions
 
@@ -26,6 +28,20 @@ CH_4 + 2O_2 -> CO_2 + 2H_2O
 
 Reactants and products are each a `+`-separated list of molecules. The
 `+` operators are stripped from the model; the renderer reinserts them.
+
+## Donation arrows
+
+The equilibrium arrow carries an electron-pair marker the way mhchem
+spells it — `<=>+` donates a pair onto the equilibrium, `<=>-` removes
+one; conditions still attach after the marker:
+
+```asciichem
+A <=>+ B
+A <=>-[hv] B
+```
+
+The MathML renderer emits the marker beside the equilibrium glyph
+(`⇌⁺` / `⇌⁻`); the canonical text round-trips verbatim.
 
 ## Equilibrium with conditions
 
