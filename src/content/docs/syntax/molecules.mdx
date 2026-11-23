@@ -70,6 +70,32 @@ form), linear SVG the unicode arrow. CML carries the state through
 the `aci:state` attribute, and the model JSON wire round-trips it
 losslessly.
 
+## Phases
+
+A tight parenthesised phase after a molecule — mhchem's spellings,
+grammar v0.11.0:
+
+```asciichem
+NaCl(aq)
+H_2O(l)
+Fe(s)
+CO_2(g)
+AgCl(s) v
+```
+
+The phase precedes the state mark (the phase is part of the formula;
+the mark is the annotation tail). Phases are lowercase-only by
+construction, so the group reading — element symbols are capitalised —
+can never collide: `Fe(s)` is solid iron while `Fe(S)` stays a sulfur
+group, and `(l)`, `(g)`, `(aq)` have no element readings at all. A
+spaced phase (`AgCl (aq)`) rejects — the mark vocabulary owns the
+spaced tail.
+
+The canonical text round-trips the authored spelling verbatim; MathML
+typesets the phase as upright text, and CML carries it through the
+`aci:phase` attribute (mirroring `aci:state`). The model JSON wire
+round-trips it losslessly.
+
 The mark is whitespace-separated and lowercase-only by construction:
 an uppercase `V` stays a vanadium atom, and the tight `^` forms keep
 their existing binding — `AgCl^14C` is the isotope prefix, `Ca^2+`
