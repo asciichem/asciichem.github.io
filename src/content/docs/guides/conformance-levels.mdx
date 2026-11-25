@@ -94,7 +94,7 @@ corpus manifest (`suite.yaml`):
 |---|---|---|
 | L0 notation | `parse/reject` (parses or rejects exactly as marked); `L1` (canonical Text round-trip) | parser-acceptance, fuzz-corpus |
 | L1 semantics | model equality against the canonical wire form; `L0` (emission validates against the v1 schemas); `CML` (three-way round-trip) | parser-acceptance `model` fields, perception, cml-roundtrip |
-| L2 render | `L2` (byte-identical MathML goldens); text goldens; cross-implementation SVG snapshots | mathml |
+| L2 render | `L2` (byte-identical MathML goldens); text goldens; html + latex golden families (v0.24.0: one reference rendering per canonical construct); cross-implementation SVG snapshots | mathml, html, latex |
 | L3 stereo | stereo cases inside the parse, round-trip, and structure gates — including the declines | parser-acceptance (stereo), smiles (chirality, E/Z direction, enantiomer pairs), molfile |
 | L4 identity | `identifiers` (format-level validation only — assignment checking is resolution, not conformance); `linter` (diagnostics match expectations) | identifiers, linter-expectations, inchi-tests (oracle corpus, separate repo) |
 
@@ -108,8 +108,17 @@ numbers.
 ## Current claims
 
 Claims are pinned to what each implementation's CI actually runs —
-every implementation pins the corpus at a tag (currently **v0.11.0**)
+every implementation pins the corpus at a tag (currently **v0.24.0**)
 and bumps the pin deliberately, one line per corpus release.
+
+One render caveat, expressed by the corpus itself: goldens whose
+output embeds the reference's math engine (Plurimath) — the
+embedded-math rows — carry the schema'd `referenceRender` marker.
+Implementations without an embedded math engine skip exactly those
+rows (embedded math renders as the source inside a `<math>`/
+`$…$` wrapper, documented in each implementation); the skip is the
+corpus's documented degradation, never a silent drop, and the
+reference gates every row.
 
 | Level | Rust (authoritative) | Ruby | TypeScript | Python |
 |---|---|---|---|---|
