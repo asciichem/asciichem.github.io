@@ -316,6 +316,27 @@ const compact = Astro.props.compact ?? false;
 <script>
   import { parse, parseSmiles, parseMolfile, renderMathml, Formula, Molecule } from "asciichem";
 
+  // Embedded math (`` `K_c = 1` ``) renders through the plurimath
+  // family — the same package the ts runtime consumes (byte-identical
+  // with the reference). The extra lazy-loads on first MathML render
+  // so the main playground chunk stays lean; browsers resolve the
+  // bundler's chunk and hand the module to the runtime (the node-only
+  // specifier resolution cannot run here). Without the engine (or
+  // while it loads) embedded math degrades to the source text — the
+  // math-less posture.
+  let browserReady: Promise<void> | null = null;
+  // The wasm parse engine needs one explicit browser init (the node
+  // build compiles lazily); the plurimath chunk registers after it.
+  function browserReadyOnce(): Promise<void> {
+    browserReady ??= (async () => {
+      const { initBrowserEngine } = await import("asciichem");
+      // The artifact rides the site as a static asset; parsanol
+      // fetches it and verifies its checksum over HTTP.
+      await initBrowserEngine({ artifactUrl: "/parg/asciichem.json" });
+    })();
+    return browserReady;
+  }
+
   const editor = document.querySelector<HTMLElement>(".live-renderer")!;
   const input = document.getElementById("lr-src") as HTMLTextAreaElement;
   const label = document.getElementById("lr-src-label")!;
@@ -408,7 +429,18 @@ const compact = Astro.props.compact ?? false;
     shareTimer = window.setTimeout(writeShare, 150);
   }
 
+  let wasmReady = false;
   function render(): void {
+    if (!wasmReady) {
+      // The wasm parse engine needs one explicit browser init; render
+      // lands once it resolves (a one-shot gate — this branch never
+      // re-enters after the flag flips).
+      void browserReadyOnce().then(() => {
+        wasmReady = true;
+        render();
+      });
+      return;
+    }
     errorBox.hidden = true;
     output.replaceChildren();
     try {
