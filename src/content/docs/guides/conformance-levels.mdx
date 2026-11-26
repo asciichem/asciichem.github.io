@@ -108,7 +108,7 @@ numbers.
 ## Current claims
 
 Claims are pinned to what each implementation's CI actually runs —
-every implementation pins the corpus at a tag (currently **v0.24.0**)
+every implementation pins the corpus at a tag (currently **v0.28.0**)
 and bumps the pin deliberately, one line per corpus release.
 
 One render caveat, expressed by the corpus itself: goldens whose
@@ -118,7 +118,13 @@ Implementations without an embedded math engine skip exactly those
 rows (embedded math renders as the source inside a `<math>`/
 `$…$` wrapper, documented in each implementation); the skip is the
 corpus's documented degradation, never a silent drop, and the
-reference gates every row.
+reference gates every row. **TypeScript's skip has lifted**: asciichem-ts
+1.2.17 ships the optional math extra (`npm install @plurimath/plurimath`,
+the native TypeScript Plurimath), its `plurimath-posture` CI job runs
+the referenceRender rows live against the published package, and they
+match the reference byte-for-byte on the gem's released MathML-4
+output. The Rust and Python wirings follow the same shape once their
+Plurimath-family bindings publish.
 
 | Level | Rust (authoritative) | Ruby | TypeScript | Python |
 |---|---|---|---|---|
