@@ -71,6 +71,7 @@ const compact = Astro.props.compact ?? false;
         <button type="button" data-for="asciichem" data-preset="isotope">isotope</button>
         <button type="button" data-for="asciichem" data-preset="reaction">reaction</button>
         <button type="button" data-for="asciichem" data-preset="charge">charge</button>
+        <button type="button" data-for="asciichem" data-preset="embedded-math">embedded math</button>
         <button type="button" data-for="smiles" data-preset="smiles-aspirin">aspirin</button>
         <button type="button" data-for="smiles" data-preset="smiles-caffeine">caffeine</button>
         <button type="button" data-for="smiles" data-preset="smiles-benzene">benzene (aromatic)</button>
@@ -320,6 +321,31 @@ const compact = Astro.props.compact ?? false;
   // family — the same package the ts runtime consumes (byte-identical
   // with the reference). The extra lazy-loads on first MathML render
   // so the main playground chunk stays lean; browsers resolve the
+  // bundler's chunks and hand the modules to the runtime (the
+  // node-only specifier resolution cannot run here). Without the
+  // engine (or while it loads) embedded math degrades to the source
+  // text — the math-less posture.
+  let mathReady: Promise<void> | null = null;
+  function ensureMathEngine(): Promise<void> {
+    mathReady ??= (async () => {
+      await browserReadyOnce();
+      const { initCml, registerPlurimathMathFromModule } = await import("asciichem");
+      await initCml();
+      const [compat, mathml, latex] = await Promise.all([
+        import("@plurimath/plurimath"),
+        import("@plurimath/plurimath/mathml"),
+        import("@plurimath/plurimath/latex"),
+      ]);
+      registerPlurimathMathFromModule(compat, { mathml, latex });
+      render();
+    })();
+    return mathReady;
+  }
+
+  // Embedded math (`` `K_c = 1` ``) renders through the plurimath
+  // family — the same package the ts runtime consumes (byte-identical
+  // with the reference). The extra lazy-loads on first MathML render
+  // so the main playground chunk stays lean; browsers resolve the
   // bundler's chunk and hand the module to the runtime (the node-only
   // specifier resolution cannot run here). Without the engine (or
   // while it loads) embedded math degrades to the source text — the
@@ -361,6 +387,7 @@ const compact = Astro.props.compact ?? false;
     isotope: "^14C",
     reaction: "2H_2 + O_2 ->[heat] 2H_2O",
     charge: "Ca^2+",
+    "embedded-math": "`K_c = 1`",
     "smiles-aspirin": "CC(=O)Oc1ccccc1C(=O)O",
     "smiles-caffeine": "CN1C=NC2=C1C(=O)N(C)C(=O)N2C",
     "smiles-benzene": "c1ccccc1",
@@ -459,6 +486,9 @@ const compact = Astro.props.compact ?? false;
         // MathML output, pinned by the shared corpus goldens. A
         // molfile parses to a bare Molecule; the document form wraps
         // it as a one-node Formula (what the other grammars produce).
+        // Embedded math upgrades once the plurimath chunk lands — the
+        // first render degrades, the re-render is byte-exact.
+        void ensureMathEngine();
         const node = formula instanceof Molecule ? new Formula([formula]) : formula;
         const pre = document.createElement("pre");
         pre.textContent = renderMathml(node);
