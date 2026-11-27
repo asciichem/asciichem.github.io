@@ -62,9 +62,12 @@ must derive the same values. Today that covers implicit hydrogens
 (aromatic bonds order 1.5 for H-counting, so `c1ccccc1` and
 `C1=CC=CC=C1` perceive one hydrogen per carbon; a non-integral or
 over-valent sum yields *no answer* rather than an invented one) and
-aromatic rings (six-membered, fused-system sp2 rule; five-membered
-rings are a documented limitation). The shared corpus pins both —
-including the declines.
+aromatic rings (six-membered and five-membered: the five-membered
+donation rule — furan's O and thiophene's S answer zero, pyrrole's
+nitrogen answers one, and the donation is unique, so imidazole's
+plain `n` beside its `[nH]` is pyridine-type zero; fused-schematic
+bridgeheads still decline rather than invent). The shared corpus pins
+all of it — including the declines.
 
 **L2 — Render.** The model renders deterministically: MathML
 byte-identical against the corpus goldens, canonical text, and the
