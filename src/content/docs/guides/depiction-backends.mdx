@@ -38,6 +38,37 @@ so each runtime's renderer speaks the same three-tier posture:
    layering stays the reference implementation's default — the
    determinism the visual-regression goldens depend on.
 
+## Stereo depiction: the wedge synthesis
+
+A structure that carries tetrahedral parity but no authored wedge
+bonds — every SMILES-ingested stereocentre, `@smiles("C[C@H](O)N")` —
+draws **one synthesized wedge/hash** so the enantiomers render as
+distinguishable drawings:
+
+<LiveRenderer initial={'@smiles("C[C@H](O)N")'} />
+
+The model's parity (`TH1`/`TH2`, the SMILES `@`/`@@`) is defined
+against the reference ligand order — the stated hydrogens first, then
+the neighbours in bond order — and the synthesized glyph realizes that
+hand against the drawn neighbour geometry: the wedged ligand rises out
+of the plane (a hash sinks it), the stated hydrogen sits at the
+tetrahedral completion opposite the drawn neighbours, and the
+wedge/hash choice is the one whose 3D orientation matches the parity.
+Synthesis **declines rather than guesses** — an atom whose ligand set
+is not tetrahedral, with no claimable plain single bond, or with a
+degenerate (zero-volume) drawn geometry renders exactly as without
+synthesis; authored wedge/hash bonds stay verbatim and are never
+doubled. The same fitted core drives the molfile writer's wedge
+emission, where the drawn hand and the wedge code must agree or an
+engine reading the file derives the mirror enantiomer.
+
+The acceptance is corpus-gated, not asserted: the shared corpus's
+depiction family pins the enantiomer pairs' rendered bytes (opposite
+parities must draw differently), the molfile-write family pins the
+writer's bytes, and the identity batteries derive each enantiomer's
+recorded oracle InChI from its own drawing — the drawn hand is
+proven, not eyeballed.
+
 ## The backend contract (Ruby)
 
 A backend responds to `layout(molecule, algorithm:)` and returns a
